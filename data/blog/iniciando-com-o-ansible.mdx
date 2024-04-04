@@ -6,138 +6,154 @@ draft: false
 summary: 'How to derive the OLS Estimator with matrix notation and a tour of math typesetting using markdown with the help of KaTeX.'
 ---
 
-# Introduction
+# Ansible: Uma Visão Geral
 
-Parsing and display of math equations is included in this blog template. Parsing of math is enabled by `remark-math` and `rehype-katex`.
-KaTeX and its associated font is included in `_document.js` so feel free to use it on any page.
-[^footnote]
+## Automatização de Tarefas
+O Ansible permite automatizar tarefas como configuração de sistemas, implantação de aplicativos e provisionamento de recursos de nuvem. Ele segue uma abordagem sem agentes, o que significa que não é necessário instalar um agente de software nos sistemas que você deseja gerenciar. Pode ser executado em qualquer sistema operacional que suporte Python.
 
-[^footnote]: For the full list of supported TeX functions, check out the [KaTeX documentation](https://katex.org/docs/supported.html)
+## Modelagem Declarativa
+Em vez de escrever scripts para automatizar tarefas, os usuários definem o estado desejado dos sistemas usando uma linguagem de modelagem chamada YAML. O Ansible traduz essas definições em ações reais nos sistemas.
 
-Inline math symbols can be included by enclosing the term between the `$` symbol.
+## Playbooks
+Os playbooks são arquivos YAML que descrevem as tarefas a serem executadas pelo Ansible. Eles definem o fluxo de trabalho e as configurações desejadas. Com os playbooks, você pode automatizar tarefas complexas e sequenciais.
 
-Math code blocks are denoted by `$$`.
+## Integração com Nuvem e Contêineres
+O Ansible tem integrações nativas com várias plataformas de nuvem, incluindo AWS, Azure, Google Cloud Platform e OpenStack. Também pode ser usado para gerenciar contêineres, como Docker e Kubernetes.
 
-If you intend to use the `$` sign instead of math, you can escape it (`\$`), or specify the HTML entity (`&dollar;`) [^2]
+## Arquitetura
+O Ansible usa um conjunto de módulos escritos principalmente em Python. Esses módulos são executados em um controlador remoto para gerenciar os sistemas. O Ansible não requer a instalação de um agente nos sistemas, pois se comunica diretamente com eles via SSH.
 
-Inline or manually enumerated footnotes are also supported. Click on the links above to see them in action.
+### Um projeto prático
 
-[^2]: \$10 and &dollar;20.
-
-# Deriving the OLS Estimator
-
-Using matrix notation, let $n$ denote the number of observations and $k$ denote the number of regressors.
-
-The vector of outcome variables $\mathbf{Y}$ is a $n \times 1$ matrix,
-
-```tex
-\mathbf{Y} = \left[\begin{array}
-  {c}
-  y_1 \\
-  . \\
-  . \\
-  . \\
-  y_n
-\end{array}\right]
+1. **Instalação do Ansible**
+Certifique-se de que o Ansible está instalado na sua máquina controladora. Caso não esteja, você pode instalá-lo via gerenciador de pacotes (por exemplo, apt, yum, brew, etc.). Se preferir utilize:
+```
+python3 -m pip install --user ansible
 ```
 
-$$
-\mathbf{Y} = \left[\begin{array}
-  {c}
-  y_1 \\
-  . \\
-  . \\
-  . \\
-  y_n
-\end{array}\right]
-$$
-
-The matrix of regressors $\mathbf{X}$ is a $n \times k$ matrix (or each row is a $k \times 1$ vector),
-
-```latex
-\mathbf{X} = \left[\begin{array}
-  {ccccc}
-  x_{11} & . & . & . & x_{1k} \\
-  . & . & . & . & .  \\
-  . & . & . & . & .  \\
-  . & . & . & . & .  \\
-  x_{n1} & . & . & . & x_{nn}
-\end{array}\right] =
-\left[\begin{array}
-  {c}
-  \mathbf{x}'_1 \\
-  . \\
-  . \\
-  . \\
-  \mathbf{x}'_n
-\end{array}\right]
+2. **Criação de Chaves SSH**
+Se você ainda não possui um par de chaves SSH, gere um usando o comando:
+```
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
 ```
 
-$$
-\mathbf{X} = \left[\begin{array}
-  {ccccc}
-  x_{11} & . & . & . & x_{1k} \\
-  . & . & . & . & .  \\
-  . & . & . & . & .  \\
-  . & . & . & . & .  \\
-  x_{n1} & . & . & . & x_{nn}
-\end{array}\right] =
-\left[\begin{array}
-  {c}
-  \mathbf{x}'_1 \\
-  . \\
-  . \\
-  . \\
-  \mathbf{x}'_n
-\end{array}\right]
-$$
+- Isso criará as chaves pública (id_rsa.pub) e privada (id_rsa) no diretório ~/.ssh/.
 
-The vector of error terms $\mathbf{U}$ is also a $n \times 1$ matrix.
+3. **Envio da Chave Pública para o Host de Destino**:
 
-At times it might be easier to use vector notation. For consistency, I will use the bold small x to denote a vector and capital letters to denote a matrix. Single observations are denoted by the subscript.
-
-## Least Squares
-
-**Start**:  
-$$y_i = \mathbf{x}'_i \beta + u_i$$
-
-**Assumptions**:
-
-1. Linearity (given above)
-2. $E(\mathbf{U}|\mathbf{X}) = 0$ (conditional independence)
-3. rank($\mathbf{X}$) = $k$ (no multi-collinearity i.e. full rank)
-4. $Var(\mathbf{U}|\mathbf{X}) = \sigma^2 I_n$ (Homoskedascity)
-
-**Aim**:  
-Find $\beta$ that minimises the sum of squared errors:
-
-$$
-Q = \sum_{i=1}^{n}{u_i^2} = \sum_{i=1}^{n}{(y_i - \mathbf{x}'_i\beta)^2} = (Y-X\beta)'(Y-X\beta)
-$$
-
-**Solution**:  
-Hints: $Q$ is a $1 \times 1$ scalar, by symmetry $\frac{\partial b'Ab}{\partial b} = 2Ab$.
-
-Take matrix derivative w.r.t $\beta$:
-
-```tex
-\begin{aligned}
-  \min Q           & = \min_{\beta} \mathbf{Y}'\mathbf{Y} - 2\beta'\mathbf{X}'\mathbf{Y} +
-  \beta'\mathbf{X}'\mathbf{X}\beta \\
-                   & = \min_{\beta} - 2\beta'\mathbf{X}'\mathbf{Y} + \beta'\mathbf{X}'\mathbf{X}\beta \\
-  \text{[FOC]}~~~0 & =  - 2\mathbf{X}'\mathbf{Y} + 2\mathbf{X}'\mathbf{X}\hat{\beta}                  \\
-  \hat{\beta}      & = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Y}                              \\
-                   & = (\sum^{n} \mathbf{x}_i \mathbf{x}'_i)^{-1} \sum^{n} \mathbf{x}_i y_i
-\end{aligned}
+- Copie a chave pública para o host de destino (onde você deseja executar o Ansible). Você pode fazer isso manualmente ou usar o Ansible para automatizar o processo.
+- Manualmente:
+```
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@host
 ```
 
-$$
-\begin{aligned}
-  \min Q           & = \min_{\beta} \mathbf{Y}'\mathbf{Y} - 2\beta'\mathbf{X}'\mathbf{Y} +
-  \beta'\mathbf{X}'\mathbf{X}\beta \\
-                   & = \min_{\beta} - 2\beta'\mathbf{X}'\mathbf{Y} + \beta'\mathbf{X}'\mathbf{X}\beta \\
-  \text{[FOC]}~~~0 & =  - 2\mathbf{X}'\mathbf{Y} + 2\mathbf{X}'\mathbf{X}\hat{\beta}                  \\
-  \hat{\beta}      & = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Y}                              \\
-                   & = (\sum^{n} \mathbf{x}_i \mathbf{x}'_i)^{-1} \sum^{n} \mathbf{x}_i y_i
-\end{aligned}
-$$
+- Usando Ansible (em um playbook):
+```
+---
+- hosts: seu_host
+  tasks:
+    - name: Copiar chave pública para o host
+      authorized_key:
+        user: seu_usuario
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+```
+
+4. **Configuração do Inventário**
+- Crie um arquivo de inventário (por exemplo, hosts.ini) com os detalhes dos hosts que você deseja gerenciar com o Ansible.
+- Exemplo de arquivo hosts.ini:
+```
+[servidores]
+servidor1 ansible_host=192.168.1.10
+servidor2 ansible_host=192.168.1.20
+```
+
+5. **Teste a Conexão SSH**
+- Antes de tudo, verifique se o Ansible pode se conectar aos hosts. Execute o comando abaixo onde está localizado o seu arquivo de inventário:
+
+```
+ansible -i hosts.ini -m ping servidores
+```
+
+- Caso tenha sucesso você verá algo como:
+```
+192.168.0.146 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+```
+
+6. Crie Seus Playbooks:
+- Agora você pode criar seus playbooks Ansible para automatizar tarefas nos servidores.
+
+# Executando o Ansible Node Exporter
+
+Faça o clone do repositório e modifique o inventário de acordo com os servidores que deseja gerenciar. Não se esqueça de seguir os passos anteriores para ter acesso aos servidores.
+```
+https://github.com/Tech-Preta/ansible-node-exporter.git
+```
+
+Para executar o playbook instalar_node_exporter.yml, você pode usar o comando `ansible-playbook`. Certifique-se de estar no diretório onde o playbook está localizado. Aqui está o comando que você pode usar:
+```
+ansible-playbook instalar_node_exporter.yml --ask-become-pass
+```
+
+Se o seu playbook estiver em um diretório específico, você precisará fornecer o caminho completo para o playbook:
+```
+ansible-playbook /caminho/para/o/playbook/instalar_node_exporter.yml
+```
+
+Em caso de sucesso, a saída será semelhante a:
+
+```
+PLAY [seus_servidores] *******************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************
+ok: [192.168.0.146]
+
+PLAY [Configurar tipos de chave de host permitidos] **************************************************************************
+
+TASK [Adicionar tipos de chave de host ao cliente SSH] ***********************************************************************
+ok: [192.168.0.146] => (item=HostKeyAlgorithms ssh-ed25519,ecdsa-sha2-nistp256,ssh-rsa,rsa-sha2-512,rsa-sha2-256)
+
+PLAY [seus_servidores] *******************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************
+ok: [192.168.0.146]
+
+TASK [node_exporter : Baixar o Node Exporter] ********************************************************************************
+changed: [192.168.0.146]
+
+TASK [node_exporter : Criar diretório para o Node Exporter] ******************************************************************
+ok: [192.168.0.146]
+
+TASK [node_exporter : Extrair o Node Exporter] *******************************************************************************
+changed: [192.168.0.146]
+
+TASK [node_exporter : Mover o Node Exporter para /usr/local/bin] *************************************************************
+changed: [192.168.0.146]
+
+TASK [node_exporter : Criar usuário para o Node Exporter] ********************************************************************
+ok: [192.168.0.146]
+
+TASK [node_exporter : Copiar o serviço systemd do Node Exporter] *************************************************************
+changed: [192.168.0.146]
+
+TASK [node_exporter : Definir permissões nos arquivos temporários do Ansible] ************************************************
+changed: [192.168.0.146 -> localhost]
+
+TASK [node_exporter : Habilitar e iniciar o serviço do Node Exporter] ********************************************************
+ok: [192.168.0.146]
+
+PLAY RECAP *******************************************************************************************************************
+192.168.0.146              : ok=11   changed=5    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```
+
+Certifique-se de ter um arquivo de inventário configurado corretamente e definido os hosts alvo no playbook ou passá-los como argumentos na linha de comando, conforme necessário. Isso garantirá que o Ansible execute as tarefas definidas no playbook nos hosts especificados.
+
+
+## Referências
+- [O que é Ansible - 4Linux](https://4linux.com.br/o-que-e-ansible/)
+- [O que é o Ansible - CursoDevOps](https://cursodevops.com.br/o-que-e-o-ansible/)
+- [Blog do Ansible - InterOp](https://www.interop.com.br/blog/ansible/)
+
+Este texto foi construído com a ajuda das IAs Copilot e ChatGPT.
