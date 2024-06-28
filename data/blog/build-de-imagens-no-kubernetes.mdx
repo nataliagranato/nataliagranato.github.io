@@ -1,0 +1,311 @@
+---
+title: Build de Imagens no Kubernetes com Gitlab Runner e Kaniko
+date: '2024-06-28'
+tags: ['gitlab','kanino','kubernetes']
+draft: false
+summary: Veremos como configurar e utilizar o Gitlab Runner em um cluster Kubernetes para construir imagens de container usando o Kaniko.
+---
+
+## O que é o Gitlab Runner?
+
+O Gitlab Runner é uma aplicação de código aberto que executa os jobs definidos em seus pipelines do Gitlab CI/CD. Ele pode ser instalado em diferentes plataformas, incluindo máquinas virtuais, servidores bare-metal e Kubernetes.
+
+## Registro do Runner em seus projetos
+
+Após o deploy do Gitlab Runner no Kubernetes, você precisa registrar o runner em seus projetos para que ele possa executar os jobs.
+
+1. Acesse a seção `Settings > CI/CD` do seu projeto no Gitlab.
+2. Expanda a seção `Runners`.
+3. Clique em `Register a runner`.
+4. Copie o token de registro exibido.
+5. Execute o seguinte comando no seu cluster Kubernetes, substituindo `YOUR_REGISTRATION_TOKEN` pelo token copiado:
+    ```sh
+    kubectl exec -it gitlab-runner-gitlab-runner-XXXXX-XXXXX -- gitlab-runner register \
+      --non-interactive \
+      --url https://gitlab.example.com/ \
+      --registration-token YOUR_REGISTRATION_TOKEN \
+      --executor kubernetes
+    ```
+
+## Deploy do Gitlab Runner no Kubernetes usando Helm
+
+Para instalar o Gitlab Runner no Kubernetes usando Helm, siga estes passos:
+
+1. Adicione o repositório do Helm:
+    ```sh
+    helm repo add gitlab https://charts.gitlab.io/
+    ```
+
+2. Atualize os repositórios:
+    ```sh
+    helm repo update
+    ```
+
+3. Instale o Gitlab Runner:
+    ```sh
+    helm install gitlab-runner gitlab/gitlab-runner \
+      --set gitlabUrl=https://gitlab.example.com/ \
+      --set runnerRegistrationToken=YOUR_REGISTRATION_TOKEN
+    ```
+    Substitua `https://gitlab.example.com/` pela URL do seu Gitlab.  
+    Substitua `YOUR_REGISTRATION_TOKEN` pelo token de registro do runner, obtido na seção de CI/CD do seu projeto no Gitlab.
+
+## Pontos de atenção no values.yaml
+
+
+```
+  rules:
+    - resources:
+        - configmaps
+        - pods
+        - pods/attach
+        - secrets
+        - services
+      verbs:
+        - get
+        - list
+        - watch
+        - create
+        - patch
+        - update
+        - delete
+    - apiGroups:
+        - ''
+      resources:
+        - pods/exec
+      verbs:
+        - create
+        - patch
+        - delete
+### 
+runners:
+  cache: {}
+  config: |
+    [[runners]]
+      [runners.kubernetes]
+        image = "ubuntu:20.04"
+        wait_for_services_timeout = "-1"
+        privileged = true
+        allow_privilege_escalation = true
+        image_pull_secrets = ["aws-ecr"]
+          
+  configPath: ''
+  name: globalweb-gitlab-runner
+  privileged: true
+  runUntagged: true
+  tags: docker, share_cache, share_cache1, amd64
+secrets: []
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  privileged: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+service:
+  enabled: false
+  type: ClusterIP
+serviceAccount:
+  annotations: {}
+  imagePullSecrets: null
+  name: null
+sessionServer:
+  enabled: false
+shutdown_timeout: 0
+strategy: {}
+terminationGracePeriodSeconds: 3600
+tolerations: null
+topologySpreadConstraints: {}
+useTini: false
+volumeMounts: null
+volumes: null
+gitlabUrl: https://gitlab.com/
+global:
+  cattle:
+    systemProjectId: p-mpfgv
+runnerRegistrationToken: glrt-1234567891011121415
+```
+
+# Explicação do Arquivo de Configuração
+
+## Regras (`rules`)
+
+Esta seção define permissões para acessar recursos do Kubernetes. 
+
+- **resources**: Lista de recursos do Kubernetes que o runner pode acessar. Isso inclui `configmaps`, `pods`, `pods/attach`, `secrets`, e `services`.
+- **verbs**: Ações que podem ser realizadas nos recursos listados acima, como `get`, `list`, `watch`, `create`, `patch`, `update`, e `delete`.
+- **apiGroups**: Grupos de API do Kubernetes. Neste caso, está vazio (`''`), indicando o grupo principal.
+- **resources**: Lista de recursos específicos do grupo de API acima. Aqui, `pods/exec`.
+- **verbs**: Ações que podem ser realizadas no recurso `pods/exec`, como `create`, `patch`, e `delete`.
+
+## Runners (`runners`)
+
+Esta seção define a configuração dos runners.
+
+- **cache**: Configuração de cache, atualmente vazio (`{}`).
+- **config**: Configuração dos runners em formato TOML.
+  - **runners.kubernetes**: Configuração específica para runners Kubernetes.
+    - **image**: Imagem de container a ser utilizada (`ubuntu:20.04`).
+    - **wait_for_services_timeout**: Tempo de espera para serviços (`-1`, indicando infinito).
+    - **privileged**: Permissão privilegiada para o container (`true`).
+    - **allow_privilege_escalation**: Permissão para escalonar privilégios (`true`).
+    - **image_pull_secrets**: Segredos utilizados para puxar imagens do container (`aws-ecr`).
+
+- **configPath**: Caminho de configuração, atualmente vazio (`''`).
+- **name**: Nome do runner (`globalweb-gitlab-runner`).
+- **privileged**: Indicação de execução privilegiada (`true`).
+- **runUntagged**: Indicação se deve executar tarefas não etiquetadas (`true`).
+- **tags**: Tags associadas ao runner (`docker, share_cache, share_cache1, amd64`).
+
+## Secrets (`secrets`)
+
+Lista de segredos, atualmente vazia (`[]`).
+
+## SecurityContext (`securityContext`)
+
+Configurações de segurança para os containers.
+
+- **allowPrivilegeEscalation**: Permissão para escalonar privilégios (`false`).
+- **capabilities**: Capacidades do container.
+  - **drop**: Capacidades a serem removidas (`ALL`).
+- **privileged**: Indicação se o container é privilegiado (`false`).
+- **readOnlyRootFilesystem**: Indicação se o sistema de arquivos raiz é somente leitura (`false`).
+- **runAsNonRoot**: Indicação se o container deve ser executado como um usuário não root (`true`).
+
+## Service (`service`)
+
+Configurações do serviço.
+
+- **enabled**: Indicação se o serviço está habilitado (`false`).
+- **type**: Tipo de serviço (`ClusterIP`).
+
+## ServiceAccount (`serviceAccount`)
+
+Configurações da conta de serviço.
+
+- **annotations**: Anotações, atualmente vazias (`{}`).
+- **imagePullSecrets**: Segredos para puxar imagens, atualmente `null`.
+- **name**: Nome da conta de serviço, atualmente `null`.
+
+## SessionServer (`sessionServer`)
+
+Configurações do servidor de sessão.
+
+- **enabled**: Indicação se o servidor de sessão está habilitado (`false`).
+
+## Shutdown Timeout (`shutdown_timeout`)
+
+Tempo de espera para o desligamento (`0`).
+
+## Strategy (`strategy`)
+
+Estratégia de implantação, atualmente vazia (`{}`).
+
+## Termination Grace Period Seconds (`terminationGracePeriodSeconds`)
+
+Período de tempo de espera antes de forçar a terminação (`3600` segundos).
+
+## Tolerations (`tolerations`)
+
+Tolerâncias para nós, atualmente `null`.
+
+## Topology Spread Constraints (`topologySpreadConstraints`)
+
+Restrições de dispersão topológica, atualmente vazias (`{}`).
+
+## UseTini (`useTini`)
+
+Indicação se deve usar tini como init, atualmente `false`.
+
+## VolumeMounts (`volumeMounts`)
+
+Montagens de volume, atualmente `null`.
+
+## Volumes (`volumes`)
+
+Volumes, atualmente `null`.
+
+## GitLab URL (`gitlabUrl`)
+
+URL do GitLab (`https://gitlab.com/`).
+
+
+## Runner Registration Token (`runnerRegistrationToken`)
+
+Token de registro do runner (`glrt-1234567891011121415`).
+
+Essas configurações combinadas permitem que um GitLab Runner seja executado em um cluster Kubernetes com permissões e configurações específicas para realizar tarefas de CI/CD.
+
+
+## Utilizando o novo runner em pipelines do Gitlab CI
+
+Para utilizar o novo runner em seus pipelines do Gitlab CI, adicione a tag `kubernetes` ao job que você deseja executar no Kubernetes. Por exemplo:
+
+```yaml
+build_image:
+  stage: build
+  image: alpine:latest
+  tags:
+    - kubernetes
+  script:
+    - echo "Building image..."
+```
+
+## Kubernetes não utiliza Docker como container runtime e agora? O Kaniko pode resolver esse problema
+
+O Kubernetes não utiliza o Docker como container runtime por padrão. Isso pode ser um problema para pipelines de CI/CD que dependem do Docker para construir imagens. O Kaniko é uma ferramenta que permite construir imagens de container sem precisar do Docker.
+
+## O que é o Kaniko e como ele funciona?
+
+O Kaniko é uma ferramenta de código aberto que constrói imagens de container a partir de um Dockerfile dentro de um container ou cluster Kubernetes. Ele funciona extraindo o filesystem do container base, executando os comandos do Dockerfile e empacotando o resultado em uma imagem de container.
+
+
+## Configurando variáveis de ambiente no Gitlab CI
+
+Para que o Kaniko funcione corretamente, você precisa configurar algumas variáveis de ambiente no Gitlab CI. Essas variáveis incluem credenciais para acessar seu registro de container e informações sobre o projeto.
+
+### Passos para configurar variáveis de ambiente para a sua pipeline
+
+1. Acesse a seção `Settings > CI/CD` do seu projeto no Gitlab.
+2. Expanda a seção `Variables`.
+3. Adicione as seguintes variáveis, sem a flag de proteção:
+   - `AWS_REGION`: Define a região da Amazon Web Services (AWS) onde os recursos serão criados e gerenciados.
+   - `AWS_ACCESS_KEY_ID`: É a chave de acesso pública da AWS que, junto com o AWS_SECRET_ACCESS_KEY, é usada para autenticar e autorizar chamadas para os serviços da AWS.
+   - `AWS_SECRET_ACCESS_KEY`: É a chave de acesso secreta da AWS, usada em conjunto com o AWS_ACCESS_KEY_ID para autenticar e autorizar chamadas para os serviços da AWS.
+   - `REGISTRY`: Refere-se ao registro de contêineres onde as imagens Docker são armazenadas e gerenciadas.
+
+## Exemplo `.gitlab-ci.yml` de build e push de imagens de containers com o Kaniko
+
+O exemplo a seguir demonstra como usar o Kaniko em um pipeline do Gitlab CI para construir e enviar uma imagem de container para um registro:
+
+```
+build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"credsStore\":\"ecr-login\",\"credHelpers\":{\"$REGISTRY/portal-colaborador-hml\":\"ecr-login\"}}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}" 
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile" 
+      --build-arg AWS_REGION=$AWS_REGION 
+      --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID 
+      --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY 
+      --destination "${REGISTRY}/portal-colaborador-hml:${CI_COMMIT_SHORT_SHA:0:5}"
+
+  tags:
+    - docker, share_cache, share_cache1, amd64
+  only:
+    - main
+    - develop
+```
+
+Essa configuração permite que o GitLab CI/CD construa e empurre uma imagem Docker usando Kaniko, autenticando-se no registro de contêineres utilizando credenciais da AWS, e apenas executando este processo nas branches main e develop.
+
+
+## Conclusão
+Utilizar o Gitlab Runner em conjunto com o Kaniko no Kubernetes permite construir e enviar imagens de container de forma eficiente e segura, sem depender do Docker como runtime. Esta configuração aproveita o poder do Kubernetes para escalar e gerenciar suas builds de CI/CD, garantindo maior flexibilidade e desempenho em seus pipelines.
