@@ -1,0 +1,182 @@
+---
+title: Provisionamento de um Rancher HA
+date: '2024-09-19'
+tags: ['kubernetes', 'rancher']
+draft: false
+summary:  Este guia fornece instruções detalhadas para a instalação do Rancher em um ambiente de alta disponibilidade (HA) em um cluster Kubernetes dedicado.
+---
+
+### Introdução ao Rancher
+
+O Rancher é uma plataforma de gerenciamento de Kubernetes que simplifica a operação de clusters Kubernetes em ambientes de produção. Ele oferece uma interface amigável e um conjunto robusto de ferramentas para facilitar a administração, monitoramento e escalabilidade de clusters Kubernetes.
+
+#### Benefícios do Rancher
+
+1. **Gerenciamento Centralizado**: Permite gerenciar múltiplos clusters Kubernetes a partir de uma única interface, seja em ambientes on-premises, na nuvem ou em ambientes híbridos.
+2. **Facilidade de Uso**: Oferece uma interface gráfica intuitiva que facilita a criação, configuração e monitoramento de clusters Kubernetes, mesmo para usuários com pouca experiência.
+3. **Segurança e Controle**: Inclui recursos avançados de segurança, como autenticação, autorização e controle de acesso baseado em funções (RBAC), garantindo que apenas usuários autorizados possam acessar e modificar os recursos do cluster.
+4. **Automação e Escalabilidade**: Suporta a automação de tarefas comuns, como atualizações de cluster e escalabilidade de aplicativos, permitindo que as equipes de DevOps se concentrem em tarefas mais estratégicas.
+5. **Integração com Ferramentas de DevOps**: Integra-se facilmente com ferramentas populares de DevOps, como Jenkins, Prometheus e Grafana, proporcionando uma experiência de desenvolvimento e operações contínuas (CI/CD) mais eficiente.
+
+Com o Rancher, as organizações podem acelerar a adoção do Kubernetes, reduzir a complexidade operacional e melhorar a eficiência das equipes de TI, garantindo que os aplicativos sejam executados de forma confiável e segura em qualquer ambiente.
+
+## Passos para Instalação
+
+### Pré-requisitos
+
+- Um cluster Kubernetes dedicado.
+- Acesso ao cluster Kubernetes via `kubectl`.
+- Helm instalado e configurado.
+
+### Passos Detalhados para Instalação
+
+### 1. Instalação do NGINX Ingress Controller
+
+O NGINX Ingress Controller é necessário para gerenciar o tráfego de entrada para os serviços no cluster Kubernetes.
+
+1. Crie o namespace para o NGINX Ingress Controller:
+
+    ```sh
+    kubectl create ns nginx-ingress
+    ```
+
+    Este comando cria um namespace chamado `nginx-ingress` no cluster Kubernetes.
+
+2. Instale o NGINX Ingress Controller usando Helm:
+
+    ```sh
+    helm install nginx-ingress oci://ghcr.io/nginxinc/charts/nginx-ingress -n nginx-ingress
+    ```
+
+    Este comando instala o NGINX Ingress Controller no namespace `nginx-ingress` usando o Helm.
+
+3. Verifique os serviços criados e obtenha o IP do LoadBalancer:
+
+    ```sh
+    kubectl get svc -n nginx-ingress
+    ```
+
+    Este comando lista todos os serviços no namespace `nginx-ingress`, incluindo o IP do LoadBalancer. Anote este IP, pois ele será necessário para configurar o apontamento do DNS.
+
+### 2. Instalação do Cert-manager
+
+O Cert-manager é necessário para gerenciar certificados SSL/TLS automaticamente.
+
+1. Aplique as CustomResourceDefinitions (CRDs) necessárias:
+
+    ```sh
+    kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.9/deploy/manifests/00-crds.yaml
+    ```
+
+    Este comando aplica as definições de recursos personalizados necessárias para o Cert-manager.
+
+2. Crie o namespace para o Cert-manager:
+
+    ```sh
+    kubectl create namespace cert-manager
+    ```
+
+    Este comando cria um namespace chamado `cert-manager` no cluster Kubernetes.
+
+3. Adicione um rótulo ao namespace para desabilitar a validação:
+
+    ```sh
+    kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+    ```
+
+    Este comando adiciona um rótulo ao namespace `cert-manager` para desabilitar a validação.
+
+4. Adicione o repositório Helm do Cert-manager:
+
+    ```sh
+    helm repo add jetstack https://charts.jetstack.io --force-update
+    ```
+
+    Este comando adiciona o repositório Helm do Cert-manager.
+
+5. Instale o Cert-manager usando Helm:
+
+    ```sh
+    helm install \
+      cert-manager jetstack/cert-manager \
+      --namespace cert-manager \
+      --create-namespace \
+      --version v1.15.3 \
+      --set crds.enabled=true
+    ```
+
+    Este comando instala o Cert-manager no namespace `cert-manager` usando o Helm.
+
+### 3. Instalação do Rancher
+
+O Rancher é uma plataforma de gerenciamento de Kubernetes que facilita a operação de clusters Kubernetes em ambientes de produção.
+
+1. Adicione o repositório Helm do Rancher:
+
+    ```sh
+    helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
+    ```
+
+    Este comando adiciona o repositório Helm do Rancher.
+
+2. Instale o Rancher usando Helm:
+
+    ```sh
+    helm upgrade -i rancher rancher-stable/rancher --set hostname=rancher.nataliagranato.xyz -n cattle-system
+    ```
+
+    Este comando instala o Rancher no namespace `cattle-system` usando o Helm. O parâmetro `--set hostname=rancher.nataliagranato.xyz` define o hostname personalizado para o Rancher.
+
+### Utilização de um Domínio Personalizado
+
+Ao instalar o Rancher, é importante utilizar um domínio personalizado (por exemplo, `rancher.nataliagranato.xyz`). Este domínio será usado para acessar a interface do Rancher. **Não troque este DNS após a instalação**, pois isso pode causar problemas de acesso e funcionamento do Rancher. O domínio personalizado deve estar configurado corretamente no seu DNS para apontar para o IP do Ingress Controller obtido anteriormente.
+
+### Pós-instalação
+
+O servidor Rancher foi instalado. Note que pode levar alguns minutos para que o Rancher seja totalmente inicializado. Durante esse tempo, os certificados serão emitidos, os contêineres serão iniciados e a regra de Ingress será configurada.
+
+Confira a documentação oficial em [Rancher Docs](https://rancher.com/docs/).
+
+Se você forneceu sua própria senha de bootstrap durante a instalação, acesse [https://rancher.nataliagranato.xyz](https://rancher.nataliagranato.xyz) para começar.
+
+Se esta é a primeira vez que você instalou o Rancher, execute o seguinte comando e clique na URL gerada:
+
+```sh
+echo https://rancher.nataliagranato.xyz/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
+```
+
+### RUNBOOKS
+
+### Configuração do Domínio Personalizado para o Rancher
+
+1. **Obtenha o IP do LoadBalancer**:
+
+    ```sh
+    kubectl get svc -n nginx-ingress
+    ```
+
+    Anote o IP do LoadBalancer listado no serviço `nginx-ingress`.
+
+2. **Configure o apontamento do DNS**:
+    - Acesse o painel de controle do seu provedor de DNS.
+    - Crie um registro A para o domínio `rancher.nataliagranato.xyz` apontando para o IP do LoadBalancer obtido no passo anterior.
+
+### Solução de Problemas com o Ingress
+
+Se, por algum motivo o deploy do Rancher ocorreu corretamente, mas você não está conseguindo acessar a url, é possível que o Ingress criado para acessar o Rancher, não obtive o valor do Ingress Controller, será necessário editar manualmente:
+
+1. Edite o Ingress do Rancher:
+
+    ```sh
+    kubectl edit ingress rancher -n nginx-ingress
+    ```
+
+2. Adicione a annotation do seu Ingress Controller e salve para acessar a URL.
+
+```yaml
+annotations:
+  kubernetes.io/ingress.class: "nginx"
+```
+
+
+
