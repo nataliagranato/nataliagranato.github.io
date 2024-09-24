@@ -1,0 +1,133 @@
+---
+title: Política como código com o Kyverno
+date: '2024-09-24'
+tags: ['kubernetes', 'kyverno', 'security']
+draft: false
+summary:  Kyverno é uma engine de políticas projetado para o Kubernetes.
+images: ['/static/images/kyverno.png']
+layout: PostLayout
+
+---
+
+# O que é o Kyverno?
+
+O Kyverno é uma ferramenta de política de código aberto para o Kubernetes. Ele fornece uma maneira de definir políticas de validação, mutação, geração de recursos Kubernetes, também realiza varreduras em segundo plano e varreduras de repositório de código-fonte. O Kyverno é implantado como um controlador de recursos Kubernetes e não requer um servidor de webhook de admissão.
+
+Ele permite segurança, automação, conformidade e governança usando política como código. As políticas do Kyverno podem ser gerenciadas como recursos do Kubernetes e não requerem o aprendizado de uma nova linguagem. Kyverno é projetado para funcionar bem com ferramentas que você já usa, como kubectl, kustomize e Git.
+
+## Experimentando 
+
+Vamos criar um cluster kind e instalar o Kyverno. Primeiro, crie um cluster kind:
+
+```bash
+kind create cluster --name kyverno
+```
+
+Em seguida, instale o Kyverno:
+
+```bash
+kubectl create -f https://github.com/kyverno/kyverno/releases/download/v1.11.1/install.yaml
+```
+
+Agora, vamos criar uma política de exemplo para o Kyverno. Crie um arquivo chamado `disallow-latest-tag.yaml` com o seguinte conteúdo:
+
+```yaml
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-latest-tag
+  annotations:
+    policies.kyverno.io/title: Disallow Latest Tag
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/minversion: 1.6.0
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      The ':latest' tag is mutable and can lead to unexpected errors if the
+      image changes. A best practice is to use an immutable tag that maps to
+      a specific version of an application Pod. This policy validates that the image
+      specifies a tag and that it is not called `latest`.      
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+  - name: require-image-tag
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    validate:
+      message: "An image tag is required."
+      pattern:
+        spec:
+          containers:
+          - image: "*:*"
+  - name: validate-image-tag
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    validate:
+      message: "Using a mutable image tag e.g. 'latest' is not allowed."
+      pattern:
+        spec:
+          containers:
+          - image: "!*:latest"
+```
+
+Agora, aplique a política ao cluster:
+
+```bash
+kubectl apply -f disallow-latest-tag.yaml
+```
+
+O retorno será:
+
+```bash
+clusterpolicy.kyverno.io/disallow-latest-tag created
+```
+
+A política `disallow-latest-tag` possui a configuração `validationFailureAction: Enforce`, o que significa que ela rejeitará qualquer recurso que viole a política.
+
+Agora, vamos criar um arquivo chamado `pod.yaml` com o seguinte conteúdo:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+```
+
+Agora, aplique o arquivo ao cluster para validar se a política irá rejeitar a criação do pod com a tag de imagem `latest`:
+
+```bash
+kubectl apply -f pod.yaml
+```
+
+O Kyverno deve rejeitar a criação do pod porque a política `disallow-latest-tag` não permite o uso de tags `latest`. Para verificar, execute o seguinte comando:
+
+```bash
+kubectl get pod
+```
+
+Você verá que o pod foi rejeitado. A saída será algo como:
+
+```bash
+Error from server: error when creating "pod.yml": admission webhook "validate.kyverno.svc-fail" denied the request: 
+
+resource Pod/default/nginx was blocked due to the following policies 
+
+disallow-latest-tag:
+  validate-image-tag: 'validation error: Using a mutable image tag e.g. ''latest''
+    is not allowed. rule validate-image-tag failed at path /spec/containers/0/image/'
+```
+
+O output acima mostra que o Kyverno rejeitou a criação do pod porque a política `disallow-latest-tag` não permite o uso de tags `latest`.
+
+Isso mostra como o Kyverno pode ser usado para aplicar políticas de segurança e conformidade em um cluster Kubernetes.
