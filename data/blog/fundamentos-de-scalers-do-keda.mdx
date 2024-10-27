@@ -1,0 +1,507 @@
+---
+title: part 2: Fundamentos de Scalers do KEDA
+date: '2024-10-27'
+tags: ['kubernetes', 'keda', 'scaling']
+draft: false
+summary:  KEDA é um projeto de código aberto projetado para estender o Kubernetes, capacitando os desenvolvedores a escalarem suas aplicações de forma contínua em resposta a cargas de trabalho variáveis desencadeadas por eventos.
+images: ['/static/images/keda-interoperability.png']
+layout: PostLayout
+
+---
+
+
+## O que são os scalers? 
+
+Os scalers do KEDA são objetos que ajudam suas aplicações a funcionarem sem problemas enquanto economizam recursos. Esses componentes inteligentes atuam como mecanismos de escalonamento automático orientados por eventos, reagindo a sinais externos e instruindo suas implantações a escalarem para cima ou para baixo conforme necessário.
+
+Pense neles como guardas vigilantes, constantemente monitorando o ambiente e acionando ações de escalonamento com base em regras predefinidas. Vamos verificar como eles funcionam.
+
+## O que os Scalers do KEDA Fazem?
+
+Os scalers do KEDA oferecem várias vantagens em comparação com os autoscalers tradicionais. Em vez de depender de métricas internas, o KEDA responde a eventos externos. Os scalers do KEDA oferecem uma abordagem mais responsiva e adaptável a ambientes dinâmicos.
+
+### Vantagens dos Scalers do KEDA
+
+#### Reagem a eventos externos
+Ao contrário dos autoscalers tradicionais baseados em recursos, os scalers do KEDA dependem de "eventos" externos (pense neles como sinais de diferentes fontes) para acionar ajustes. Esses eventos podem vir de várias fontes, como filas de mensagens, bancos de dados, sistemas de monitoramento ou até mesmo serviços personalizados.
+
+#### Conduzem o escalonamento dinâmico
+Com base nos dados dos eventos, os scalers do KEDA determinam a ação de escalonamento apropriada. Isso pode envolver aumentar ou diminuir o número de réplicas dentro da sua implantação, ajustar os limites de recursos dos contêineres ou até mesmo pausar implantações quando a demanda diminui.
+
+#### Oferecem estratégias de escalonamento personalizáveis
+Você tem controle total sobre como suas aplicações respondem aos eventos. Os scalers do KEDA permitem que você defina limites, regras de escalonamento e até mesmo janelas de tempo para acionar ações, garantindo respostas precisas e adaptáveis.
+
+### Exemplos de Scalers do KEDA em Ação
+
+- **Escalonamento de um servidor web com base no tráfego HTTP**: Imagine um scaler do KEDA monitorando as solicitações HTTP recebidas. Quando o tráfego aumenta, o scaler aumenta automaticamente o número de réplicas do servidor para lidar com a carga.
+- **Processamento de um backlog de jobs com KEDA e Kafka**: Um scaler conectado a uma fila Kafka pode acionar o escalonamento de uma aplicação de trabalho com base no número de mensagens pendentes, garantindo um processamento eficiente dos jobs.
+- **Ajuste de recursos do banco de dados com base na carga de consultas**: Um scaler do KEDA monitorando métricas do banco de dados pode alocar dinamicamente recursos para sua instância de banco de dados à medida que o volume de consultas aumenta, prevenindo a degradação do desempenho.
+
+## Explorando Scalers Populares do KEDA
+
+Até abril de 2024, existiam mais de 60 scalers no ecossistema KEDA, incluindo opções integradas e externas.
+
+Os seguintes scalers estão entre os mais comumente usados, graças à sua capacidade de trabalhar com plataformas e serviços amplamente adotados em vários ambientes, proporcionando opções de escalonamento flexíveis e dinâmicas para implantações Kubernetes.
+
+### Scalers Populares do KEDA
+
+| Scaler                  | Descrição                                                                 |
+|-------------------------|--------------------------------------------------------------------------|
+| **HTTP Scaler**         | Escala com base no número de conexões HTTP ativas.                       |
+| **Azure Queue Scaler**  | Escala com base no comprimento de uma fila do Azure.                     |
+| **Kafka Scaler**        | Escala com base em métricas de tópicos Kafka, como atraso ou número de mensagens em um tópico. |
+| **RabbitMQ Scaler**     | Escala com base no número de mensagens em uma fila RabbitMQ.             |
+| **AWS CloudWatch Scaler** | Escala com base em métricas do AWS CloudWatch.                          |
+| **Prometheus Scaler**   | Escala com base em uma consulta a um servidor Prometheus.                |
+| **MySQL Scaler**        | Escala com base em uma consulta a um banco de dados MySQL.               |
+| **Cron Scaler**         | Escala com base em uma programação Cron, útil para escalonamento baseado em tempo. |
+
+Cada scaler é implementado como um recurso personalizado no Kubernetes, e você o define em seus arquivos de manifesto do Kubernetes (YAML). Por exemplo, se você quiser escalar uma implantação com base no comprimento de uma fila do Azure Service Bus, você definiria um `ScaledObject` em seu arquivo YAML do Kubernetes que referencia o scaler do Azure Service Bus. Esse scaler então monitoraria a fila e ajustaria o número de pods em sua implantação com base no número de mensagens na fila.
+
+A flexibilidade do KEDA reside em sua capacidade de se integrar com uma ampla variedade de fontes de eventos e métricas, tornando-o uma ferramenta versátil para escalonamento automático no Kubernetes. Isso permite que desenvolvedores e equipes de operações garantam que as aplicações sejam escaladas precisamente de acordo com a demanda, otimizando o uso de recursos e custos.
+
+
+## Melhores Práticas do KEDA
+
+Para aproveitar ao máximo as capacidades do KEDA, é recomendável seguir um conjunto de melhores práticas. Essas recomendações ajudam a otimizar o escalonamento automático em seu ambiente de nuvem, aumentando a eficácia do KEDA.
+
+### Melhores Práticas no Uso do KEDA
+
+| Prática                          | Descrição                                                                 |
+|----------------------------------|--------------------------------------------------------------------------|
+| **Compreenda a Fonte de Eventos** | Conhecimento Profundo da Integração: Tenha um entendimento completo da fonte de eventos (por exemplo, fila de mensagens, banco de dados, etc.) que aciona o escalonamento. Esse conhecimento ajuda a configurar corretamente o KEDA para responder às métricas ou eventos certos. Seleção Apropriada de Métricas: Escolha métricas que reflitam com precisão a carga e a necessidade de escalonamento. Por exemplo, em uma fila de mensagens, o número de mensagens pode ser uma métrica mais relevante do que a idade da mensagem mais antiga. |
+| **Teste de Escalabilidade**      | Teste de Desempenho: Antes de implantar em produção, teste como sua aplicação escala sob diferentes cargas. Isso ajuda a ajustar os parâmetros de escalonamento. Simule Eventos: Use ferramentas para simular a carga da fonte de eventos para entender como o KEDA reagirá em vários cenários. |
+| **Otimize os Parâmetros de Escalamento** | Períodos de Resfriamento: Configure períodos de resfriamento apropriados para evitar ações de escalonamento muito frequentes que podem levar à instabilidade do sistema. Limites e Limiares: Defina limites e limiares razoáveis para o escalonamento para evitar o superescalonamento, que pode levar ao esgotamento de recursos, e o subescalonamento, que pode afetar o desempenho. |
+| **Gerenciamento Eficaz de Recursos** | Solicitações e Limites de Recursos: Defina solicitações e limites de recursos do Kubernetes para seus Pods para garantir que o processo de escalonamento automático respeite a disponibilidade de recursos no cluster. Configurações do HPA: Se estiver usando o KEDA com HPA, certifique-se de que as configurações do HPA estejam alinhadas com os requisitos de desempenho e disponibilidade da sua aplicação. |
+| **Considerações de Segurança**   | Acesso Seguro às Fontes de Eventos: Garanta acesso seguro às suas fontes de eventos. Use controle de acesso baseado em funções (RBAC) e gerenciamento de segredos para credenciais. Auditoria e Monitoramento: Audite e monitore regularmente o acesso às fontes de eventos e as atividades de escalonamento para possíveis problemas de segurança. |
+| **Use Métricas Personalizadas Quando Apropriado** | Use Scalers Personalizados: Pode haver situações em que os scalers predefinidos não se alinham totalmente com seus requisitos específicos. Isso pode ser devido a lógica de negócios única, fontes de eventos personalizadas ou métricas específicas que são críticas para o desempenho e escalabilidade da sua aplicação, mas não são cobertas pelas opções integradas do KEDA. |
+| **Monitoramento e Observabilidade** | Coleta de Métricas: Colete métricas para o processo de escalonamento automático e a fonte de eventos para entender o comportamento de escalonamento ao longo do tempo. Logging: Habilite logs detalhados para solução de problemas e obtenção de insights sobre o processo de escalonamento. |
+| **Mantenha os Componentes do KEDA Atualizados** | Melhorias de Desempenho: Atualize regularmente o KEDA para se beneficiar dos recursos mais recentes, correções de bugs e patches de segurança. Ao manter-se atualizado, você garante que seus mecanismos de escalonamento automático estejam otimizados para eficiência e segurança, mitigando possíveis vulnerabilidades. Compatibilidade: Manter o KEDA atualizado garante compatibilidade com outros componentes em seu ecossistema nativo da nuvem, prevenindo problemas de integração. |
+| **Use Rótulos e Anotações de Forma Inteligente** | Categorize Eficientemente: Rótulos e anotações são pares chave/valor associados a objetos do Kubernetes, servindo como ferramentas flexíveis para categorizar, filtrar e gerenciar recursos dentro do seu ambiente Kubernetes. Ao aplicar rótulos estrategicamente, você pode agrupar recursos relacionados, como Pods ou Serviços, com base em características como ambiente, versão da aplicação ou qualquer outro critério personalizado relevante para suas necessidades operacionais. Anotações complementam os rótulos fornecendo um meio de anexar metadados não identificáveis aos seus recursos. |
+| **Engajamento e Suporte da Comunidade** | Mantenha-se Conectado: A comunidade KEDA é dedicada ao avanço e uso eficaz do Kubernetes Event-Driven Autoscaling. Ao participar dessa comunidade, você pode acessar conhecimento e suporte de colegas que enfrentaram desafios semelhantes. Esse engajamento pode assumir várias formas, incluindo fóruns de discussão, chamadas comunitárias, contribuição ou revisão de documentação e participação em encontros online ou presenciais. |
+
+
+## Primeiro laboratório: configurando o ambiente
+
+Vamos configurar o ambiente de laboratório com as seguintes ferramentas:
+
+- **Docker**: Usado pelo kind para provisionar o cluster Kubernetes.
+- **kind**: Usado para criar clusters Kubernetes.
+- **kubectl**: Usado para gerenciar o cluster Kubernetes.
+- **Helm**: Usado para gerenciamento de pacotes Kubernetes.
+- **Siege**: Uma ferramenta de teste de carga.
+
+
+#### Configuração do Ambiente Linux
+
+Usaremos um host Ubuntu 22.04 e um cluster Kubernetes configurado usando kind.
+
+Para configurar o Docker, siga estas etapas:
+
+1. **Instale o Docker:**
+   ```sh
+   curl -fsSL https://get.docker.com/ | sh
+
+
+2. **Habilite o Docker para iniciar na inicialização:**
+   ```sh
+   sudo systemctl enable --now docker
+   ```
+
+3. **Verifique se o serviço Docker está em execução:**
+   ```sh
+   sudo systemctl status docker
+   ```
+
+4. **Adicione o usuário atual ao grupo Docker:**
+   ```sh
+   sudo usermod -aG docker $USER
+   ```
+
+5. **Atualize a sessão do shell (saindo e entrando novamente).**
+
+6. **Verifique a instalação do Docker:**
+   ```sh
+   docker ps
+   ```
+
+Para instalar a versão mais recente do kubectl, execute os comandos abaixo:
+
+1. **Baixe o binário:**
+   ```sh
+   curl -sSL -O "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+   ```
+
+2. **Modifique as permissões:**
+   ```sh
+   chmod +x kubectl
+   ```
+
+3. **Mova para `/usr/local/bin`:**
+   ```sh
+   sudo mv kubectl /usr/local/bin
+   ```
+
+Para instalar a versão mais recente do Helm, execute as seguintes etapas:
+
+1. **Faça a instalação do Helm:**
+   ```sh
+   curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+   chmod 700 get_helm.sh
+   ./get_helm.sh
+   ```
+
+Para instalar a versão mais recente do Siege, execute o seguinte comando:
+
+1. **Instale o binário:**
+   ```sh
+   sudo apt-get install siege
+   ```
+
+O Siege é uma ferramenta de teste de carga HTTP/FTP com múltiplas threads e utilitário de benchmarking.
+
+Para instalar o kind, execute o seguinte comando:
+
+1. **Para AMD64/x86_64:**
+   ```sh
+   [ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.24.0/kind-linux-amd64
+   ```
+
+2. **Modifique as permissões:**
+   ```sh
+   chmod +x ./kind
+   ```
+
+3. **Mova o binário do kind para `/usr/local/bin`:**
+   ```sh
+   sudo mv ./kind /usr/local/bin/kind
+   ```
+
+4. **Crie o cluster:**
+   ```sh
+   kind create cluster
+   ```
+
+   Saída esperada:
+   ```plaintext
+   Creating cluster "kind" ...
+   ✓ Ensuring node image (kindest/node:v1.27.3) 🖼
+   ✓ Preparing nodes 📦
+   ✓ Writing configuration 📜
+   ✓ Starting control-plane 🕹️
+   ✓ Installing CNI 🔌
+   ✓ Installing StorageClass 💾
+   Set kubectl context to "kind-kind"
+   You can now use your cluster with:
+   kubectl cluster-info --context kind-kind
+   ```
+
+6. **Verifique o cluster:**
+   ```sh
+   kubectl get ns
+   ```
+
+   Saída esperada:
+   ```plaintext
+   NAME                 STATUS   AGE
+   default              Active   36s
+   kube-node-lease      Active   36s
+   kube-public          Active   36s
+   kube-system          Active   36s
+   local-path-storage   Active   30s
+   ```
+
+### Configuração do Metric Server no Kubernetes
+
+Para instalar o metric server no Kubernetes, execute os comandos abaixo:
+
+1. **Adicione o repositório Helm:**
+   ```sh
+   helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+   ```
+
+2. **Instale o metric server:**
+   ```sh
+   helm upgrade --install metrics-server metrics-server/metrics-server -n kube-system --set "args[0]=--kubelet-insecure-tls"
+   ```
+
+3. Verifique a instalação:
+   ```
+   kubectl get pods -n kube-system -l=app.kubernetes.io/name=metrics-server
+   ```
+
+Agora o nosso ambiente está pronto!
+
+
+## Segundo laboratório: implementando o HPA no Kubernetes
+
+
+### Pré-requisitos
+
+Cluster Kubernetes com o metric server instalado conforme o Lab 1.
+
+### Exercício 2.1: Implantar Aplicação de Exemplo no Kubernetes
+
+Neste primeiro exercício, vamos implantar uma aplicação de exemplo no Kubernetes. Esta aplicação será usada para demonstrar as estratégias de autoscaling do HPA disponíveis no Kubernetes.
+
+1. **Crie o arquivo `webapp.yaml` com o conteúdo abaixo. Este arquivo define uma implantação Kubernetes para sua aplicação de exemplo:**
+
+    ```yaml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: webapp
+    spec:
+      replicas: 2
+      selector:
+        matchLabels:
+          app: webapp
+      template:
+        metadata:
+          labels:
+            app: webapp
+        spec:
+          containers:
+          - image: nginx
+            name: nginx
+            resources:
+              limits:
+                cpu: "10m"
+              requests:
+                cpu: "10m"
+    ```
+
+2. **Implante a aplicação:**
+
+    ```sh
+    kubectl apply -f webapp.yaml
+    ```
+
+3. **Verifique a implantação:**
+
+    ```sh
+    kubectl get deployments
+    ```
+
+    Saída esperada:
+
+    ```plaintext
+    NAME    READY   UP-TO-DATE   AVAILABLE   AGE
+    webapp  2/2     2            2           89s
+    ```
+
+4. **Configure o port forwarding para acessar a aplicação.**
+
+    Neste passo, estamos estabelecendo uma regra de port forwarding que redireciona o tráfego de rede de uma porta específica em sua máquina local para a porta correspondente no pod Kubernetes que hospeda o servidor. Ao fazer isso, você habilita o acesso direto ao servidor via `http://localhost:8080` a partir do seu computador local. Esta ação conecta o ambiente local ao pod Kubernetes isolado, permitindo que você teste e interaja com a aplicação implantada como se ela estivesse sendo executada localmente. É importante executar isso em uma nova aba do terminal para manter o port forwarding ativo durante toda a sessão de teste.
+
+    ```sh
+    kubectl port-forward deploy/webapp 8080:80
+    ```
+
+    Saída esperada:
+
+    ```plaintext
+    Forwarding from 127.0.0.1:8080 -> 80
+    Forwarding from [::1]:8080 -> 80
+    ```
+
+5. **Teste a aplicação de exemplo enviando uma solicitação HTTP:**
+
+    ```sh
+    curl http://localhost:8080/
+    ```
+
+    Saída esperada:
+
+    ```html
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Welcome to nginx!</title>
+      <style>
+        html { color-scheme: light dark; }
+      </style>
+    </head>
+    <body>
+      <h1>Welcome to nginx!</h1>
+    </body>
+    </html>
+    ```
+
+### Exercício 2.2: Configurar e Testar o HPA
+
+Neste exercício, vamos configurar o Horizontal Pod Autoscaler no Kubernetes.
+
+1. **Crie um recurso HPA.**
+
+    Este recurso irá escalar automaticamente sua implantação com base na utilização da CPU. Vamos começar criando um Horizontal Pod Autoscaler para nossa implantação Kubernetes usando o comando `kubectl autoscale`:
+
+    ```sh
+    kubectl autoscale deployment webapp --min=2 --max=5 --cpu-percent=20
+    ```
+
+    Saída esperada:
+
+    ```plaintext
+    horizontalpodautoscaler.autoscaling/webapp autoscaled
+    ```
+
+2. **Verifique se o HPA foi implantado corretamente:**
+
+    ```sh
+    kubectl get hpa
+    ```
+
+    Saída esperada:
+
+    ```plaintext
+    NAME    REFERENCE          TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+    webapp  Deployment/webapp  0%/20%    2         5         2          23s
+    ```
+
+3. **Gere carga usando o Siege.**
+
+    Neste passo, estamos usando a ferramenta Siege para gerar tráfego para nossa aplicação. À medida que o uso da CPU ultrapassa os limites definidos, o HPA responde automaticamente acionando seu mecanismo de escalonamento. O HPA aumenta o número de réplicas de pods para lidar com a carga aumentada. Este escalonamento garante que a aplicação mantenha seu desempenho e capacidade de resposta, apesar da demanda aumentada.
+
+    ```sh
+    siege -q -c 2 -t 1m http://localhost:8080
+    ```
+
+4. **Monitore o autoscaling.**
+
+    Neste passo, estamos monitorando ativamente o comportamento do Horizontal Pod Autoscaler enquanto ele responde à carga aumentada. Executando `kubectl get hpa`, você pode observar a resposta em tempo real do HPA à mudança na utilização da CPU. Este comando exibe métricas cruciais, como o uso atual da CPU, o uso alvo (definido em 20% em nossa configuração) e o número atual de réplicas.
+
+    O HPA opera monitorando continuamente métricas especificadas - neste caso, a utilização da CPU - e ajustando o número de réplicas de pods para atender à utilização alvo desejada. Quando a carga aumenta e o uso da CPU ultrapassa o limite de 20%, o HPA responde escalando o número de pods.
+
+    ```sh
+    kubectl get hpa -w
+    ```
+
+    Saída esperada:
+
+    ```plaintext
+    NAME    REFERENCE          TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+    webapp  Deployment/webapp  20%/20%   2         5         3          85s
+    ```
+
+    A saída acima mostra que o HPA escalou a implantação `webapp` para 3 réplicas. Esta ação de escalonamento é uma resposta direta ao aumento da utilização da CPU, que ultrapassou o limite definido de 20%. Os aspectos importantes a serem observados aqui são os seguintes:
+
+    - **TARGETS**: Indica a utilização atual/média da CPU (20%) em relação ao alvo definido (20%). A correspondência aqui acionou o escalonamento.
+    - **MINPODS e MAXPODS**: Representam o número mínimo (2) e máximo (5) de pods que o HPA pode escalar. Neste caso, o número de réplicas aumentou, mas ainda está dentro dos limites definidos.
+    - **REPLICAS**: Mostra a contagem atual de réplicas (3), que aumentou a partir da contagem original para lidar com a carga maior.
+
+5. **Limpeza do HPA, delete o HPA e a implantação:**
+
+    ```sh
+    kubectl delete hpa webapp
+    kubectl delete deploy webapp
+    ```
+
+## Terceiro laboratório: instalando o KEDA e Configurando o Cron Scaler
+
+### Pré-requisitos
+
+Cluster Kubernetes com o servidor de métricas instalado conforme o laboratório 1.
+
+### Exercício 3.1: Instalar o KEDA Usando o Helm Chart
+
+Neste exercício, vamos instalar o KEDA usando um Helm chart.
+
+1. **Instale o KEDA usando o Helm.** Execute os seguintes comandos para começar:
+   ```sh
+   helm repo add kedacore https://kedacore.github.io/charts
+   helm repo update
+   helm upgrade -i keda kedacore/keda --namespace keda --create-namespace
+   ```
+
+```markdown
+## Terceiro laboratório: instalando o KEDA e Configurando o Cron Scaler
+
+Este laboratório fornece experiência prática na instalação do KEDA em um ambiente Kubernetes. Faremos uso do Cron ScaledObject para dimensionar a aplicação com base em um cronograma de tempo.
+
+### Pré-requisitos
+
+Cluster Kubernetes com o servidor de métricas instalado conforme o Laboratório 1.
+
+### Exercício 3.1: Instalar o KEDA Usando o Helm Chart
+
+Neste exercício, vamos instalar o KEDA usando um Helm chart.
+
+1. **Instale o KEDA usando o Helm.** Execute os seguintes comandos para começar:
+   ```sh
+   helm repo add kedacore https://kedacore.github.io/charts
+   helm repo update
+   helm upgrade -i keda kedacore/keda --namespace keda --create-namespace
+   ```
+
+2. **Verifique se os pods do KEDA estão em execução no cluster, usando o comando abaixo:**
+   ```sh
+   kubectl get deployment -n keda
+   ```
+
+3. **Crie uma implantação usando o comando abaixo:**
+   ```sh
+   kubectl create deploy myapp --image nginx --replicas=2
+   ```
+
+4. **Verifique a implantação:**
+   ```sh
+   kubectl get deployments
+   ```
+
+5. **Crie um arquivo `cron.yaml` com o conteúdo abaixo. Este arquivo define um Kubernetes ScaledObject para sua aplicação de amostra:**
+   ```yaml
+   apiVersion: keda.sh/v1alpha1
+   kind: ScaledObject
+   metadata:
+     name: cron-scaledobject
+     namespace: default
+   spec:
+     scaleTargetRef:
+       name: myapp
+     triggers:
+     - type: cron
+       metadata:
+         timezone: Asia/Kolkata
+         start: 30 * * * *
+         end: 45 * * * *
+         desiredReplicas: "10"
+   ```
+
+6. **Crie o ScaledObject usando o comando abaixo:**
+   ```sh
+   kubectl apply -f cron.yaml
+   ```
+
+7. **Verifique o ScaledObject:**
+   ```sh
+   kubectl get scaledobject.keda.sh
+   ```
+
+8. **O ScaledObject dimensionará os pods da aplicação para o número desejado de réplicas quando o cronograma for acionado.**
+   ```sh
+   watch kubectl get all
+   ```
+
+O dimensionador Cron permite que você defina um intervalo de tempo no qual deseja dimensionar suas cargas de trabalho para cima e para baixo. Quando a janela de tempo começar, ele dimensionará do número mínimo de réplicas para o número desejado de réplicas com base em sua configuração. Neste exercício de laboratório, fizemos uso de um dimensionador Cron simples, que dimensiona as aplicações com base em um cronograma específico. Você pode explorar ainda mais os diferentes dimensionadores disponíveis.
+
+
+
+---
+
+Este artigo foi traduzido e adaptado do curso gratuito da Linux Foundation [Scaling Cloud Native Applications with KEDA](https://training.linuxfoundation.org/express-learning/scaling-cloud-native-applications-with-keda-lfel1014/).
+
+### Fontes Utilizadas:
+- [Documentação Oficial do KEDA](https://keda.sh/docs/latest/)
+- [Repositório GitHub do KEDA](https://github.com/kedacore/keda)
+- [Curso da Linux Foundation: Scaling Cloud Native Applications with KEDA](https://training.linuxfoundation.org/express-learning/scaling-cloud-native-applications-with-keda-lfel1014/)
+```
+---
+
+Este artigo foi traduzido e adaptado do curso gratuito da Linux Foundation [Scaling Cloud Native Applications with KEDA](https://training.linuxfoundation.org/express-learning/scaling-cloud-native-applications-with-keda-lfel1014/).
+
+### Fontes Utilizadas:
+- [Documentação Oficial do KEDA](https://keda.sh/docs/latest/)
+- [Repositório GitHub do KEDA](https://github.com/kedacore/keda)
+- [Curso da Linux Foundation: Scaling Cloud Native Applications with KEDA](https://training.linuxfoundation.org/express-learning/scaling-cloud-native-applications-with-keda-lfel1014/)
+```

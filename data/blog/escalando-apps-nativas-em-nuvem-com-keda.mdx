@@ -1,0 +1,307 @@
+---
+title: part 1: Escalando Aplicações Nativas em Nuvem com KEDA
+date: '2024-10-27'
+tags: ['kubernetes', 'keda', 'scaling']
+draft: false
+summary:  KEDA é um projeto de código aberto projetado para estender o Kubernetes, capacitando os desenvolvedores a escalarem suas aplicações de forma contínua em resposta a cargas de trabalho variáveis desencadeadas por eventos.
+images: ['/static/images/keda-architecture.png']
+layout: PostLayout
+
+---
+
+## O que é  o KEDA?
+
+No mundo Cloud Native estamos em constantes mudanças, a escalabilidade é uma preocupação importante. O Kubernetes, como uma plataforma de orquestração de contêineres, aborda muitos desafios, e pode exigir ferramentas adicionais para scaling eficiente e automatizado. É aqui que o Kubernetes Event-Driven Autoscaling (KEDA) surge como uma solução.
+
+KEDA é um projeto de código aberto projetado para estender o Kubernetes, capacitando os desenvolvedores a escalarem suas aplicações de forma contínua em resposta a cargas de trabalho variáveis desencadeadas por eventos. Esses eventos podem variar desde mudanças na profundidade das filas de mensagens até solicitações HTTP recebidas ou métricas definidas pelo usuário. O KEDA atua como uma ponte entre o Kubernetes e as fontes de eventos, permitindo o escalonamento automático de cargas de trabalho em contêineres.
+
+A natureza agnóstica do KEDA em relação a fornecedores capacita os desenvolvedores, independentemente da escolha do provedor de nuvem. Essa flexibilidade o torna uma opção atraente para desenvolvedores que constroem aplicações orientadas a eventos em ambientes de nuvem. Ao integrar o KEDA em suas aplicações, os desenvolvedores podem garantir a utilização ideal dos recursos, eficiência de custos e capacidade de resposta às demandas em tempo real.
+
+Antes de falar sobre o KEDA e suas funcionalidades, vamos dar um passo atrás e entender a necessidade de escalonamento automático e quais opções temos no Kubernetes para escalar nossas cargas de trabalho.
+
+
+## O que é Autoscaling?
+
+Autoscaling, em geral, refere-se à capacidade de um sistema de ajustar automaticamente seus recursos, como poder de computação, armazenamento ou largura de banda de rede, com base na carga de trabalho ou demanda atual. Esse conceito é particularmente importante na computação em nuvem e em sistemas nativos em nuvem, onde as cargas de trabalho podem variar significativamente ao longo do tempo. Autoscaling é um conceito fundamental em ciência da computação que desempenha um papel crucial na construção de sistemas flexíveis, eficientes e resilientes, capazes de se adaptar às demandas em mudança e garantir desempenho e custo-efetividade ótimos.
+
+O autoscaling no Kubernetes estende essa automação para ajustar dinamicamente o número de instâncias em execução (pods) com base no uso de recursos e outras métricas.
+
+
+## Horizontal Pod Autoscaling (HPA)
+
+É um recurso da API do Kubernetes e um controlador pertencente à versão de API `autoscaling/v2`, atualiza automaticamente um recurso de carga de trabalho, como um Deployment ou StatefulSet, com o objetivo de escalar automaticamente a carga de trabalho para corresponder à demanda.
+
+A escalabilidade horizontal envolve a implantação de mais Pods para responder ao aumento da carga. Se a carga diminuir e o número de Pods estiver acima do mínimo configurado, o `HorizontalPodAutoscaler` instrui o recurso de carga de trabalho, seja Deployment, StatefulSet ou outro recurso semelhante, a reduzir a escala.
+
+O controlador Horizontal Pod Autoscaling, executado dentro do control pĺane do Kubernetes, ajusta periodicamente a escala desejada de seu alvo (para cima ou para baixo) para corresponder às métricas observadas, como utilização média de CPU, utilização média de memória ou qualquer outra métrica personalizada que você especificar.
+
+
+## A necessidade do KEDA
+
+
+O KEDA tem uma importância significativa no ambiente moderno de aplicações nativas em nuvem, abordando a necessidade de escalonamento granular e dinâmico com base em eventos em tempo real. Diferente das soluções tradicionais de escalonamento, o KEDA vai além do Horizontal Pod Autoscaler (HPA) padrão, oferecendo uma abordagem mais versátil para atender às demandas de cargas de trabalho acionadas por eventos.
+
+O KEDA permite que as aplicações escalem com base em eventos específicos, como mudanças na profundidade da fila, em vez de depender exclusivamente de métricas como uso de CPU ou memória. Isso garante uma estratégia de escalonamento mais responsiva e eficiente, alinhada com as necessidades reais da aplicação.
+
+Ao permitir que as aplicações escalem com base em métricas personalizadas e eventos externos, o KEDA facilita a utilização ideal dos recursos. Isso é crucial para provedores de serviços em nuvem, como aqueles que operam em provedores de nuvem pública, onde a relação custo-benefício e o desempenho são preocupações primárias.
+
+O KEDA suporta uma ampla gama de fontes de eventos, desde Azure Queues até RabbitMQ e Kafka. Essa flexibilidade o torna adaptável a diversas arquiteturas e cenários de aplicação, proporcionando aos desenvolvedores a liberdade de escolher a fonte de eventos mais adequada para seu caso de uso.
+
+
+## Comparação entre KEDA e HPA
+
+Enquanto o Horizontal Pod Autoscaler (HPA) é um recurso nativo do Kubernetes que escala com base em métricas como uso de CPU e memória, ele pode ser insuficiente em cenários onde eventos impulsionam mudanças na carga de trabalho.
+
+### KEDA vs. HPA
+
+| Critério         | KEDA                                                                 | HPA                                                                 |
+|------------------|----------------------------------------------------------------------|---------------------------------------------------------------------|
+| **Trigger de Escalonamento** | Orientado por eventos, permitindo escalonamento com base em métricas personalizadas ou eventos externos. | Orientado por métricas, tipicamente escalando com base na utilização de CPU ou memória. |
+| **Versatilidade** | Altamente versátil, suportando uma ampla gama de fontes de eventos. | Limitado ao escalonamento com base em métricas diretamente associadas aos pods. |
+| **Casos de Uso**  | Ideal para aplicações com cargas de trabalho variáveis acionadas por eventos, como profundidade de filas de mensagens ou gatilhos externos. | Bem adequado para aplicações com necessidades de escalonamento previsíveis com base em métricas de recursos padrão. |
+
+A capacidade do KEDA de fornecer escalonamento orientado por eventos complementa o HPA, oferecendo aos desenvolvedores um conjunto de ferramentas poderoso para abordar um espectro mais amplo de requisitos de escalonamento no ambiente dinâmico de nuvem atual.
+
+
+## Um Exemplo
+
+Vamos considerar um cenário teórico onde um provedor de serviços em nuvem, que utiliza uma nuvem popular para sua infraestrutura, enfrenta um desafio com o processamento eficiente de mensagens de uma fila de mensagens. A aplicação responsável por processar essas mensagens experimenta cargas de trabalho variáveis com base na taxa de mensagens recebidas.
+
+
+### Cenário: Serviço de Processamento de Mensagens com Carga de Trabalho Variável
+
+O provedor de serviços em nuvem tem um componente crítico em sua arquitetura que processa mensagens de uma fila de mensagens. A carga de trabalho desse serviço de processamento varia ao longo do dia, com picos de tempo em que a taxa de mensagens recebidas aumenta significativamente. Durante esses períodos de pico, a implantação existente luta para lidar com o volume de forma eficiente, levando a um aumento na latência e ao potencial de atrasos no processamento de mensagens.
+
+Os dois desafios mais comuns são a utilização ineficiente de recursos e a latência e atrasos. A utilização ineficiente de recursos ocorre devido à configuração estática da implantação atual do serviço de processamento de mensagens, levando à subutilização durante períodos de tráfego baixo e sobrecarga durante os períodos de pico. A razão para a latência e atrasos é que a implantação fixa causa atrasos no processamento de mensagens durante os períodos de pico, impactando a capacidade de resposta geral do sistema.
+
+O KEDA oferece uma solução para escalar dinamicamente o serviço de processamento de mensagens com base na carga de trabalho real, abordando esses desafios.
+
+### Benefícios de usar o KEDA
+
+| Benefício                       | Descrição                                                                                       |
+|---------------------------------|-------------------------------------------------------------------------------------------------|
+| **Escalonamento Dinâmico com Base na Profundidade da Fila** | Integrando o KEDA, o provedor de serviços em nuvem configura o sistema para escalar dinamicamente o serviço de processamento de mensagens com base na profundidade da fila de mensagens. O KEDA permite que a implantação escale automaticamente para cima ou para baixo em resposta às mudanças no número de mensagens aguardando na fila. |
+| **Utilização Ótima de Recursos** | Quando o tráfego de mensagens é baixo, o KEDA garante que a implantação seja reduzida, economizando recursos e cortando custos ao minimizar o uso de poder computacional desnecessário. Por outro lado, durante os períodos de pico, o KEDA escala rapidamente a implantação para lidar com as cargas de mensagens aumentadas, otimizando a utilização de recursos. |
+| **Melhoria na Capacidade de Resposta** | Com o KEDA, o serviço de processamento de mensagens pode manter baixa latência mesmo durante os períodos de pico. À medida que a profundidade da fila cresce, o KEDA aciona o escalonamento da implantação, garantindo que haja instâncias suficientes do serviço de processamento para lidar com as mensagens recebidas prontamente. |
+| **Eficiência de Custos** | O escalonamento dinâmico fornecido pelo KEDA ajuda a alcançar eficiência de custos ao alinhar o consumo de recursos com a demanda real. Isso é crucial para um provedor de serviços em nuvem, pois impacta diretamente os custos operacionais. |
+
+
+## Componentes Principais do KEDA
+
+### Como o KEDA Funciona
+
+O KEDA é um componente leve e de propósito único que pode ser adicionado a qualquer cluster Kubernetes. 
+
+O KEDA pode expandir a funcionalidade sem sobrescrever ou duplicar componentes existentes quando usado em conjunto com outros componentes padrão do Kubernetes, como o Horizontal Pod Autoscaler. Com o KEDA, você pode mapear aplicações diretamente para uma escala orientada por eventos enquanto mantém outras aplicações operacionais. Por causa disso, o KEDA pode ser usado de forma segura e adaptável com qualquer número de outros frameworks ou aplicações Kubernetes.
+
+Existem três funções principais que o KEDA desempenha em um cluster Kubernetes:
+
+1. **Agente**: O KEDA permite que as implantações do Kubernetes escalem para zero e a partir de zero na ausência de eventos. O contêiner `keda-operator` é responsável por isso no cluster. Ele é executado após o KEDA ser habilitado no cluster.
+2. **Métricas**: O KEDA expõe diretamente métricas como atraso de fluxo e comprimento da fila de mensagens para o HPA, permitindo que ele escale as implantações com base nas métricas obtidas. Assim, o KEDA também atua como um servidor de métricas do Kubernetes. O contêiner `keda-operator-metrics-apiserver` é responsável por esse serviço de métricas.
+3. **Admission Webhooks**: O KEDA pode ser usado em conjunto com um controlador de admissão para detectar automaticamente mudanças na configuração de recursos, mantendo as implantações e o cluster em um estado estável. Ele também preserva um alvo de escala de ser escalado por múltiplos `ScaledObjects`.
+
+
+## Arquitetura do KEDA
+
+O KEDA integra-se com o já mencionado Horizontal Pod Autoscaler no Kubernetes. Componentes como fontes de eventos externas e o armazenamento de dados etcd também são usados para ler eventos no cluster e escalar conforme necessário. Aqui está uma representação visual da arquitetura:
+
+![Arquitetura do KEDA](https://d36ai2hkxl16us.cloudfront.net/course-uploads/e0df7fbf-a057-42af-8a1f-590912be5460/ubfs7ii23wye-LFEL10144x.png)
+
+Na imagem acima, o recurso `ScaledObject` define como um alvo de escala, como uma implantação, recursos personalizados, jobs ou StatefulSets, deve ser escalado pelo KEDA. O "bloco KEDA" trabalha com uma fonte de eventos externa, monitorando-a para eventos que devem acionar a escalabilidade do recurso alvo. O KEDA transfere a solicitação de escalonamento para o HPA, que escala a carga de trabalho.
+
+Um "escalador" detecta se uma implantação deve ser ativada ou desativada e fornece métricas personalizadas para uma fonte de eventos específica. Existem vários escaladores disponíveis dependendo das fontes de eventos externas e das métricas do cluster. Alguns exemplos de fontes de eventos suportadas são: Google Cloud Platform Storage, memória, Redis, PostgreSQL, entre outros.
+
+
+## Definições de Recursos Personalizados (CRDs) do KEDA
+
+O Kubernetes vem com um conjunto de recursos de API que permite aos usuários criar objetos como pods, deployments e jobs. Quando o KEDA é instalado em um cluster Kubernetes, ele vem com quatro Definições de Recursos Personalizados (CRDs) como parte da instalação do KEDA. Esses CRDs funcionam de maneira semelhante a outros recursos de API, permitindo que os usuários mapeiem fontes de eventos. Eles permitem a autenticação para acessar eventos dessas fontes e suportam o escalonamento de alvos como Deployments, StatefulSets, Jobs ou outros recursos personalizados.
+
+### CRDs do KEDA
+
+#### scaledobjects.keda.sh
+[`ScaledObjects`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fnataliagranato%2FDownloads%2Fnataliagranato.github.io%2Fdata%2Fblog%2Fescalando-apps-nativas-em-nuvem-com-keda.mdx%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A100%2C%22character%22%3A288%7D%7D%5D%2C%22bae0cab4-2d92-4a2b-a74d-4a6f1428c9f1%22%5D "Go to definition") define como o KEDA deve escalar uma implantação ou carga de trabalho específica. A configuração para [`ScaledObjects`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fnataliagranato%2FDownloads%2Fnataliagranato.github.io%2Fdata%2Fblog%2Fescalando-apps-nativas-em-nuvem-com-keda.mdx%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A100%2C%22character%22%3A288%7D%7D%5D%2C%22bae0cab4-2d92-4a2b-a74d-4a6f1428c9f1%22%5D "Go to definition") inclui os seguintes elementos principais:
+
+- **scaleTargetRef**: Especifica a implantação ou carga de trabalho alvo que o KEDA irá escalar.
+- **triggers**: Define as fontes de eventos e os parâmetros correspondentes que acionam o escalonamento automático.
+- **minReplicaCount** e **maxReplicaCount**: Especificam o número mínimo e máximo de réplicas para a carga de trabalho alvo.
+
+Exemplo de código de [`ScaledObject`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fnataliagranato%2FDownloads%2Fnataliagranato.github.io%2Fdata%2Fblog%2Fescalando-apps-nativas-em-nuvem-com-keda.mdx%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A109%2C%22character%22%3A28%7D%7D%5D%2C%22bae0cab4-2d92-4a2b-a74d-4a6f1428c9f1%22%5D "Go to definition"):
+
+```yaml
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: my-scaledobject
+spec:
+  scaleTargetRef:
+    name: my-deployment
+  triggers:
+  - type: azure-queue
+    metadata:
+      queueName: my-queue
+      connection: azure-secret
+      queueLength: '5'
+  minReplicaCount: 1
+  maxReplicaCount: 10
+```
+
+#### scaledjobs.keda.sh
+`ScaledJob` é um recurso personalizado projetado para escalonamento automático de Jobs do Kubernetes. 
+
+Semelhante ao [`ScaledObject`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fnataliagranato%2FDownloads%2Fnataliagranato.github.io%2Fdata%2Fblog%2Fescalando-apps-nativas-em-nuvem-com-keda.mdx%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A109%2C%22character%22%3A28%7D%7D%5D%2C%22bae0cab4-2d92-4a2b-a74d-4a6f1428c9f1%22%5D "Go to definition"), ele define `scaleTargetRef` e `triggers` específicos para Jobs. Ele também permite o escalonamento automático com base em eventos de conclusão ou falha de jobs.
+
+Exemplo de código de `ScaledJob`:
+
+```yaml
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: my-scaledjob
+spec:
+  scaleTargetRef:
+    name: my-job
+  triggers:
+  - type: job-completion
+```
+
+#### triggerauthentications.keda.sh
+`TriggerAuthentication` é usado para proteger a comunicação entre o KEDA e as fontes de eventos externas. Ele garante que apenas fontes autenticadas possam acionar o escalonamento automático. A configuração requer detalhes de autenticação, como chaves de API e segredos para as fontes de eventos externas.
+
+Exemplo de código de `TriggerAuthentication`:
+
+```yaml
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: my-triggerauth
+spec:
+  secretTargetRef:
+    - parameter: apiKey
+      name: my-secret
+      key: api-key
+```
+
+#### clustertriggerauthentications.keda.sh
+Semelhante ao `TriggerAuthentication`, mas aplicado ao nível do cluster. É usado quando você deseja compartilhar detalhes de autenticação entre vários [`ScaledObjects`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fnataliagranato%2FDownloads%2Fnataliagranato.github.io%2Fdata%2Fblog%2Fescalando-apps-nativas-em-nuvem-com-keda.mdx%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A100%2C%22character%22%3A288%7D%7D%5D%2C%22bae0cab4-2d92-4a2b-a74d-4a6f1428c9f1%22%5D "Go to definition"). Sua configuração define detalhes de autenticação como `TriggerAuthentication`, mas é aplicável no escopo do cluster.
+
+Exemplo de código de `ClusterTriggerAuthentication`:
+
+```yaml
+apiVersion: keda.sh/v1alpha1
+kind: ClusterTriggerAuthentication
+metadata:
+  name: my-cluster-triggerauth
+spec:
+  secretTargetRef:
+    - parameter: apiKey
+      name: my-secret
+      key: api-key
+```
+
+Esses recursos coletivamente permitem a configuração de escalonamento automático dinâmico e orientado por eventos em um ambiente Kubernetes usando o KEDA.
+
+## Configurando e Removendo o KEDA
+
+### Instalação do KEDA
+
+O KEDA pode ser implantado por vários métodos: usando o Operator Hub, um arquivo YAML ou o Helm chart. Aqui, focaremos na implantação via Helm. É importante notar que o KEDA requer um cluster Kubernetes versão 1.24 ou superior.
+
+Como qualquer outra implantação Helm, isso envolve apenas três etapas simples:
+
+1. Adicionar o repositório Helm:
+   ```sh
+   helm repo add kedacore https://kedacore.github.io/charts
+   ```
+
+2. Atualizar o repositório Helm:
+   ```sh
+   helm repo update
+   ```
+
+3. Instalar o Helm chart do KEDA:
+   ```sh
+   helm upgrade --install keda kedacore/keda --namespace keda --create-namespace
+   ```
+
+Após instalar o KEDA, você pode verificar se ele foi instalado corretamente usando o comando `helm status`. Aqui está um exemplo de como fazer isso:
+
+4. **Verifique o status da instalação do KEDA:**
+   ```sh
+   helm status keda --namespace keda
+   ```
+
+   A saída esperada deve ser semelhante a esta:
+
+   ```plaintext
+NAME: keda
+LAST DEPLOYED: Sun Oct 27 16:46:01 2024
+NAMESPACE: keda
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+                
+Kubernetes Event-driven Autoscaling (KEDA) - Application autoscaling made simple.
+
+Get started by deploying Scaled Objects to your cluster:
+    - Information about Scaled Objects : https://keda.sh/docs/latest/concepts/
+    - Samples: https://github.com/kedacore/samples
+
+Get information about the deployed ScaledObjects:
+  kubectl get scaledobject [--namespace <namespace>]
+
+Get details about a deployed ScaledObject:
+  kubectl describe scaledobject <scaled-object-name> [--namespace <namespace>]
+
+Get information about the deployed ScaledObjects:
+  kubectl get triggerauthentication [--namespace <namespace>]
+
+Get details about a deployed ScaledObject:
+  kubectl describe triggerauthentication <trigger-authentication-name> [--namespace <namespace>]
+
+Get an overview of the Horizontal Pod Autoscalers (HPA) that KEDA is using behind the scenes:
+  kubectl get hpa [--all-namespaces] [--namespace <namespace>]
+
+Learn more about KEDA:
+- Documentation: https://keda.sh/
+- Support: https://keda.sh/support/
+- File an issue: https://github.com/kedacore/keda/issues/new/choose
+```
+
+### Desinstalando o KEDA
+
+Para desinstalar o KEDA, siga os dois passos abaixo:
+
+1. **Remova quaisquer ScaledObjects e ScaledJobs que você tenha criado:**
+   ```sh
+   kubectl delete $(kubectl get scaledobjects.keda.sh,scaledjobs.keda.sh -A -o jsonpath='{"-n "}{.items[*].metadata.namespace}{" "}{.items[*].kind}{"/"}{.items[*].metadata.name}{"\n"}')
+   ```
+
+2. **Desinstale o Helm chart:**
+   ```sh
+   helm uninstall keda -n keda
+   ```
+
+```plaintext
+### Desinstalando o KEDA
+
+Para desinstalar o KEDA, siga os dois passos abaixo:
+
+1. **Remova quaisquer ScaledObjects e ScaledJobs que você tenha criado:**
+   ```sh
+   kubectl delete $(kubectl get scaledobjects.keda.sh,scaledjobs.keda.sh -A -o jsonpath='{range .items[*]}-n {.metadata.namespace} {.kind}/{.metadata.name}{"\n"}{end}')
+   ```
+
+2. **Desinstale o Helm chart:**
+   ```sh
+   helm uninstall keda -n keda
+   ```
+
+---
+
+Este artigo foi traduzido e adaptado do curso gratuito da Linux Foundation [Scaling Cloud Native Applications with KEDA](https://training.linuxfoundation.org/express-learning/scaling-cloud-native-applications-with-keda-lfel1014/).
+
+### Fontes Utilizadas:
+- [Documentação Oficial do KEDA](https://keda.sh/docs/latest/)
+- [Repositório GitHub do KEDA](https://github.com/kedacore/keda)
+- [Curso da Linux Foundation: Scaling Cloud Native Applications with KEDA](https://training.linuxfoundation.org/express-learning/scaling-cloud-native-applications-with-keda-lfel1014/)
+```
