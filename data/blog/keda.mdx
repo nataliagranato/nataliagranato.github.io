@@ -247,19 +247,19 @@ Get started by deploying Scaled Objects to your cluster:
     - Samples: https://github.com/kedacore/samples
 
 Get information about the deployed ScaledObjects:
-  kubectl get scaledobject [--namespace <namespace>]
+  kubectl get scaledobject [--namespace my-namespace]
 
 Get details about a deployed ScaledObject:
-  kubectl describe scaledobject <scaled-object-name> [--namespace <namespace>]
+  kubectl describe scaledobject <scaled-object-name> [--namespace my-namespace]
 
 Get information about the deployed ScaledObjects:
-  kubectl get triggerauthentication [--namespace <namespace>]
+  kubectl get triggerauthentication [--namespace my-namespace]
 
 Get details about a deployed ScaledObject:
-  kubectl describe triggerauthentication <trigger-authentication-name> [--namespace <namespace>]
+  kubectl describe triggerauthentication <trigger-authentication-name> [--namespace my-namespace]
 
 Get an overview of the Horizontal Pod Autoscalers (HPA) that KEDA is using behind the scenes:
-  kubectl get hpa [--all-namespaces] [--namespace <namespace>]
+  kubectl get hpa [--all-namespaces] [--namespace my-namespace]
 
 Learn more about KEDA:
 - Documentation: https://keda.sh/
