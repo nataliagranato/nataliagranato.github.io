@@ -1,0 +1,190 @@
+---
+title: 'Monitoramento do Consumo de Energia de Contêineres com Kepler'
+date: '2025-01-01'
+tags: ['kepler','sustentabilidade','kubernetes']
+draft: false
+images: ['/static/images/kepler.png']
+
+summary: Kepler (Exportador Eficiente de Nível de Energia baseado em Kubernetes) utiliza eBPF para coletar estatísticas do sistema relacionadas à energia e as exporta como métricas do Prometheus.
+---
+
+O Brasil é um dos países com a energia mais cara do mundo. O consumo de energia é um dos principais custos de operação de data centers e servidores. Monitorar o consumo de energia de contêineres em um cluster Kubernetes pode ajudar a reduzir custos e melhorar a eficiência energética.
+
+# O que é o Kepler?
+
+Kepler (Exportador Eficiente de Nível de Energia baseado em Kubernetes) utiliza eBPF para coletar estatísticas do sistema relacionadas à energia e as exporta como métricas do Prometheus.
+
+## Monitoramento do Consumo de Energia de Contêineres com Kepler
+
+O Exportador Kepler expõe estatísticas de uma aplicação em execução em um cluster Kubernetes em um formato compatível com o Prometheus, que pode ser acessado por qualquer banco de dados que entenda esse formato, como Prometheus e Sysdig.
+
+O Exporter do Kepler expõe uma variedade de métricas sobre o consumo de energia de componentes do Kubernetes, como Pods e Nodes. Com ele é possível monitorar o consumo de energia contêineres com as métricas disponibilizadas pelo Exporter Kepler.
+
+![Kepler Exporter](https://raw.githubusercontent.com/sustainable-computing-io/kepler/main/doc/kepler-arch.png)
+
+
+Todas as métricas específicas do Exporter Kepler têm o prefixo **kepler**.
+
+---
+
+## Métricas do Kepler para Consumo de Energia de Contêineres
+
+### **kepler_container_joules_total (Counter)**
+Essa métrica representa o consumo agregado de energia dos componentes CPU, DRAM, GPUs e outros do host para um determinado contêiner. Cada componente possui métricas individuais detalhadas mais adiante.  
+
+Essa métrica simplifica as métricas do Prometheus para melhorar o desempenho, evitando consultas muito extensas que podem causar sobrecarga significativa.
+
+### **kepler_container_core_joules_total (Counter)**
+Mede o consumo total de energia nos núcleos da CPU usados por um contêiner.  
+- **RAPL disponível**: Reflete o consumo proporcional de energia dos núcleos do processador.  
+- **RAPL indisponível**: O Kepler pode estimar essa métrica usando o servidor de modelos.
+
+### **kepler_container_dram_joules_total (Counter)**
+Descreve a energia total consumida na DRAM por um contêiner.
+
+### **kepler_container_uncore_joules_total (Counter)**
+Mede o consumo cumulativo de energia por componentes "uncore", como cache de último nível, GPU integrada e controlador de memória. Dependendo do sistema, esta métrica pode não estar disponível.
+
+### **kepler_container_package_joules_total (Counter)**
+Representa o consumo cumulativo de energia no soquete da CPU, incluindo todos os núcleos e componentes "uncore". Caso o RAPL não esteja disponível, o Kepler pode estimar essa métrica.
+
+### **kepler_container_other_joules_total (Counter)**
+Mede o consumo cumulativo de energia em outros componentes do host além da CPU e DRAM. Utiliza sensores de energia disponíveis via kernel ACPI ou IPMI.
+
+### **kepler_container_gpu_joules_total (Counter)**
+Mede o consumo total de energia em GPUs usadas por um contêiner.  
+- Atualmente, suporta GPUs NVIDIA e usa o pacote NVML para calcular o consumo energético.
+
+### **kepler_container_energy_stat (Counter)**
+Contém diversas métricas de energia do contêiner, rotuladas com métricas de utilização de recursos, usadas para previsões no servidor de modelos.
+
+---
+
+## Métricas do Kepler para Utilização de Recursos de Contêineres
+
+### **Base Metric**
+- **kepler_container_bpf_cpu_time_us_total**  
+  Mede o tempo total de CPU usado pelo contêiner por meio de rastreamento BPF.
+
+### **Hardware Counter Metrics**
+- **kepler_container_cpu_cycles_total**: Mede ciclos de CPU usados.  
+- **kepler_container_cpu_instructions_total**: Mede instruções de CPU usadas.  
+- **kepler_container_cache_miss_total**: Mede falhas de cache de último nível.
+
+### **IRQ Metrics**
+- **kepler_container_bpf_net_tx_irq_total**: Mede pacotes transmitidos.  
+- **kepler_container_bpf_net_rx_irq_total**: Mede pacotes recebidos.  
+- **kepler_container_bpf_block_irq_total**: Mede chamadas de E/S em bloco.
+
+---
+
+## Métricas do Kepler para Informação de Nós
+
+### **kepler_node_info (Counter)**
+Exibe metadados do nó, como a arquitetura do CPU.
+
+---
+
+## Métricas do Kepler para Consumo de Energia em Nós
+
+- **kepler_node_core_joules_total**: Consumo total dos núcleos da CPU.  
+- **kepler_node_uncore_joules_total**: Consumo de componentes "uncore".  
+- **kepler_node_dram_joules_total**: Consumo de energia na DRAM.  
+- **kepler_node_package_joules_total**: Consumo total do soquete da CPU.  
+- **kepler_node_other_joules_total**: Consumo de outros componentes do host.  
+- **kepler_node_gpu_joules_total**: Consumo total das GPUs.  
+- **kepler_node_platform_joules_total**: Consumo total de energia do host.
+
+---
+
+## Explorando Métricas no Prometheus
+
+As métricas de consumo de energia são definidas como contadores. O uso da função **rate()** pode transformar o consumo em energia por segundo (Watts).  
+Por exemplo:
+
+```promQL
+sum by (pod_name, container_name, container_namespace, node)(irate(kepler_container_joules_total{}[1m]))
+```
+
+## Iniciando o nosso laboratório
+
+Vamos criar um cluster Kubernetes local com o [Kind](https://kind.sigs.k8s.io/), instalar o Kepler e monitorar o consumo de energia de contêineres. Crie um arquivo chamado `kind.yaml` com o seguinte conteúdo:
+
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: worker
+- role: worker
+- role: worker
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP
+```
+
+Execute o comando abaixo para criar o cluster:
+
+```bash
+kind create cluster --config kind.yaml
+```
+
+Obtenha o kubeconfig do cluster:
+
+```bash
+kind get kubeconfig > kubeconfig.yaml
+export KUBECONFIG=$(pwd)/kubeconfig.yaml
+```
+
+Utilizaremos o **Kube Prometheus Stack** para instalar o Prometheus, Grafana e Alertmanager. Execute o comando abaixo para instalar o Kube Prometheus Stack:
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+helm install prometheus prometheus-community/kube-prometheus-stack \
+    --namespace monitoring \
+    --create-namespace \
+    --wait
+```
+
+Instale o Kepler no cluster:
+
+```bash
+helm repo add kepler https://sustainable-computing-io.github.io/kepler-helm-chart
+helm repo update
+helm install kepler kepler/kepler \
+    --namespace kepler \
+    --create-namespace \
+    --set serviceMonitor.enabled=true \
+    --set serviceMonitor.labels.release=prometheus \
+```
+
+Acesse o Prometheus e Grafana:
+
+```bash
+kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80
+kubectl port-forward -n monitoring svc/prometheus-kube-prometheus-prometheus 9091:9090 kubectl port-forward -n kepler svc/kepler 9102
+```
+
+Acesse o Grafana em http://localhost:3000 com usuário `admin` e senha `prom-operator`. E importe a dashboard do Kepler disponível em [Kepler Exporter Dashboard](https://github.com/sustainable-computing-io/kepler/blob/main/grafana-dashboards/Kepler-Exporter.json).
+
+
+A partir de agora, você pode monitorar o consumo de energia de contêineres no seu cluster Kubernetes com o Kepler.
+
+Conheça o grupo de trabalho da CNCF sobre sustentabilidade em TI: [Sustainable Computing](https://github.com/cncf/tag-env-sustainability)
+
+---
+
+Este artigo foi baseado no projeto [Kepler](https://github.com/sustainable-computing-io/kepler). Acesse o repositório para mais informações sobre o projeto.
+
