@@ -180,6 +180,11 @@ kubectl port-forward -n monitoring svc/prometheus-kube-prometheus-prometheus 909
 Acesse o Grafana em http://localhost:3000 com usuário `admin` e senha `prom-operator`. E importe a dashboard do Kepler disponível em [Kepler Exporter Dashboard](https://github.com/sustainable-computing-io/kepler/blob/main/grafana-dashboards/Kepler-Exporter.json).
 
 
+Agora você pode explorar as métricas do Kepler no Prometheus e Grafana.
+
+![Kepler Dashboard](https://www.wonderingchimp.com/content/images/2024/06/Pasted-image-20240601105840.png)
+
+
 A partir de agora, você pode monitorar o consumo de energia de contêineres no seu cluster Kubernetes com o Kepler.
 
 Conheça o grupo de trabalho da CNCF sobre sustentabilidade em TI: [Sustainable Computing](https://github.com/cncf/tag-env-sustainability)
