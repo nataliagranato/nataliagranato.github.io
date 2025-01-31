@@ -1,0 +1,94 @@
+---
+title: 'Linux e Testes de Hardware'
+date: '2025-01-30'
+tags: ['linux','hardware','testes']
+draft: false
+images: ['/static/images/hardware.png']
+
+summary: Neste guia forneço um passo a passo para realizar a instalação de ferramentas de testes de hardware para realização de testes de hardware, que nos permite verificar a saúde dos componentes dos nossos computadores.
+
+---
+
+## 1. Instalando as ferramentas de teste
+
+### 1.1 Monitoramento de Temperatura e Voltagem (sensors)
+```bash
+sudo apt install lm-sensors -y
+sudo sensors-detect 
+```
+
+### 1.2 Verificação de Saúde do Disco (smartctl)
+```bash
+sudo apt install smartmontools -y
+```
+
+### 1.3 Teste de Desempenho Gráfico (glmark2)
+```bash
+sudo apt install glmark2 -y
+```
+
+## 2. Execução de Testes de Hardware
+
+### 2.1 Monitoramento de Temperatura e Voltagem
+```bash
+sensors
+```
+
+### 2.2 Verificação de Saúde do Disco
+```bash
+sudo smartctl -a /dev/sda
+```
+
+### 2.3 Teste de Desempenho Gráfico
+```bash
+glmark2
+```
+
+## 3. Análise de Logs do Sistema
+
+### 3.1 Visualização de Logs do Kernel
+```bash
+dmesg
+```
+
+### 3.2 Visualização de Logs do Systemd
+```bash
+journalctl -xe
+```
+
+## 4. Testes de Rede
+
+### 4.1 Teste de Conexão
+```bash
+ping google.com
+```
+
+### 4.2 Teste de Velocidade
+```bash
+sudo apt install speedtest-cli
+speedtest
+```
+
+## 5. Testes de Memória
+
+### 5.1 Instalação do memtest86+
+```bash
+sudo apt install memtest86+
+```
+
+### 5.2 Execução do Teste de Memória
+Reinicie o sistema e selecione memtest86+ no menu de boot.
+
+## 6. Testes de CPU
+
+### 6.1 Instalação do stress
+```bash
+sudo apt install stress
+```
+
+### 6.2 Execução de Teste de Estresse
+```bash
+stress --cpu 4 --timeout 60s
+```
+
+Recentemente me deparei com um problema no meu desktop, que estava reiniciando sem parar e precisei descobrir o que estava causando isso, então decidi realizar testes nos principais componentes do computador para descobrir o que estava causando o problema. No fim o problema estava relacionado a um defeito de um slot de memória RAM na placa mãe.
