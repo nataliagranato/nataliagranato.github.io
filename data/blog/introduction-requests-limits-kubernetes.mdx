@@ -9,26 +9,6 @@ summary: Quando você especifica o requerimento de recursos em um Pod, o kube-sc
 
 ---
 
-# Introdução a Requests e Limits no Kubernetes: Gerenciamento de Recursos
-
-
-No Kubernetes, o gerenciamento de recursos é essencial para garantir a estabilidade e eficiência de aplicações em execução. Requests e Limits são mecanismos que permitem definir, respectivamente, a alocação mínima e máxima de recursos (CPU e memória) para contêineres. Este documento explica como utilizar essas configurações para otimizar o uso do cluster e evitar problemas como esgotamento de recursos ou contêineres sendo terminados.
-
-## Requests e Limits no Kubernetes
-
-No Kubernetes, requests e limits são usados para gerenciar os recursos de CPU e memória que os contêineres podem usar. Eles ajudam a garantir que os recursos do cluster sejam utilizados de maneira eficiente e que os contêineres não consumam mais recursos do que o necessário.
-
-### Requests
-
-Os `requests` especificam a quantidade mínima de CPU e memória que um Pod ou contêiner precisa para funcionar. Ao configurar `requests`, você está reservando essa quantidade de recursos do total disponível no cluster para uma determinada aplicação. O Kubernetes usa esses valores para decidir em qual nó do cluster o contêiner será agendado. Se um nó não tiver recursos suficientes para atender aos `requests` de um contêiner, o Kubernetes não agendará o contêiner nesse nó.
-
-#### Exemplo de mensagem falta de recursos:
-
-Aqui está um exemplo de log que pode ser gerado pelo Kubernetes quando um contêiner não pode ser agendado devido à falta de recursos:
-
-```plaintext
-Warning  FailedScheduling  2m (x3 over 5m)  default-scheduler  0/3 nodes are available: 1 Insufficient cpu, 2 Insufficient memory.
-```
 
 # Introdução a Requests e Limits no Kubernetes: Gerenciamento de Recursos
 
