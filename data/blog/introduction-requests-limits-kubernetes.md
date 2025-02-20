@@ -1,0 +1,240 @@
+---
+title: 'Introdução a Requests e Limits no Kubernetes'
+date: '2025-02-20'
+tags: ['kubernetes','resources','containers']
+draft: false
+images: ['/static/images/k8s-recs-ands-limits.png']
+
+summary: Quando você especifica o requerimento de recursos em um Pod, o kube-scheduler utiliza esta informação para decidir a qual nó o Pod será atribuído.
+
+---
+
+# Introdução a Requests e Limits no Kubernetes: Gerenciamento de Recursos
+
+
+No Kubernetes, o gerenciamento de recursos é essencial para garantir a estabilidade e eficiência de aplicações em execução. Requests e Limits são mecanismos que permitem definir, respectivamente, a alocação mínima e máxima de recursos (CPU e memória) para contêineres. Este documento explica como utilizar essas configurações para otimizar o uso do cluster e evitar problemas como esgotamento de recursos ou contêineres sendo terminados.
+
+## Requests e Limits no Kubernetes
+
+No Kubernetes, requests e limits são usados para gerenciar os recursos de CPU e memória que os contêineres podem usar. Eles ajudam a garantir que os recursos do cluster sejam utilizados de maneira eficiente e que os contêineres não consumam mais recursos do que o necessário.
+
+### Requests
+
+Os `requests` especificam a quantidade mínima de CPU e memória que um Pod ou contêiner precisa para funcionar. Ao configurar `requests`, você está reservando essa quantidade de recursos do total disponível no cluster para uma determinada aplicação. O Kubernetes usa esses valores para decidir em qual nó do cluster o contêiner será agendado. Se um nó não tiver recursos suficientes para atender aos `requests` de um contêiner, o Kubernetes não agendará o contêiner nesse nó.
+
+#### Exemplo de mensagem falta de recursos:
+
+Aqui está um exemplo de log que pode ser gerado pelo Kubernetes quando um contêiner não pode ser agendado devido à falta de recursos:
+
+```plaintext
+Warning  FailedScheduling  2m (x3 over 5m)  default-scheduler  0/3 nodes are available: 1 Insufficient cpu, 2 Insufficient memory.
+```
+
+# Introdução a Requests e Limits no Kubernetes: Gerenciamento de Recursos
+
+
+No Kubernetes, o gerenciamento de recursos é essencial para garantir a estabilidade e eficiência de aplicações em execução. Requests e Limits são mecanismos que permitem definir, respectivamente, a alocação mínima e máxima de recursos (CPU e memória) para contêineres. Este documento explica como utilizar essas configurações para otimizar o uso do cluster e evitar problemas como esgotamento de recursos ou contêineres sendo terminados.
+
+## Requests e Limits no Kubernetes
+
+No Kubernetes, requests e limits são usados para gerenciar os recursos de CPU e memória que os contêineres podem usar. Eles ajudam a garantir que os recursos do cluster sejam utilizados de maneira eficiente e que os contêineres não consumam mais recursos do que o necessário.
+
+### Requests
+
+Os `requests` especificam a quantidade mínima de CPU e memória que um Pod ou contêiner precisa para funcionar. Ao configurar `requests`, você está reservando essa quantidade de recursos do total disponível no cluster para uma determinada aplicação. O Kubernetes usa esses valores para decidir em qual nó do cluster o contêiner será agendado. Se um nó não tiver recursos suficientes para atender aos `requests` de um contêiner, o Kubernetes não agendará o contêiner nesse nó.
+
+#### Exemplo de mensagem falta de recursos:
+
+Aqui está um exemplo de log que pode ser gerado pelo Kubernetes quando um contêiner não pode ser agendado devido à falta de recursos:
+
+```
+Warning  FailedScheduling  2m (x3 over 5m)  default-scheduler  0/3 nodes are available: 1 Insufficient cpu, 2 Insufficient memory.
+```
+
+Neste exemplo, o log indica que o agendador do Kubernetes tentou agendar um Pod, mas falhou porque nenhum dos nós disponíveis tinha recursos suficientes. Especificamente, um nó não tinha CPU suficiente e dois nós não tinham memória suficiente para atender aos `requests` do Pod.
+
+#### Ou:
+
+Aqui estão alguns exemplos de logs que indicam falta de recursos em um nó no Kubernetes:
+
+**Log de falta de CPU em um nó:**
+
+```
+Warning  EvictionThresholdMet  1m (x5 over 10m)  kubelet, node-1  Attempting to reclaim CPU resource
+```
+
+**Log de falta de memória em um nó:**
+
+```
+Warning  EvictionThresholdMet  2m (x3 over 15m)  kubelet, node-2  Attempting to reclaim memory resource
+```
+
+**Log de OOM (Out of Memory) em um nó:**
+
+```
+Warning  OOMKilling  3m (x2 over 20m)  kubelet, node-3  Memory cgroup out of memory: Kill process 12345 (example-process) score 1000 or sacrifice child
+```
+
+**Log de falta de espaço em disco em um nó:**
+
+```
+Warning  EvictionThresholdMet  4m (x4 over 25m)  kubelet, node-4  Attempting to reclaim disk resource
+```
+
+Esses logs são gerados pelo `kubelet` em cada nó e indicam que o nó está tentando recuperar recursos devido à falta de CPU, memória ou espaço em disco.
+
+#### Exemplo de configuração de requests:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  containers:
+  - name: example-container
+    image: nginx
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+```
+
+### Limits
+
+Os `limits` especificam a quantidade máxima de CPU e memória que um Pod ou contêiner pode usar. Se um contêiner tentar usar mais recursos do que os especificados nos `limits`, ele será restringido. Para a CPU, o contêiner será limitado ao valor máximo especificado. Para a memória, se o contêiner tentar usar mais do que o limite, ele será encerrado (killed) pelo Kubernetes.
+
+#### Exemplo de configuração de limits:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  containers:
+  - name: example-container
+    image: nginx
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+```
+
+### Configuração Completa de Requests e Limits
+
+Normalmente, `requests` e `limits` são configurados juntos para garantir que os contêineres tenham os recursos necessários para funcionar corretamente, mas sem consumir mais do que o necessário.
+
+#### Exemplo de configuração completa:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  containers:
+  - name: example-container
+    image: nginx
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+```
+
+## Considerações
+
+- **Planejamento de Capacidade**: Configurar `requests` e `limits` ajuda no planejamento de capacidade do cluster, garantindo que os recursos sejam alocados de maneira eficiente.
+- **Qualidade de Serviço (QoS)**: O Kubernetes usa `requests` e `limits` para determinar a classe de qualidade de serviço (QoS) de um Pod. Existem três classes de QoS: Guaranteed, Burstable e BestEffort.
+- **Prevenção de Sobrecarga**: Definir `limits` ajuda a prevenir que um único contêiner sobrecarregue o nó, afetando outros contêineres.
+
+Ao configurar `requests` e `limits`, é importante entender as necessidades dos seus aplicativos e ajustar os valores de acordo. Isso garante que os aplicativos tenham os recursos necessários para funcionar corretamente, enquanto mantém a eficiência do uso dos recursos do cluster.
+
+## Importância de Configurar Requests e Limits no Kubernetes
+
+Configurar `requests` e `limits` no Kubernetes é crucial para garantir a eficiência e a estabilidade do cluster. Aqui estão alguns pontos importantes:
+
+- **Eficiência de Recursos**: Ao definir `requests`, você garante que os recursos mínimos necessários para os contêineres sejam reservados, evitando que eles sejam agendados em nós que não podem suportá-los. Isso ajuda a utilizar os recursos do cluster de maneira eficiente.
+- **Prevenção de Sobrecarga**: Definir `limits` impede que um contêiner consuma mais recursos do que o necessário, evitando que ele sobrecarregue o nó e afete outros contêineres. Isso é especialmente importante em ambientes compartilhados.
+- **Qualidade de Serviço (QoS)**: O Kubernetes usa `requests` e `limits` para determinar a classe de qualidade de serviço (QoS) de um Pod. Isso ajuda a priorizar recursos para contêineres críticos e garantir que eles tenham os recursos necessários para funcionar corretamente.
+- **Estabilidade das Aplicações**: Configurar `requests` e `limits` ajuda a garantir que as aplicações tenham os recursos necessários para funcionar de maneira estável, evitando falhas devido à falta de recursos.
+
+## Comandos para Verificar Configurações de Requests e Limits
+
+Você pode usar os seguintes comandos `kubectl` para verificar as configurações de `requests` e `limits` dos Pods e contêineres no seu cluster:
+
+### Verificar Requests e Limits de um Pod Específico:
+
+```sh
+kubectl get pod <pod-name> -o jsonpath='{.spec.containers[*].resources}'
+```
+
+### Listar Todos os Pods com Requests e Limits:
+
+```sh
+kubectl get pods --all-namespaces -o custom-columns='NAMESPACE:.metadata.namespace,POD:.metadata.name,CONTAINER:.spec.containers[*].name,REQUESTS_CPU:.spec.containers[*].resources.requests.cpu,REQUESTS_MEMORY:.spec.containers[*].resources.requests.memory,LIMITS_CPU:.spec.containers[*].resources.limits.cpu,LIMITS_MEMORY:.spec.containers[*].resources.limits.memory'
+```
+
+### Verificar a Classe de Qualidade de Serviço (QoS) de um Pod:
+
+```sh
+kubectl get pod <pod-name> -o jsonpath='{.status.qosClass}'
+```
+
+### Verificar Recursos de um Nó:
+
+```sh
+kubectl describe node <node-name>
+```
+
+Esses comandos ajudam a monitorar e garantir que os `requests` e `limits` estejam configurados corretamente, contribuindo para a eficiência e estabilidade do seu cluster Kubernetes.
+
+## Comando `kubectl top nodes`
+
+Sim, você pode usar o comando `kubectl top nodes` para verificar os recursos disponíveis e o uso atual de CPU e memória em cada nó do cluster. Este comando fornece uma visão geral rápida do consumo de recursos no nível do nó.
+
+### Comando `kubectl top nodes`
+
+```sh
+kubectl top nodes
+```
+
+### Exemplo de Saída
+
+```plaintext
+NAME           CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
+node-1         500m         25%    1024Mi          50%
+node-2         300m         15%    512Mi           25%
+node-3         700m         35%    2048Mi          75%
+```
+
+### Explicação
+
+- **NAME**: Nome do nó.
+- **CPU(cores)**: Uso atual de CPU em milicores.
+- **CPU%**: Porcentagem de uso da CPU em relação à capacidade total do nó.
+- **MEMORY(bytes)**: Uso atual de memória em bytes.
+- **MEMORY%**: Porcentagem de uso da memória em relação à capacidade total do nó.
+
+Este comando é útil para monitorar o uso de recursos e identificar possíveis gargalos ou nós sobrecarregados no cluster.
+
+
+
+# Ferramentas úteis sobre recursos no Kubernetes
+
+- [kube-capacity](https://github.com/robscott/kube-capacity): Uma CLI simples que fornece uma visão geral dos requests, limits e utilização de recursos em um cluster Kubernetes.
+
+- [kubectl-df-pv](https://github.com/yashbhutwala/kubectl-df-pv): Plugin do kubectl que oferece aos administradores uma utilidade semelhante ao `df` (disk free) para volumes persistentes.
+
+- [krr](https://github.com/robusta-dev/krr): Recomendações de recursos do Kubernetes baseadas no Prometheus.
+
+- [goldilocks](https://github.com/FairwindsOps/goldilocks): Obtenha seus requests de recursos "na medida certa".
+
+## Referências
+
+- [Understanding Kubernetes Limits and Requests](https://sysdig.com/blog/kubernetes-limits-requests/)
+- [Kubernetes Requests and Limits: A Practical Guide and Solutions](https://blog.kubecost.com/blog/requests-and-limits/)
+- [Gerenciamento de recursos em Pods e contêineres](https://kubernetes.io/pt-br/docs/concepts/configuration/manage-resources-containers/)
