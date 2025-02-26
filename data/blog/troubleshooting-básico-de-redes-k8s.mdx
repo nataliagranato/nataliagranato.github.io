@@ -1,0 +1,126 @@
+---
+title: 'Realizando um troubleshooting básico de redes no Kubernetes'
+date: '2025-02-26'
+tags: ['kubernetes','network','troubleshooting']
+draft: false
+images: ['/static/images/kubernetes-cluster-network.png']
+
+summary: Um guia passo a passo para solucionar problemas de rede em um cluster Kubernetes, utilizando uma aplicação de exemplo (Jaeger).
+
+---
+
+
+# Realizando um troubleshooting básico de redes no Kubernetes
+
+
+# Documentação de Troubleshooting de Redes no Kubernetes
+
+## Sumário
+Esta documentação fornece um guia passo a passo para solucionar problemas de rede em um cluster Kubernetes, utilizando uma aplicação de exemplo (Jaeger).
+
+## Passos de Troubleshooting
+
+### 1. Obter o DNS Interno do Kubernetes
+O DNS interno de um serviço no Kubernetes segue o formato:
+
+```
+<serviceName>.<namespaceName>.svc.cluster.local
+```
+
+Por exemplo, para o serviço `jaeger-collector` no namespace `jaeger`, o DNS interno seria:
+
+```
+jaeger-collector.jaeger.svc.cluster.local
+```
+
+### 2. Obter o Endereço IP do Serviço
+Para obter o endereço IP de um serviço específico, use o comando `kubectl get svc` no namespace apropriado.
+
+```sh
+kubectl get svc jaeger-collector -n jaeger
+```
+
+**Saída esperada:**
+```
+NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
+jaeger-collector   ClusterIP   172.28.100.178   <none>        14250/TCP,14268/TCP,4317/TCP    33d
+```
+
+O endereço IP do serviço é o valor na coluna `CLUSTER-IP`.
+
+### 3. Teste de Resolução de DNS
+Verifique se o nome do serviço está sendo resolvido corretamente.
+
+```sh
+kubectl run dns-test --image=busybox:1.28 --rm -it --restart=Never -- nslookup jaeger-collector.jaeger.svc.cluster.local
+```
+
+### 4. Descrever o Serviço
+Verifique os detalhes do serviço para garantir que ele está configurado corretamente.
+
+```sh
+kubectl describe svc jaeger-collector -n jaeger
+```
+
+### 5. Verificar Endpoints
+Verifique os endpoints associados ao serviço.
+
+```sh
+kubectl get endpoints jaeger-collector -n jaeger
+```
+
+### 6. Teste HTTP/Thrift (via curl)
+Teste a conectividade HTTP com o serviço usando `curl`.
+
+#### Usando o nome do serviço:
+```sh
+kubectl run curl-test --image=curlimages/curl --rm -it -- curl -v http://jaeger-collector.jaeger.svc.cluster.local:14268/api/traces
+```
+
+#### Usando o endereço IP do serviço:
+```sh
+kubectl run curl-test --image=curlimages/curl --rm -it -- curl -v http://172.28.100.178:14268/api/traces
+```
+
+### 7. Verificar Pods
+Verifique os pods associados ao serviço.
+
+```sh
+kubectl get pods -n jaeger -l app.kubernetes.io/component=collector
+```
+
+### 8. Teste de Conectividade com Curl
+Crie um pod de depuração e teste a conectividade com o serviço usando `curl`.
+
+```sh
+kubectl run debug-pod -n jaeger --image=curlimages/curl -- sleep infinity
+kubectl exec -it debug-pod -n jaeger -- sh
+```
+
+Dentro do container:
+```sh
+curl -v http://jaeger-collector.jaeger.svc.cluster.local:14268/api/traces
+```
+
+### 9. Teste de Conectividade Externa
+Teste a conectividade com um endpoint externo para garantir que a rede externa está funcionando.
+
+```sh
+curl -v -k https://jaeger-http-collector.nataliagranato.xyz/api/traces
+```
+
+### 10. Teste de Conectividade com Ping
+Teste a conectividade com o serviço usando `ping`.
+
+```sh
+ping jaeger-collector.jaeger.svc.cluster.local
+```
+
+## Conclusão
+Se algum dos testes acima falhar, pode haver um problema de configuração de DNS, rede ou serviço no cluster Kubernetes. Verifique as configurações de DNS, as políticas de rede e a configuração do serviço para resolver o problema.
+
+## Referências
+
+- [Handling Networking Errors in Kubernetes](https://komodor.com/blog/handling-networking-errors-in-kubernetes/)
+- [Netshoot](https://github.com/nicolaka/netshoot)
+- [Cluster Networking](https://kubernetes.io/docs/concepts/cluster-administration/networking/)
