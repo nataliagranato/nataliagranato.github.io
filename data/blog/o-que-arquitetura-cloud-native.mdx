@@ -1,0 +1,89 @@
+---
+title: 'O é Kubernetes?'
+date: '2025-03-21'
+tags: ['cloud-native']
+draft: false
+images: ['/static/images/docker-containerized-appliction-blue-border_2.png']
+
+summary: A orquestração de containers é essencial para gerenciar aplicações em ambientes de produção, garantindo que elas atendam a requisitos críticos de desempenho, escalabilidade e confiabilidade. Ferramentas de orquestração, como Kubernetes, Docker Swarm e Apache Mesos, automatizam a implantação, o gerenciamento e a escalabilidade de containers, proporcionando uma infraestrutura robusta e eficiente para aplicações modernas.
+
+
+---
+
+# O que é Cloud Native?
+
+A ideia da arquitetura cloud native é otimizar seu software para eficiência de custos, confiabilidade e tempo de lançamento no mercado mais rápido, utilizando uma combinação de padrões de design culturais, tecnológicos e arquitetônicos.
+
+O termo cloud native pode ser encontrado em várias definições: algumas focam em tecnologias, enquanto outras destacam aspectos culturais.
+
+
+![Containers](https://raw.githubusercontent.com/Tech-Preta/trailmap/refs/heads/master/CNCF_TrailMap_latest.png)
+
+
+## A Cloud Native Computing Foundation define da seguinte forma:
+
+“Tecnologias cloud native capacitam organizações a criar e executar aplicações escaláveis em ambientes modernos e dinâmicos, como nuvens públicas, privadas e híbridas. Containers, malhas de serviço (service meshes), microsserviços, infraestrutura imutável e APIs declarativas exemplificam essa abordagem.
+
+Essas técnicas permitem sistemas fracamente acoplados, resilientes, gerenciáveis e observáveis. Combinadas com automação robusta, elas permitem que engenheiros realizem mudanças de alto impacto com frequência e previsibilidade, com esforço mínimo. [...]”
+
+Aplicações tradicionais ou legadas geralmente são projetadas com uma abordagem monolítica, ou seja, são autocontidas e incluem todas as funcionalidades e componentes necessários para executar uma tarefa. Um aplicativo monolítico normalmente tem uma única base de código e é fornecido como um único arquivo binário executável em um servidor.
+
+Por exemplo, pense em um software de comércio eletrônico para uma loja online: um aplicativo monolítico incluiria todas as funcionalidades, desde a interface gráfica, listagem de produtos, carrinho de compras, checkout, processamento de pedidos e muito mais.
+
+Embora seja fácil desenvolver e implantar um aplicativo nesse formato, gerenciar a complexidade, escalar o desenvolvimento entre várias equipes, implementar mudanças rapidamente e dimensionar o aplicativo de forma eficiente sob alta demanda pode ser igualmente desafiador.
+
+A arquitetura cloud native oferece soluções para a complexidade crescente das aplicações e a demanda cada vez maior dos usuários. A ideia central é dividir seu aplicativo em partes menores, tornando-o mais gerenciável. Em vez de concentrar todas as funcionalidades em um único aplicativo, você terá vários componentes independentes que se comunicam em rede. Usando o exemplo anterior, poderíamos ter um aplicativo para a interface do usuário, outro para o checkout e assim por diante. Esses componentes independentes, com escopo bem definido, são chamados de microsserviços.
+
+Isso permite que múltiplas equipes assumam a responsabilidade por diferentes funcionalidades do aplicativo, além de operar e escalar cada parte individualmente. Por exemplo, se muitos usuários tentarem finalizar compras, é possível escalar serviços sob alta carga, como o carrinho de compras ou o checkout.
+
+## Característica de uma arquitetura Cloud Native
+
+### Alto nível de automação
+Para gerenciar todos os componentes dinâmicos de uma aplicação cloud native, recomenda-se a automação em todas as etapas, do desenvolvimento à implantação. Isso pode ser alcançado com ferramentas modernas de automação e pipelines de Integração Contínua/Entrega Contínua (CI/CD) (falaremos mais sobre pipelines adiante no curso, mas, por ora, entenda que um pipeline CI/CD é um conceito usado para as múltiplas etapas necessárias ao entregar uma nova versão do software), suportados por um sistema de controle de versão como o git.
+
+Construir, testar e implantar aplicações — bem como a infraestrutura — com intervenção humana mínima permite que mudanças rápidas, frequentes e incrementais sejam feitas em produção. Um sistema automatizado confiável também facilita a recuperação de desastres, caso seja necessário reconstruir todo o sistema.
+
+A automação reduz erros humanos, acelera a entrega de valor aos usuários e garante consistência em ambientes complexos, essencial para manter a eficiência e a resiliência inerentes ao modelo cloud native.
+
+### Self healing ou "auto cura"
+
+Aplicações e infraestruturas falham eventualmente. Isso é esperado e, por isso, os frameworks de aplicações cloud native e os componentes de infraestrutura incluem verificações de integridade (health checks) que monitoram a aplicação internamente e as reiniciam automaticamente, se necessário. Além disso, como a aplicação está compartimentalizada (dividida em partes independentes), há a possibilidade de que apenas algumas funcionalidades parem de funcionar ou fiquem mais lentas, enquanto outras continuam operando normalmente.
+
+Essa capacidade de autocorreção minimiza interrupções e garante que a aplicação se adapte a falhas sem exigir intervenção manual constante. Ao isolar problemas em componentes específicos, o sistema mantém sua operacionalidade global, reforçando a confiabilidade e a experiência do usuário final.
+
+### Escalável
+
+Sua aplicação descreve o processo de lidar com uma carga maior enquanto ainda proporciona uma experiência agradável para o usuário. Uma maneira de escalar pode ser iniciar várias cópias da mesma aplicação e distribuir a carga entre elas. Automatizar esse comportamento com base em métricas da aplicação, como CPU ou memória, também pode garantir a disponibilidade e o desempenho dos seus serviços.
+
+### Eficiência de custo
+Assim como escalar sua aplicação para situações de alto tráfego, reduzir a escala da sua aplicação e os modelos de preços baseados em uso dos provedores de nuvem podem economizar custos se o tráfego estiver baixo. Para otimizar o uso da sua infraestrutura, sistemas de orquestração como o Kubernetes podem ajudar com um posicionamento mais eficiente e denso das aplicações.
+
+### Fácil de manter 
+Usar Micro serviços permite dividir as aplicações em partes menores e torná-las mais portáteis, mais fáceis de testar e de distribuir entre várias equipes.
+
+### Seguro por padrão
+
+Ambientes de nuvem são frequentemente compartilhados entre vários clientes ou equipes, o que exige diferentes modelos de segurança. No passado, muitos sistemas eram divididos em diferentes zonas de segurança que negavam acesso de diferentes redes ou pessoas. Uma vez dentro de uma zona, você poderia acessar todos os sistemas internos. Padrões como a [computação zero trust](https://en.wikipedia.org/wiki/Zero_trust_architecture) mitigam isso ao exigir autenticação de cada usuário e processo.
+
+Uma boa linha de base e ponto de partida para sua jornada em cloud native é o [twelve-factor app](https://12factor.net/pt_br/). O twelve factor app é um guia para desenvolver aplicações cloud native, que começa com coisas simples como controle de versão da sua base de código, configuração sensível ao ambiente e padrões mais sofisticados como statelessness e concorrência da sua aplicação.
+
+Embora esses padrões e tecnologias proporcionem plena vantagem se executados na nuvem, eles também podem oferecer muitos benefícios quando aplicados a sistemas on-premises. Por último, mas não menos importante, eles permitem uma transição mais suave se você migrar suas aplicações e infraestrutura para a nuvem.
+
+### Autoscaling
+O padrão de autoscaling descreve o ajuste dinâmico de recursos com base na demanda atual. CPU e memória são as métricas óbvias para decidir quando escalar aplicações à medida que a carga aumenta ou diminui, mas outros métodos baseados em tempo ou métricas de negócios também podem ser considerados para escalar seus serviços para cima ou para baixo.
+
+Tipicamente, quando falamos de autoscaling estamos falando de escalonamento horizontal, que descreve o processo de gerar novos recursos de computação que podem ser novas cópias do seu processo de aplicação, máquinas virtuais ou - de uma maneira menos imediata - até mesmo novos racks de servidores e outros hardwares.
+
+O escalonamento vertical, por outro lado, descreve a mudança no tamanho do hardware subjacente, que só funciona dentro de certos limites de hardware para bare metal, mas também para máquinas virtuais. Máquinas virtuais e processos podem ser facilmente escalados para cima, permitindo que consumam mais CPU e memória, o limite superior é definido pela capacidade de computação e memória do hardware subjacente. O próprio hardware pode ser escalado para cima, por exemplo, adicionando mais RAM, mas somente até que todos os slots de RAM estejam ocupados.
+
+Para ilustrar a diferença entre escalonamento vertical e horizontal, imagine que você tem que carregar um objeto pesado que não consegue levantar. Você pode ganhar músculos para carregá-lo sozinho, mas seu corpo tem um limite superior de força. Isso é escalonamento vertical. Você também pode chamar seus amigos e pedir que eles ajudem e compartilhem o trabalho. Isso é escalonamento horizontal.
+
+![Horizontal vs Vertical Scaling](https://d36ai2hkxl16us.cloudfront.net/course-uploads/e0df7fbf-a057-42af-8a1f-590912be5460/q2cr3c5d6279-Horizontalvsverticalscaling.png)
+
+### Horizontal vs vertical scaling
+
+Configurar autoscaling em vários ambientes requer a configuração de um limite mínimo e máximo de instâncias (máquinas virtuais ou contêineres) e uma métrica que aciona a escalabilidade. Para configurar a escalabilidade correta, muitas vezes é necessário realizar muitos testes de carga (quase de produção) e analisar o comportamento e o balanceamento de carga quando sua aplicação é escalada.
+
+Ambientes de nuvem que dependem de modelos de preços sob demanda baseados em uso fornecem plataformas muito eficazes para escalabilidade automática, com a capacidade de provisionar uma grande quantidade de recursos em segundos ou até mesmo escalar para zero, se os recursos não forem temporariamente necessários.
+
+Mesmo que a escalabilidade de suas aplicações e da infraestrutura subjacente não esteja automatizada inicialmente, a capacidade de escalar sua aplicação pode aumentar a disponibilidade e a resiliência de seus serviços em ambientes mais tradicionais.

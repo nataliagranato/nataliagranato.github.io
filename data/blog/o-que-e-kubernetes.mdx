@@ -1,0 +1,155 @@
+---
+title: 'O é Kubernetes?'
+date: '2025-03-21'
+tags: ['kubernetes', 'containers']
+draft: false
+images: ['/static/images/docker-containerized-appliction-blue-border_2.png']
+
+summary: Um sistema de código aberto para automatizar a implantação, escalabilidade e gerenciamento de aplicações containerizadas.
+
+---
+
+
+### O que é Kubernetes?
+
+![Containers](https://atraca.com.br/wp-content/uploads/2024/06/o-que-e-kubernetes.png)
+
+"Kubernetes é um sistema de código aberto para automatizar a implantação, escalabilidade e gerenciamento de aplicações containerizadas".
+
+Kubernetes vem da palavra grega **κυβερνήτης**, que significa timoneiro ou piloto de navio. Com essa analogia em mente, podemos pensar no Kubernetes como o piloto de um navio de containers.
+
+Kubernetes também é referido como **k8s**, pois há 8 caracteres entre o k e o s.
+
+Kubernetes é altamente inspirado pelo sistema Google Borg, um orquestrador de containers e cargas de trabalho para suas operações globais, que o Google tem usado por mais de uma década. É um projeto de código aberto escrito na linguagem Go e licenciado sob a Licença Apache, Versão 2.0.
+
+Kubernetes foi iniciado pelo Google e, com seu lançamento v1.0 em julho de 2015, o Google o doou para a Cloud Native Computing Foundation (CNCF), uma das maiores sub-fundações da Linux Foundation.
+
+Novas versões do Kubernetes são lançadas em ciclos de 4 meses. 
+
+
+![[Pasted image 20241113175127.png]]
+
+
+
+### Do Borg ao Kubernetes
+
+De acordo com o resumo do [artigo sobre o Borg](https://research.google/pubs/large-scale-cluster-management-at-google-with-borg/) do Google, publicado em 2015,
+
+"O sistema Borg do Google é um gerenciador de clusters que executa centenas de milhares de tarefas, de milhares de diferentes aplicações, em vários clusters, cada um com até dezenas de milhares de máquinas".
+
+Por mais de uma década, o Borg tem sido o segredo do Google, executando suas cargas de trabalho containerizadas em produção em todo o mundo. Serviços que usamos do Google, como Gmail, Drive, Maps, Docs, etc., são todos atendidos usando o Borg.
+
+Entre os autores iniciais do Kubernetes estavam funcionários do Google que usaram e desenvolveram o Borg no passado. Eles aplicaram seu valioso conhecimento e experiência ao projetar o Kubernetes. Várias características/objetos do Kubernetes que podem ser rastreados até o Borg, ou a lições aprendidas com ele, são:
+
+- **API servers**
+- **Pods**
+- **IP-per-Pod**
+- **Services**
+- **Labels**
+
+### Funcionalidades do Kubernetes
+
+Kubernetes oferece um conjunto muito rico de funcionalidades para orquestração de containers. Algumas de suas funcionalidades totalmente suportadas são:
+
+#### Empacotamento automático
+Kubernetes agenda automaticamente containers com base nas necessidades de recursos e restrições, para maximizar a utilização sem sacrificar a disponibilidade.
+
+#### Projetado para extensibilidade
+Um cluster Kubernetes pode ser estendido com novos recursos personalizados sem modificar o código-fonte original.
+
+#### Auto-recuperação
+Kubernetes substitui e reprograma automaticamente containers de nós que falharam. Ele termina e reinicia containers que se tornam não responsivos a verificações de saúde, com base em regras/políticas existentes. Também impede que o tráfego seja roteado para containers não responsivos.
+
+#### Escalabilidade horizontal
+Kubernetes escala aplicações manualmente ou automaticamente com base na utilização de CPU ou métricas personalizadas.
+
+#### Descoberta de serviços e balanceamento de carga
+Containers recebem endereços IP do Kubernetes, enquanto ele atribui um único nome de Sistema de Nomes de Domínio (DNS) a um conjunto de containers para ajudar no balanceamento de carga das solicitações entre os containers do conjunto.
+
+### Funcionalidades adicionais:
+
+#### Rollouts e rollbacks automatizados
+Kubernetes implementa e reverte atualizações de aplicações e mudanças de configuração de forma contínua, monitorando constantemente a saúde da aplicação para evitar qualquer tempo de inatividade.
+
+#### Gerenciamento de segredos e configurações
+Kubernetes gerencia dados sensíveis e detalhes de configuração de uma aplicação separadamente da imagem do container, para evitar a reconstrução da imagem respectiva. Segredos consistem em informações sensíveis/confidenciais passadas para a aplicação sem revelar o conteúdo sensível para a configuração da pilha, como no GitHub.
+
+#### Orquestração de armazenamento
+Kubernetes monta automaticamente soluções de armazenamento definido por software (SDS) em containers a partir de armazenamento local, provedores de nuvem externos, armazenamento distribuído ou sistemas de armazenamento em rede.
+
+#### Execução em lote
+Kubernetes suporta execução em lote, trabalhos de longa duração e substitui containers que falharam.
+
+#### Suporte Dual-Stack IPv4/IPv6
+Kubernetes suporta endereços IPv4 e IPv6.
+
+Kubernetes suporta funcionalidades comuns específicas de Plataforma como Serviço, como implantação de aplicações, escalabilidade e balanceamento de carga, mas permite que os usuários integrem suas soluções desejadas de monitoramento, registro e alerta através de plugins opcionais.
+
+### Por que usar Kubernetes?
+
+Uma das grandes forças do Kubernetes é sua portabilidade. Ele pode ser implantado em muitos ambientes, como máquinas virtuais locais ou remotas, bare metal, ou em configurações de nuvem pública/privada/híbrida/multi-nuvem.
+
+A extensibilidade do Kubernetes permite que ele suporte e seja suportado por muitas ferramentas de código aberto de terceiros que aprimoram suas capacidades e proporcionam uma experiência rica em recursos para seus usuários. Sua arquitetura é modular e plugável. Ele não apenas orquestra aplicações do tipo microsserviços modulares e desacoplados, mas também sua arquitetura segue padrões de microsserviços desacoplados. A funcionalidade do Kubernetes pode ser estendida escrevendo recursos personalizados, operadores, APIs personalizadas, regras de agendamento ou plugins.
+
+Para um projeto de código aberto bem-sucedido, a comunidade é tão importante quanto ter um ótimo código. O Kubernetes é suportado por uma comunidade próspera em todo o mundo. Ele tem mais de 3.500 colaboradores, que, ao longo do tempo, realizaram mais de 120.000 commits. Existem grupos de encontro em diferentes cidades e países que se reúnem regularmente para discutir o Kubernetes e seu ecossistema. A comunidade é dividida em Grupos de Interesse Especial (SIGs), grupos que se concentram em tópicos especiais, como escalabilidade, bare metal, redes, armazenamento, etc. 
+
+### Usuários do Kubernetes
+
+Em menos de uma década desde sua estreia, o Kubernetes se tornou a plataforma de escolha para muitas empresas de diversos tamanhos para executar suas cargas de trabalho. É uma solução para gerenciamento de cargas de trabalho em setores como bancos, educação, finanças e investimentos, jogos, tecnologia da informação, mídia e streaming, varejo online, compartilhamento de viagens, telecomunicações, pesquisa nuclear e muitas outras indústrias. Existem inúmeros estudos de caso e histórias de sucesso no site do Kubernetes:
+
+- BlackRock
+- Booking.com
+- Box
+- CapitalOne
+- Huawei
+- IBM
+- ING
+- Nokia
+- OpenAI
+- Pearson
+- Spotify
+- Wikimedia
+- E muitos mais.
+
+Esses exemplos demonstram a versatilidade e a eficácia do Kubernetes em diferentes setores, destacando sua capacidade de gerenciar cargas de trabalho complexas e variadas de maneira eficiente e escalável.
+
+### Cloud Native Computing Foundation (CNCF) 
+
+![[Pasted image 20241113180406.png]]
+
+A **Cloud Native Computing Foundation (CNCF)** é um dos maiores subprojetos hospedados pela Linux Foundation. A CNCF tem como objetivo acelerar a adoção de containers, microsserviços e aplicações nativas da nuvem.
+
+A CNCF hospeda uma infinidade de projetos, com mais a serem adicionados no futuro. A CNCF fornece recursos para cada um dos projetos, mas, ao mesmo tempo, cada projeto continua a operar de forma independente sob sua estrutura de governança pré-existente e com seus mantenedores existentes. Os projetos dentro da CNCF são categorizados com base em seus níveis de maturidade: Sandbox, Incubating e Graduated. No momento da escrita deste texto, mais de uma dúzia de projetos haviam alcançado o status Graduated, com muitos outros em Incubating e no Sandbox.
+
+#### Projetos Graduados Populares (a partir de março de 2024):
+
+- **Kubernetes**: Orquestrador de containers.
+- **Argo**: Motor de workflow para Kubernetes.
+- **etcd**: Armazenamento de chave-valor distribuído.
+- **CoreDNS**: Servidor DNS.
+- **containerd**: Runtime de container.
+- **CRI-O**: Runtime de container.
+- **Envoy**: Proxy nativo da nuvem.
+- **Fluentd**: Para logging unificado.
+- **Flux**: Entrega contínua para Kubernetes.
+- **Harbor**: Registro de containers.
+- **Helm**: Gerenciamento de pacotes para Kubernetes.
+- **Linkerd**: Malha de serviços para Kubernetes.
+- **Open Policy Agent**: Motor de políticas.
+- **Prometheus**: Sistema de monitoramento e banco de dados de séries temporais.
+- **Rook**: Orquestrador de armazenamento nativo da nuvem para Kubernetes.
+
+#### Principais Projetos em Incubação:
+
+- **Buildpacks.io**: Constrói imagens de aplicação.
+- **Contour**: Controlador de ingress para Kubernetes.
+- **gRPC**: Para chamada de procedimento remoto (RPC).
+- **CNI**: Para rede de containers Linux.
+- **Knative**: Containers serverless em Kubernetes.
+- **KubeVirt**: Gerenciador de Máquinas Virtuais baseado em Kubernetes.
+- **Notary**: Para segurança de dados.
+- E muitos mais.
+
+Existem muitos projetos dinâmicos no Sandbox da CNCF voltados para métricas, monitoramento, identidade, scripting, serverless, nodeless, edge, esperando alcançar o status de Incubating e possivelmente Graduated. Enquanto muitos projetos ativos estão se preparando para decolar, outros estão sendo arquivados uma vez que se tornam menos ativos e não mais demandados. Os primeiros projetos a serem arquivados são o runtime de container rkt, o OpenTracing distribuído, a ferramenta de automação orientada a eventos Brigade e a Interface de Malha de Serviços.
+
+Os projetos sob a CNCF cobrem todo o ciclo de vida de uma aplicação nativa da nuvem, desde sua execução usando runtimes de containers, até seu monitoramento e logging. Isso é muito importante para atender aos objetivos da CNCF.

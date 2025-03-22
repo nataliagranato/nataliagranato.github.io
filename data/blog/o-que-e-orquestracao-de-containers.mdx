@@ -1,0 +1,82 @@
+---
+title: 'O é Kubernetes?'
+date: '2025-03-21'
+tags: ['kubernetes', 'containers']
+draft: false
+images: ['/static/images/docker-containerized-appliction-blue-border_2.png']
+
+summary: A orquestração de containers é essencial para gerenciar aplicações em ambientes de produção, garantindo que elas atendam a requisitos críticos de desempenho, escalabilidade e confiabilidade. Ferramentas de orquestração, como Kubernetes, Docker Swarm e Apache Mesos, automatizam a implantação, o gerenciamento e a escalabilidade de containers, proporcionando uma infraestrutura robusta e eficiente para aplicações modernas.
+
+
+---
+
+
+### O que é Orquestração de Containers?
+
+Em ambientes de Desenvolvimento (Dev), executar containers em um único host para desenvolvimento e teste de aplicações pode ser uma opção adequada. No entanto, ao migrar para ambientes de Garantia de Qualidade (QA) e Produção (Prod), isso deixa de ser uma opção viável porque as aplicações e serviços precisam atender a requisitos específicos:
+
+- Tolerância a falhas.
+- Escalabilidade sob demanda.
+- Uso otimizado de recursos.
+- Auto-descoberta para descobrir e se comunicar automaticamente.
+- Acessibilidade do mundo exterior.
+- Atualizações/rollbacks contínuos sem tempo de inatividade.
+
+Os orquestradores de containers são ferramentas que agrupam sistemas para formar clusters onde a implantação e o gerenciamento de containers são automatizados em escala, atendendo aos requisitos mencionados acima. Os sistemas em cluster conferem as vantagens dos sistemas distribuídos, como aumento de desempenho, eficiência de custos, confiabilidade, distribuição de carga de trabalho e redução de latência.
+
+### Benefícios da Orquestração de Containers:
+1. **Tolerância a Falhas**: Garante que as aplicações continuem funcionando mesmo em caso de falhas de hardware ou software.
+2. **Escalabilidade Sob Demanda**: Permite aumentar ou diminuir a quantidade de recursos alocados para as aplicações com base na demanda.
+3. **Uso Otimizado de Recursos**: Garante que os recursos de computação sejam utilizados de forma eficiente, evitando desperdícios.
+4. **Auto-descoberta**: Facilita a comunicação entre diferentes serviços e aplicações dentro do cluster.
+5. **Acessibilidade**: Garante que as aplicações sejam acessíveis de fora do cluster, permitindo a interação com usuários e outros sistemas.
+6. **Atualizações Contínuas**: Permite realizar atualizações e rollbacks de forma contínua, sem causar interrupções no serviço.
+
+
+A orquestração de containers é essencial para gerenciar aplicações em ambientes de produção, garantindo que elas atendam a requisitos críticos de desempenho, escalabilidade e confiabilidade. Ferramentas de orquestração, como Kubernetes, Docker Swarm e Apache Mesos, automatizam a implantação, o gerenciamento e a escalabilidade de containers, proporcionando uma infraestrutura robusta e eficiente para aplicações modernas.
+
+### Orquestradores de Containers
+
+Com as empresas containerizando suas aplicações e movendo-as para a nuvem, há uma demanda crescente por soluções de orquestração de containers. Embora existam muitas soluções disponíveis, algumas são apenas redistribuições de ferramentas de orquestração de containers bem estabelecidas, enriquecidas com recursos e, às vezes, com certas limitações em flexibilidade.
+
+Embora não seja exaustiva, a lista abaixo fornece algumas das diferentes ferramentas e serviços de orquestração de containers disponíveis hoje:
+
+#### Amazon Elastic Container Service
+Amazon Elastic Container Service (ECS) é um serviço hospedado fornecido pela Amazon Web Services (AWS) para executar containers em escala em sua infraestrutura.
+
+#### Azure Container Instances
+Azure Container Instance (ACI) é um serviço básico de orquestração de containers fornecido pela Microsoft Azure.
+
+#### Kubernetes
+Kubernetes é uma ferramenta de orquestração de código aberto, originalmente iniciada pelo Google, hoje parte do projeto da Cloud Native Computing Foundation (CNCF).
+
+#### Nomad
+Nomad é o orquestrador de containers e cargas de trabalho fornecido pela HashiCorp.
+
+#### Docker Swarm
+Docker Swarm é um orquestrador de containers fornecido pela Docker, Inc. Faz parte do Docker Engine.
+
+### Por que usar orquestradores de containers?
+
+Embora possamos manter manualmente alguns containers ou escrever scripts para gerenciar o ciclo de vida de dezenas de containers, os orquestradores tornam as coisas muito mais fáceis para os usuários, especialmente quando se trata de gerenciar centenas ou milhares de containers em uma infraestrutura global.
+
+A maioria dos orquestradores de containers pode:
+
+- **Agrupar hosts**: Criar um cluster para aproveitar os benefícios dos sistemas distribuídos.
+- **Agendar containers**: Executar containers nos hosts do cluster com base na disponibilidade de recursos.
+- **Habilitar comunicação**: Permitir que containers em um cluster se comuniquem entre si, independentemente do host em que estão implantados.
+- **Vincular containers e recursos de armazenamento**: Garantir que os containers tenham acesso aos recursos de armazenamento necessários.
+- **Agrupar e balancear carga**: Agrupar conjuntos de containers semelhantes e vinculá-los a estruturas de balanceamento de carga para simplificar o acesso às aplicações containerizadas, criando uma interface, um nível de abstração entre os containers e o cliente.
+- **Gerenciar e otimizar o uso de recursos**: Garantir que os recursos de computação sejam utilizados de forma eficiente.
+- **Implementar políticas de segurança**: Permitir a implementação de políticas para proteger o acesso às aplicações que estão sendo executadas dentro dos containers.
+
+Com todos esses recursos configuráveis e flexíveis, os orquestradores de containers são uma escolha óbvia quando se trata de gerenciar aplicações containerizadas em escala. 
+
+### Onde implantar orquestradores de containers?
+
+A maioria dos orquestradores de containers pode ser implantada na infraestrutura de sua escolha - em bare metal, Máquinas Virtuais, on-premises, em nuvens públicas e híbridas. O Kubernetes, por exemplo, pode ser implantado em uma estação de trabalho, com ou sem uma camada de isolamento, como um hipervisor local ou runtime de container, dentro do data center de uma empresa, na nuvem em instâncias do AWS Elastic Compute Cloud (EC2), VMs do Google, OpenStack, etc.
+
+Além disso, existem soluções de nuvem turnkey que permitem a instalação de clusters Kubernetes de produção com apenas alguns comandos. Essas soluções abriram caminho para a orquestração de containers gerenciada como serviço, mais especificamente a solução Kubernetes gerenciada como serviço (KaaS), oferecida e hospedada pelos principais provedores de nuvem. Exemplos de soluções KaaS são Amazon Elastic Kubernetes Service (Amazon EKS), Azure Kubernetes Service (AKS), DigitalOcean Kubernetes, Google Kubernetes Engine (GKE), IBM Cloud Kubernetes Service, Oracle Container Engine for Kubernetes, ou VMware Tanzu Kubernetes Grid.
+
+
+Os orquestradores de containers, como o Kubernetes, oferecem flexibilidade para serem implantados em diversas infraestruturas, desde ambientes locais até nuvens públicas e híbridas. As soluções gerenciadas de Kubernetes simplificam ainda mais a implantação e o gerenciamento de clusters Kubernetes, permitindo que as empresas se concentrem no desenvolvimento e na operação de suas aplicações, enquanto os provedores de nuvem cuidam da infraestrutura subjacente.
