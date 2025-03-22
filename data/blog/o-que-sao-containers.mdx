@@ -1,0 +1,111 @@
+---
+title: 'O que são Containers?'
+date: '2025-03-21'
+tags: ['kubernetes','docker','containers']
+draft: false
+images: ['/static/images/docker-containerized-appliction-blue-border_2.png']
+
+summary: Um método centrado em aplicações para entregar aplicações de alto desempenho e escaláveis em qualquer infraestrutura de sua escolha.
+
+---
+
+
+# O que são Containers?
+
+Containers são um método centrado em aplicações para entregar aplicações de alto desempenho e escaláveis em qualquer infraestrutura de sua escolha. Containers são mais adequados para entregar microsserviços, fornecendo ambientes virtuais portáteis e isolados para que as aplicações sejam executadas sem interferência de outras aplicações em execução.
+
+![[Pasted image 20241113173233.png]]
+#### Implantação de Containers
+
+Microsserviços são aplicações leves escritas em várias linguagens de programação modernas, com dependências específicas, bibliotecas e requisitos ambientais. Para garantir que uma aplicação tenha tudo o que precisa para ser executada com sucesso, ela é empacotada junto com suas dependências.
+
+Containers encapsulam microsserviços e suas dependências, mas não os executam diretamente. Containers executam imagens de containers.
+
+Uma imagem de container agrupa a aplicação junto com seu runtime, bibliotecas e dependências, e representa a fonte de um container implantado para oferecer um ambiente executável isolado para a aplicação. Containers podem ser implantados a partir de uma imagem específica em muitas plataformas, como estações de trabalho, Máquinas Virtuais, nuvem pública, etc.
+
+### Uma demonstração prática
+
+Este é o arquivo principal da aplicação. Ele contém o código de um microserviço simples escrito em Python usando o framework Flask. O microserviço tem um endpoint `/health` que retorna um JSON com o status de saúde do serviço, o ID do container e o ambiente em que está sendo executado.
+
+```python
+# micro_service.py
+from flask import Flask, jsonify
+import os
+
+app = Flask(__name__)
+
+@app.route('/health')
+def health_check():
+    return jsonify({
+        "status": "healthy",
+        "container_id": os.getenv('HOSTNAME', 'local'),
+        "environment": os.getenv('ENV', 'development')
+    })
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+```
+
+Este arquivo define como construir a imagem do container para o microserviço. Ele especifica a imagem base, copia os arquivos necessários, instala as dependências e define o comando para iniciar a aplicação.
+
+```dockerfile
+# Dockerfile
+FROM python:3.9-slim
+
+# Ambiente isolado
+WORKDIR /app
+
+# Dependências da aplicação
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Código da aplicação
+COPY micro_service.py .
+
+# Configuração do container
+ENV ENV=production
+
+# Porta do microserviço
+EXPOSE 8080
+
+# Comando para executar
+CMD ["python", "micro_service.py"]
+```
+
+Este arquivo lista as dependências da aplicação que precisam ser instaladas. No caso deste microserviço, ele especifica a versão do Flask que deve ser instalada.
+
+```bash
+# requirements.txt
+flask==2.0.1
+```
+
+Para construir e executar:
+
+```bash
+# Construir a imagem do container
+docker build -t meu-microservice .
+
+# Executar o container
+docker run -d -p 8080:8080 meu-microservice
+
+# Verificar o serviço
+curl http://localhost:8080/health
+```
+
+Este exemplo demonstra os conceitos chave mencionados:
+- Aplicação centrada em container (application-centric)
+- Ambiente virtual isolado.
+- Empacotamento de dependências.
+- Imagem do container como fonte única.
+- Portabilidade entre diferentes plataformas.
+
+
+### Vantagens dos Containers:
+1. **Portabilidade**: Containers podem ser executados em qualquer ambiente que suporte a tecnologia de containers, garantindo que a aplicação funcione da mesma maneira em diferentes plataformas.
+2. **Isolamento**: Cada container opera em um ambiente isolado, evitando conflitos entre diferentes aplicações e suas dependências.
+3. **Escalabilidade**: Containers permitem escalar aplicações de forma eficiente, seja manualmente ou automaticamente, com base na demanda.
+4. **Eficiência de Recursos**: Containers compartilham o kernel do sistema operacional, tornando-os mais leves e eficientes em termos de recursos em comparação com Máquinas Virtuais.
+5. **Desenvolvimento e Implantação Consistentes**: Containers garantem que o ambiente de desenvolvimento seja idêntico ao de produção, reduzindo problemas de compatibilidade e facilitando o processo de implantação.
+
+
+Containers revolucionaram a forma como desenvolvemos, implantamos e gerenciamos aplicações. Eles oferecem uma solução eficiente e flexível para entregar microsserviços e outras aplicações modernas, permitindo que as empresas aproveitem ao máximo os recursos de computação disponíveis e mantenham suas aplicações escaláveis, portáteis e fáceis de gerenciar.
