@@ -1,0 +1,115 @@
+---
+title: 'DORA metrics com Apache DevLake'
+date: '2025-05-04'
+tags: ['devops']
+draft: false
+images: ['/static/images/devlake.png']
+
+summary: DevOps Research and Assessment - DORA metrics fornecem insights sobre o desempenho da metodologia DevOps.
+
+
+---
+
+# O que são Métricas DORA?
+
+O [DevOps Research and Assessment (DORA)](https://dora.dev/guides/dora-metrics-four-keys/), ou simplesmente Métricas DORA, foi criado há seis anos por uma equipe de pesquisadores que visavam entender o desempenho de equipes de desenvolvimento de software. O DORA se tornou um framework padrão focado na estabilidade e velocidade dos processos de desenvolvimento.
+
+O DORA é utilizado para tomar decisões estratégicas, para justificar investimentos em melhorias de processos ou para comparar o desempenho de uma equipe com os padrões do setor. Existem quatro **métricas DORA** para medir aspectos críticos do DevOps:
+
+![DORA Metrics](https://devlake.apache.org/assets/images/dora-intro-e3847646d8dbe47220e6c8347ab14f7b.png)
+
+
+Dentro da velocidade, existem duas métricas principais:
+
+- **Frequência de deploy**: Número de deployments bem-sucedidos em produção. Com que rapidez sua equipe está entregando aos usuários? A frequência de implantação é o número médio de implantações de código concluídas diariamente em qualquer ambiente. Este é um indicador da eficiência geral do DevOps, pois mede a velocidade da equipe de desenvolvimento, suas capacidades e o nível de automação.
+
+- **Tempo de espera para mudanças (Lead time for changes)**: Quanto tempo leva desde o commit até o código estar rodando em produção? Essa métrica demonstra com qual rapidez uma equipe pode responder aos requisitos de usuários. Em organizações que não adotam a cultura DevOps, onde é mais comum mensurar as famosas GMUDs, medir o tempo de espera para mudanças pode ajudar a corrigir fluxos de trabalho e a maneira como uma implantação é feita.
+
+A estabilidade é composta por duas métricas principais:
+
+- **Taxa de falha de mudança (Change Failure Rate)**: Com que frequência um deploy causa falhas em produção? Para responder a essa pergunta, é preciso obter a porcentagem dessas falhas. Essa métrica é desafiadora, mas importante, pois frequentemente uma nova release ou um deploy para atender a um requisito pode inserir um bug em produção. A redução de tarefas em andamento e o aumento da automação podem ajudar na redução dessa métrica.
+
+- **Tempo Médio para Restauração do Serviço (MTTR)**: Quanto tempo leva para uma equipe se recuperar adequadamente após ocorrer uma falha e ela ser identificada? Seja para corrigir uma ameaça de segurança ou um bug, as equipes de DevOps devem ser capazes de responder rapidamente com:
+    - Correções de bugs
+    - Atualizações
+    - Correções de vulnerabilidades
+
+Você pode experimentar mensurar o desempenho de entrega de software da sua equipe em alguns minutos utilizando o [Take the DORA Quick Check](https://dora.dev/quickcheck/). A comunidade DORA fornece aprendizado, discussões e materiais sobre o tema, acessíveis em [https://dora.community/](https://dora.community/).
+
+
+# Implementando DORA metrics com Apache DevLake
+
+O Apache DevLake é uma plataforma de dados que ingere, analisa e visualiza dados de ferramentas DevOps, entre elas o Git. Se a sua equipe de DevOps é adepta da integração contínua, provavelmente o Git é utilizado como a principal fonte da verdade. 
+
+## O que pode ser realizado com o DevLake?
+
+**Integração de dados unificada:** Reúna dados de DevOps de todo o ciclo de vida de desenvolvimento de software.
+
+**Insights prontos para uso:** Acesso a métricas de engenharia por meio de dashboards intuitivos no Grafana.
+
+**Customizável:** É possível estender o DevLake, adicionando diferentes [fontes de dados](https://devlake.apache.org/docs/DataSources), [métricas](https://devlake.apache.org/docs/Metrics) e [dashboards](https://devlake.apache.org/docs/Dashboard) conforme as necessidades.
+
+**Implementação de padrões:** Use o DevLake para aplicar [métricas DORA](https://devlake.apache.org/docs/Metrics/DORA) e para otimizar o desempenho de DevOps.
+
+**Crie uma cultura próspera:** O DevLake é centrado em práticas saudáveis que podem ajudar as equipes a adotar e construir uma cultura prática orientada por dados.
+
+
+O Apache DevLake pode ser implementado usando `Docker Compose` ou `Helm`. Agora vamos a uma demonstração:
+
+
+### Instalando via Docker Compose
+
+1. Faça o download do arquivo `docker-compose.yml` e `env.example` da release mais recente e estável, nesse caso utilizaremos a v1.0.1, acessível para [download](https://github.com/apache/incubator-devlake/releases/tag/v1.0.1) aqui.
+
+2. Renomeie o arquivo `env.example` para `.env`. Este arquivo contém as variáveis ​​de ambiente que o servidor Devlake usará.
+
+3. Gere uma chave de criptografia segura usando um método como o OpenSSL. Eexecute o seguinte comando para gerar uma string de 128 caracteres composta por letras maiúsculas:
+
+      ```
+      openssl rand -base64 2000 | tr -dc 'A-Z' | fold -w 128 | head -n 1
+      ```
+
+Copie a string gerada. Defina o valor da variável de ambiente ENCRYPTION_SECRET no arquivo `.env`.
+
+4. Agora execute `docker compose up -d` para iniciar o servidor. A saída será algo semelhante a:
+
+
+    ```
+    [+] Running 4/4
+    ✔ Container devlake-mysql-1      Running                                                                 0.0s 
+    ✔ Container devlake-grafana-1    Running                                                                 0.0s 
+    ✔ Container devlake-devlake-1    Running                                                                 0.0s 
+    ✔ Container devlake-config-ui-1  Started                                                                 0.4s
+    ```
+
+Você pode acessar o DevLake em `http://localhost:4000/` e o Grafana em `http://localhost:3002/`, utilizando `admin` como usuário e senha.
+
+### Realizando integrações e coletando dados
+
+1. Na página inicial, clique em `Connections`. Aqui podemos fazer integrações com `Github`, `Gitlab`, `Jenkins` e utilizar `Webhook`.
+
+2. Utilizarei o Github como conexão em `Create a new Connection`. O nome da minha conexão será `nataliagranato.github.io` e será realizada com o `Personal Access Token`.
+
+3. Em projetos, clique em `Create New Project` e informe um nome.
+
+4. Com a conexão e o projeto criados, precisamos adicionar nosso escopo de dados à conexão e associá-lo a um projeto existente. É possível obter métricas de uma organização inteira, um perfil ou um único repositório.
+
+Em seu projeto, você verá a opção `Add a Connection`. Selecione a que você criou anteriormente e clique em `next`. Selecione seu `Data Scope` e clique em `save`. Agora inicie a coleta de dados em `Collect Data`. Será disparada uma pipeline para obter seus dados, que podem ser visualizados no menu Advanced.
+
+5. O Grafana do DORA possui alguns dashboards que contribuem com a visualização dos dados, por exemplo:
+
+![Métricas DORA](./public/static/images/dora1.png)
+
+Aqui eu tenho dados de quantos pull requests foram mesclados no repositório, quantos foram mesclados ao longo do mês, quais não foram vinculados, tempo médio de mesclagem e etc.
+
+![Métricas DORA](public/static/images/dora2.png)
+
+Nesse outro exemplo, temos o tempo médio de um ciclo de pull request, tempo médio de codificação, de revisão e etc.
+
+
+
+### Referências
+
+[What is Apache DevLake?](https://devlake.apache.org/docs/Overview/Introduction)
+[DevOps Research and Assessment (DORA) metrics](https://docs.gitlab.com/user/analytics/dora_metrics/)
+[DORA Community](https://dora.community/)
