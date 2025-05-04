@@ -1,121 +1,106 @@
-# Tailwind Nextjs Starter Blog
+# Blog com Tailwind e Next.js
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/timlrx/tailwind-nextjs-starter-blog?style=social)](https://GitHub.com/timlrx/tailwind-nextjs-starter-blog/stargazers/)
-[![GitHub forks](https://img.shields.io/github/forks/timlrx/tailwind-nextjs-starter-blog?style=social)](https://GitHub.com/timlrx/tailwind-nextjs-starter-blog/network/)
+[![Estrelas do repositório no GitHub](https://img.shields.io/github/stars/timlrx/tailwind-nextjs-starter-blog?style=social)](https://GitHub.com/timlrx/tailwind-nextjs-starter-blog/stargazers/)
+[![Forks no GitHub](https://img.shields.io/github/forks/timlrx/tailwind-nextjs-starter-blog?style=social)](https://GitHub.com/timlrx/tailwind-nextjs-starter-blog/network/)
 [![Twitter URL](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Ftimlrxx)](https://twitter.com/timlrxx)
-[![Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/timlrx)](https://github.com/sponsors/timlrx)
+[![Patrocinar](https://img.shields.io/static/v1?label=Patrocinar&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/timlrx)](https://github.com/sponsors/timlrx)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/timlrx/tailwind-nextjs-starter-blog)
+[![Implantar com Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/timlrx/tailwind-nextjs-starter-blog)
 
-This is a [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/) blogging starter template. Version 2 is based on Next App directory with [React Server Component](https://nextjs.org/docs/getting-started/react-essentials#server-components) and uses [Contentlayer](https://www.contentlayer.dev/) to manage markdown content.
+Este é um template inicial de blog usando [Next.js](https://nextjs.org/) e [Tailwind CSS](https://tailwindcss.com/). A versão 2 é baseada no diretório App do Next.js com [Componentes de Servidor do React](https://nextjs.org/docs/getting-started/react-essentials#server-components) e utiliza o [Contentlayer](https://www.contentlayer.dev/) para gerenciar conteúdo em markdown.
 
-## Quick Start Guide
+## Guia Rápido de Início
 
-1. Clone the repo
+1. Clone o repositório:
 
 ```bash
 npx degit 'timlrx/tailwind-nextjs-starter-blog'
 ```
 
-2. Personalize `siteMetadata.js` (site related information)
-3. Modify the content security policy in `next.config.js` if you want to use
-   other analytics provider or a commenting solution other than giscus.
-4. Personalize `authors/default.md` (main author)
-5. Modify `projectsData.ts`
-6. Modify `headerNavLinks.ts` to customize navigation links
-7. Add blog posts
-8. Deploy on Vercel
+2. Personalize o arquivo `siteMetadata.js` (informações relacionadas ao site).
+3. Modifique a política de segurança de conteúdo em `next.config.js` se quiser usar outro provedor de análise ou uma solução de comentários diferente do giscus.
+4. Personalize `authors/default.md` (autor principal).
+5. Modifique `projectsData.ts`.
+6. Modifique `headerNavLinks.ts` para personalizar os links de navegação.
+7. Adicione posts ao blog.
+8. Implemente no Vercel.
 
-## Installation
+## Instalação
 
 ```bash
 yarn
 ```
 
-Please note, that if you are using Windows, you may need to run:
+Se você estiver usando Windows, pode ser necessário executar:
 
 ```bash
 set PWD="$(pwd)"
 ```
 
-## Development
+## Desenvolvimento
 
-First, run the development server:
+Primeiro, inicie o servidor de desenvolvimento:
 
 ```bash
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000) no navegador para ver o resultado.
 
-Edit the layout in `app` or content in `data`. With live reloading, the pages auto-updates as you edit them.
+Edite o layout em `app` ou o conteúdo em `data`. Com o live reloading, as páginas são atualizadas automaticamente conforme você as edita.
 
-## Extend / Customize
+## Estender / Personalizar
 
-`data/siteMetadata.js` - contains most of the site related information which should be modified for a user's need.
-
-`data/authors/default.md` - default author information (required). Additional authors can be added as files in `data/authors`.
-
-`data/projectsData.js` - data used to generate styled card on the projects page.
-
-`data/headerNavLinks.js` - navigation links.
-
-`data/logo.svg` - replace with your own logo.
-
-`data/blog` - replace with your own blog posts.
-
-`public/static` - store assets such as images and favicons.
-
-`tailwind.config.js` and `css/tailwind.css` - tailwind configuration and stylesheet which can be modified to change the overall look and feel of the site.
-
-`css/prism.css` - controls the styles associated with the code blocks. Feel free to customize it and use your preferred prismjs theme e.g. [prism themes](https://github.com/PrismJS/prism-themes).
-
-`contentlayer.config.ts` - configuration for Contentlayer, including definition of content sources and MDX plugins used. See [Contentlayer documentation](https://www.contentlayer.dev/docs/getting-started) for more information.
-
-`components/MDXComponents.js` - pass your own JSX code or React component by specifying it over here. You can then use them directly in the `.mdx` or `.md` file. By default, a custom link, `next/image` component, table of contents component and Newsletter form are passed down. Note that the components should be default exported to avoid [existing issues with Next.js](https://github.com/vercel/next.js/issues/51593).
-
-`layouts` - main templates used in pages:
-
-- There are currently 3 post layouts available: `PostLayout`, `PostSimple` and `PostBanner`. `PostLayout` is the default 2 column layout with meta and author information. `PostSimple` is a simplified version of `PostLayout`, while `PostBanner` features a banner image.
-- There are 2 blog listing layouts: `ListLayout`, the layout used in version 1 of the template with a search bar and `ListLayoutWithTags`, currently used in version 2, which omits the search bar but includes a sidebar with information on the tags.
-
-`app` - pages to route to. Read the [Next.js documentation](https://nextjs.org/docs/app) for more information.
-
-`next.config.js` - configuration related to Next.js. You need to adapt the Content Security Policy if you want to load scripts, images etc. from other domains.
+- `data/siteMetadata.js`: contém a maioria das informações relacionadas ao site que devem ser modificadas conforme a necessidade do usuário.
+- `data/authors/default.md`: informações do autor padrão (obrigatório). Autores adicionais podem ser adicionados como arquivos em `data/authors`.
+- `data/projectsData.js`: dados usados para gerar cartões estilizados na página de projetos.
+- `data/headerNavLinks.js`: links de navegação.
+- `data/logo.svg`: substitua pelo seu próprio logotipo.
+- `data/blog`: substitua pelos seus próprios posts de blog.
+- `public/static`: armazene ativos como imagens e favicons.
+- `tailwind.config.js` e `css/tailwind.css`: configuração e folha de estilo do Tailwind, que podem ser modificadas para alterar a aparência geral do site.
+- `css/prism.css`: controla os estilos associados aos blocos de código. Personalize e use seu tema preferido do prismjs, como [temas do prism](https://github.com/PrismJS/prism-themes).
+- `contentlayer.config.ts`: configuração para o Contentlayer, incluindo definição de fontes de conteúdo e plugins MDX usados. Consulte a [documentação do Contentlayer](https://www.contentlayer.dev/docs/getting-started) para mais informações.
+- `components/MDXComponents.js`: passe seu próprio código JSX ou componente React especificando-o aqui. Você pode usá-los diretamente nos arquivos `.mdx` ou `.md`. Por padrão, um link personalizado, o componente `next/image`, o componente de índice e o formulário de Newsletter são passados. Observe que os componentes devem ser exportados como padrão para evitar [problemas existentes com o Next.js](https://github.com/vercel/next.js/issues/51593).
+- `layouts`: principais templates usados nas páginas:
+  - Atualmente, há 3 layouts de post disponíveis: `PostLayout`, `PostSimple` e `PostBanner`. `PostLayout` é o layout padrão de 2 colunas com informações de meta e autor. `PostSimple` é uma versão simplificada de `PostLayout`, enquanto `PostBanner` apresenta uma imagem de banner.
+  - Há 2 layouts de listagem de blog: `ListLayout`, o layout usado na versão 1 do template com uma barra de pesquisa, e `ListLayoutWithTags`, atualmente usado na versão 2, que omite a barra de pesquisa, mas inclui uma barra lateral com informações sobre as tags.
+- `app`: páginas para roteamento. Leia a [documentação do Next.js](https://nextjs.org/docs/app) para mais informações.
+- `next.config.js`: configuração relacionada ao Next.js. Você precisará adaptar a Política de Segurança de Conteúdo se quiser carregar scripts, imagens, etc., de outros domínios.
 
 ## Post
 
-Content is modelled using [Contentlayer](https://www.contentlayer.dev/), which allows you to define your own content schema and use it to generate typed content objects. See [Contentlayer documentation](https://www.contentlayer.dev/docs/getting-started) for more information.
+O conteúdo é modelado usando o [Contentlayer](https://www.contentlayer.dev/), que permite definir seu próprio esquema de conteúdo e usá-lo para gerar objetos de conteúdo tipados. Consulte a [documentação do Contentlayer](https://www.contentlayer.dev/docs/getting-started) para mais informações.
 
 ### Frontmatter
 
-Frontmatter follows [Hugo's standards](https://gohugo.io/content-management/front-matter/).
+O Frontmatter segue os [padrões do Hugo](https://gohugo.io/content-management/front-matter/).
 
-Please refer to `contentlayer.config.ts` for an up to date list of supported fields. The following fields are supported:
+Consulte `contentlayer.config.ts` para uma lista atualizada de campos suportados. Os seguintes campos são suportados:
 
 ```
-title (required)
-date (required)
-tags (optional)
-lastmod (optional)
-draft (optional)
-summary (optional)
-images (optional)
-authors (optional list which should correspond to the file names in `data/authors`. Uses `default` if none is specified)
-layout (optional list which should correspond to the file names in `data/layouts`)
-canonicalUrl (optional, canonical url for the post for SEO)
+title (obrigatório)
+date (obrigatório)
+tags (opcional)
+lastmod (opcional)
+draft (opcional)
+summary (opcional)
+images (opcional)
+authors (lista opcional que deve corresponder aos nomes dos arquivos em `data/authors`. Usa `default` se nenhum for especificado)
+layout (lista opcional que deve corresponder aos nomes dos arquivos em `data/layouts`)
+canonicalUrl (opcional, URL canônica para o post para SEO)
 ```
 
-Here's an example of a post's frontmatter:
+Exemplo de frontmatter de um post:
 
 ```
 ---
-title: 'Introducing Tailwind Nexjs Starter Blog'
+title: 'Apresentando o Blog Inicial com Tailwind e Next.js'
 date: '2021-01-12'
 lastmod: '2021-01-18'
-tags: ['next-js', 'tailwind', 'guide']
+tags: ['next-js', 'tailwind', 'guia']
 draft: false
-summary: 'Looking for a performant, out of the box template, with all the best in web technology to support your blogging needs? Checkout the Tailwind Nextjs Starter Blog template.'
+summary: 'Procurando por um template performático, pronto para uso, com o melhor da tecnologia web para atender às suas necessidades de blog? Confira o template Blog Inicial com Tailwind e Next.js.'
 images: ['/static/images/canada/mountains.jpg', '/static/images/canada/toronto.jpg']
 authors: ['default', 'sparrowhawk']
 layout: PostLayout
@@ -123,26 +108,26 @@ canonicalUrl: https://tailwind-nextjs-starter-blog.vercel.app/blog/introducing-t
 ---
 ```
 
-## Deploy
+## Implantação
 
 **Vercel**  
-The easiest way to deploy the template is to deploy on [Vercel](https://vercel.com). Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+A maneira mais fácil de implantar o template é no [Vercel](https://vercel.com). Confira a [documentação de implantação do Next.js](https://nextjs.org/docs/app/building-your-application/deploying) para mais detalhes.
 
-**Netlify**
-[Netlify](https://www.netlify.com/)’s Next.js runtime configures enables key Next.js functionality on your website without the need for additional configurations. Netlify generates serverless functions that will handle Next.js functionalities such as server-side rendered (SSR) pages, incremental static regeneration (ISR), `next/images`, etc.
+**Netlify**  
+O [Netlify](https://www.netlify.com/) configura o runtime do Next.js para habilitar funcionalidades-chave do Next.js no seu site sem necessidade de configurações adicionais. O Netlify gera funções serverless que lidam com funcionalidades como páginas renderizadas no servidor (SSR), regeneração estática incremental (ISR), `next/images`, etc.
 
-See [Next.js on Netlify](https://docs.netlify.com/integrations/frameworks/next-js/overview/#next-js-runtime) for suggested configuration values and more details.
+Consulte [Next.js no Netlify](https://docs.netlify.com/integrations/frameworks/next-js/overview/#next-js-runtime) para valores de configuração sugeridos e mais detalhes.
 
-**Static hosting services / GitHub Pages / S3 / Firebase etc.**
+**Serviços de hospedagem estática / GitHub Pages / S3 / Firebase etc.**
 
-1. Add `output: 'export'` in `next.config.js`. See [static exports documentation](https://nextjs.org/docs/app/building-your-application/deploying/static-exports#configuration) for more information.
-2. Comment out `headers()` from `next.config.js`.
-3. Add `unoptimized: true` to the `images` key in `next.config.js`:
+1. Adicione `output: 'export'` em `next.config.js`. Consulte a [documentação de exportação estática](https://nextjs.org/docs/app/building-your-application/deploying/static-exports#configuration) para mais informações.
+2. Comente `headers()` em `next.config.js`.
+3. Adicione `unoptimized: true` à chave `images` em `next.config.js`:
 
-   Alternatively, to continue using `next/image`, you can use an alternative image optimization provider such as Imgix, Cloudinary or Akamai. See [image optimization documentation](https://nextjs.org/docs/app/building-your-application/deploying/static-exports#image-optimization) for more details.
+   Alternativamente, para continuar usando `next/image`, você pode usar um provedor de otimização de imagens alternativo, como Imgix, Cloudinary ou Akamai. Consulte a [documentação de otimização de imagens](https://nextjs.org/docs/app/building-your-application/deploying/static-exports#image-optimization) para mais detalhes.
 
-4. Remove `api` folder and components which call the server-side function such as the Newsletter component. Not technically required and the site will build successfully, but the APIs cannot be used as they are server-side functions.
-5. Run `yarn build`. The generated static content is in the `out` folder.
-6. Deploy the `out` folder to your hosting service of choice or run `npx serve out` to view the website locally.
+4. Remova a pasta `api` e os componentes que chamam a função do lado do servidor, como o componente de Newsletter. Não é tecnicamente necessário, e o site será construído com sucesso, mas as APIs não poderão ser usadas, pois são funções do lado do servidor.
+5. Execute `yarn build`. O conteúdo estático gerado estará na pasta `out`.
+6. Implemente a pasta `out` no serviço de hospedagem de sua escolha ou execute `npx serve out` para visualizar o site localmente.
 
-**Note**: Deploying on Github pages require addition modifications to the base path. Please refer to the FAQ for more information.
+**Nota**: Implantar no GitHub Pages requer modificações adicionais no caminho base. Consulte o FAQ para mais informações.
