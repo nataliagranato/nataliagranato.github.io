@@ -1,0 +1,254 @@
+---
+title: 'Otimizando e Corrigindo Vulnerabilidades com Docker Scout'
+date: '2025-06-26'
+tags: ['devops', 'security']
+draft: false
+images: ['/static/images/docker-scout.png']
+
+summary: O Docker Scout é uma ferramenta poderosa para otimizar imagens Docker e corrigir vulnerabilidades de segurança. Neste artigo, vamos explorar como utilizá-lo para melhorar a segurança e eficiência das suas aplicações.
+
+
+---
+
+# Conhecendo o Docker Scout
+
+O Docker Scout se tornou uma ferramenta fundamental no meu dia a dia de trabalho, principalmente pela possibilidade de otimizar imagens, identificar rapidamente vulnerabilidades e corrigir rapidamente problemas de segurança, tudo isso pelo terminal, de forma simples e rápida. Você também pode utilizar na console do Docker Hub, no Docker Desktop ou no Gitlab CI e GitHub Actions.
+
+Antes de mostrar como instalar e utilizar o Docker Scout, vamos relembrar alguns conceitos importantes sobre imagens Docker e vulnerabilidades de segurança. Quando construímos uma imagem de container, ela utiliza uma série de camadas, é uma boa prática reduzir ao máximo o número de camadas e dependências desnecessárias, pois isso não só reduz o tamanho da imagem, mas também minimiza a superfície de ataque, tornando a aplicação mais segura. 
+
+Podemos utilizar o chamado `multi-stage build` para criar imagens mais enxutas, onde apenas os artefatos necessários são mantidos na imagem final ou até mesmo usar soluções como o `distroless`, que cria imagens sem um sistema operacional completo, reduzindo ainda mais o tamanho e a superfície de ataque. Porém, mesmo com essas práticas, é comum que imagens ainda contenham vulnerabilidades de segurança, como dependências desatualizadas, uma vulnerabilidade nova relacionada a alguma biblioteca e etc. É aí que entra o Docker Scout.
+
+### Software Bill of Materials (SBOM)
+
+O Software Bill of Materials (SBOM) é uma lista detalhada de todos os componentes de software, incluindo bibliotecas e dependências, que compõem uma aplicação. O Docker Scout gera um SBOM automaticamente durante a análise da imagem, facilitando a identificação de componentes vulneráveis e a aplicação de correções. Existem banco de dados de vulnerabilidades, como o NVD (National Vulnerability Database), que são utilizados pelo Docker Scout para identificar problemas conhecidos nas dependências. Aqui https://docs.docker.com/scout/deep-dive/advisory-db-sources/ você pode ver as fontes de dados de vulnerabilidades utilizadas pelo Docker Scout. 
+
+### Instalação do Docker Scout
+
+Para instalar o Docker Scout, você pode usar o seguinte comando:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
+sh install-scout.sh
+```
+
+Agora você pode verificar se a instalação foi bem-sucedida e ver as opções disponíveis com o comando:
+
+```bash
+docker scout 
+```
+
+A saída deve ser algo como:
+
+```
+Available Commands
+  attestation             Manage attestations on images
+  cache                   Manage Docker Scout cache and temporary files
+  compare                 Compare two images and display differences (experimental)
+  config                  Manage Docker Scout configuration
+  cves                    Display CVEs identified in a software artifact
+  enroll                  Enroll an organization with Docker Scout
+  environment             Manage environments (experimental)
+  help                    Display information about the available commands
+  integration             Commands to list, configure, and delete Docker Scout integrations
+  policy                  Evaluate policies against an image and display the policy evaluation results (experimental)
+  push                    Push an image or image index to Docker Scout
+  quickview               Quick overview of an image
+  recommendations         Display available base image updates and remediation recommendations
+  repo                    Commands to list, enable, and disable Docker Scout on repositories
+  version                 Show Docker Scout version information
+  watch                   Watch repositories in a registry and push images and indexes to Docker Scout (experimental)
+```
+
+Agora vamos fazer uma análise de uma imagem que eu nao mantenho a mais de um ano, para ver o que o Docker Scout pode nos mostrar.
+
+```bash
+docker scout quickview nataliagranato/rundeck-exporter:1
+```
+
+Ele me mostrou o seguinte resultado:
+
+```
+✓ Image stored for indexing
+✓ Indexed 62 packages
+  Target               │  nataliagranato/rundeck-exporter:1  │    3C     8H    13M     1L   
+    digest             │  d83736b9c402                       │
+
+ℹ️ Base image was auto-detected. To get more accurate results, build images with max-mode provenance attestations.
+   Review docs.docker.com ↗ for more information.
+```
+
+### Análise de Vulnerabilidades
+
+| Componente               | Nome                                | Critical | High   | Medium | Low   |
+| :----------------------- | :---------------------------------- | :------- | :----- | :----- | :---- |
+| **Target**               | `nataliagranato/rundeck-exporter:1` | 3C       | 8H     | 13M    | 1L    |
+| Digest                   | `d83736b9c402`                      |          |        |        |       |
+| **Base image**           | `python:3-alpine`                   | 3C       | 8H     | 8M     | 0L    |
+| **Refreshed base image** | `python:3-alpine`                   | 0C       | 0H     | 0M     | 0L    |
+|                          | *Redução de vulnerabilidades*       | **-3**   | **-8** | **-8** | **0** |
+| **Updated base image**   | `python:3-alpine3.21`               | 0C       | 0H     | 0M     | 0L    |
+|                          | *Redução de vulnerabilidades*       | **-3**   | **-8** | **-8** | **0** |
+
+**Legenda das vulnerabilidades:**
+- **C** = Critical (Críticas)
+- **H** = High (Altas)  
+- **M** = Medium (Médias)
+- **L** = Low (Baixas)
+
+### Analisando o Resultado
+
+O Docker Scout me mostrou que temos 3 vulnerabilidades críticas, 8 altas e 13 médias na imagem `nataliagranato/rundeck-exporter:1` e temos vulnerabilidades na imagem base `python:3-alpine` também. Mas além de dar visibilidade para as vulnerabilidades, ele mostra os próximos passos para resolver esses problemas. Algo como:
+
+```bash
+What's next:
+    View vulnerabilities → docker scout cves nataliagranato/rundeck-exporter:1
+    View base image update recommendations → docker scout recommendations nataliagranato/rundeck-exporter:1
+```
+
+Com a opção de `docker scout cves`, você pode ver cada vulnerabilidade identificada, sua criticidade, em que versão ela foi corrigida, além de poder acessar um link com maiores detalhes, como os pacotes afetados. Use:
+
+```bash
+docker scout cves nataliagranato/rundeck-exporter:1
+```
+
+A saída será algo como:
+
+```
+   0C     0H     0M     1L  certifi 2024.2.2
+pkg:pypi/certifi@2024.2.2
+
+    ✗ LOW CVE-2024-39689 [Insufficient Verification of Data Authenticity]
+      https://scout.docker.com/v/CVE-2024-39689
+      Affected range : >=2021.5.30  
+                     : <2024.7.4    
+      Fixed version  : 2024.7.4     
+    
+
+
+25 vulnerabilities found in 9 packages
+  CRITICAL  3   
+  HIGH      8   
+  MEDIUM    13  
+  LOW       1   
+
+```
+
+Depois disso o Docker Scout te dará recomendações para corrigir os problemas encontrados, explicando os benefícios de cada ação. Isso fica a cargo de `docker scout recommendations`:
+
+```bash
+docker scout recommendations nataliagranato/rundeck-exporter:1
+```
+
+Vamos ver o que ele recomenda:
+
+```
+## Recommended fixes
+
+  Base image is  python:3-alpine 
+
+  Name            │  3-alpine                                                                  
+  Digest          │  sha256:c583b8590a197db1f6efece2dd244b0259cb6f82c4acc654bfbe48e00e20a7b9   
+  Vulnerabilities │    3C     8H     8M     0L                                                 
+  Pushed          │ 1 year ago                                                                 
+  Size            │ 21 MB                                                                      
+  Packages        │ 56                                                                         
+  Flavor          │ alpine                                                                     
+  OS              │ 3.19                                                                       
+  Runtime         │ 3.12.3                                                                     
+
+                                                                                                                      
+  │ The base image is also available under the supported tag(s)  3.12-alpine ,  alpine . If you want to display        
+  │ recommendations specifically for a different tag, please re-run the command using the  --tag  flag.                
+
+
+
+Refresh base image
+  Rebuild the image using a newer base image version. Updating this may result in breaking changes.
+
+
+            Tag            │                        Details                         │   Pushed    │       Vulnerabilities        
+───────────────────────────┼────────────────────────────────────────────────────────┼─────────────┼──────────────────────────────
+   3-alpine                │ Benefits:                                              │ 2 weeks ago │    0C     0H     0M     0L   
+  Newer image for same tag │ • Same OS detected                                     │             │    -3     -8     -8          
+  Also known as:           │ • Minor runtime version update                         │             │                              
+  • alpine                 │ • Newer image for same tag                             │             │                              
+  • alpine3.22             │ • Image is smaller by 3.7 MB                           │             │                              
+  • 3.13.5-alpine          │ • Image contains 17 fewer packages                     │             │                              
+  • 3.13.5-alpine3.22      │ • Tag is preferred tag                                 │             │                              
+  • 3.13-alpine            │ • Tag was pushed more recently                         │             │                              
+  • 3.13-alpine3.22        │ • Image introduces no new vulnerability but removes 19 │             │                              
+  • 3-alpine3.22           │ • 3-alpine was pulled 51K times last month             │             │                              
+                           │                                                        │             │                              
+                           │ Image details:                                         │             │                              
+                           │ • Size: 17 MB                                          │             │                              
+                           │ • Flavor: alpine                                       │             │                              
+                           │ • OS: 3.22                                             │             │                              
+                           │ • Runtime: 3.13.5                                      │             │                              
+                           │                                                        │             │                              
+                           │                                                        │             │                              
+                           │                                                        │             │                              
+
+
+Change base image
+  The list displays new recommended tags in descending order, where the top results are rated as most suitable.
+
+
+              Tag              │                        Details                         │   Pushed    │       Vulnerabilities        
+───────────────────────────────┼────────────────────────────────────────────────────────┼─────────────┼──────────────────────────────
+   3-alpine3.21                │ Benefits:                                              │ 2 weeks ago │    0C     0H     0M     0L   
+  Minor runtime version update │ • Same OS detected                                     │             │    -3     -8     -8          
+  Also known as:               │ • Minor runtime version update                         │             │                              
+  • alpine3.21                 │ • Image is smaller by 3.9 MB                           │             │                              
+  • 3.13.5-alpine3.21          │ • Image contains 18 fewer packages                     │             │                              
+  • 3.13-alpine3.21            │ • Tag was pushed more recently                         │             │                              
+                               │ • Image introduces no new vulnerability but removes 19 │             │                              
+                               │                                                        │             │                              
+                               │ Image details:                                         │             │                              
+                               │ • Size: 17 MB                                          │             │                              
+                               │ • Flavor: alpine                                       │             │                              
+                               │ • OS: 3.21                                             │             │                              
+                               │ • Runtime: 3.13.5                                      │             │                              
+                               │                                                        │             │                              
+                               │                                                        │             │                              
+                               │                                                        │             │                              
+   3.12-alpine                 │ Benefits:                                              │ 3 weeks ago │    0C     0H     0M     0L   
+  Minor runtime version update │ • Same OS detected                                     │             │    -3     -8     -8          
+  Also known as:               │ • Minor runtime version update                         │             │                              
+  • 3.12.11-alpine             │ • Image is smaller by 2.6 MB                           │             │                              
+  • 3.12.11-alpine3.22         │ • Tag was pushed more recently                         │             │                              
+  • 3.12-alpine3.22            │ • Image introduces no new vulnerability but removes 19 │             │                              
+                               │ • Image contains similar number of packages            │             │                              
+                               │                                                        │             │                              
+                               │ Image details:                                         │             │                              
+                               │ • Size: 18 MB                                          │             │                              
+                               │ • Flavor: alpine                                       │             │                              
+                               │ • OS: 3.22                                             │             │                              
+                               │ • Runtime: 3.12.11                                     │             │                              
+                               │                                                        │             │                              
+                               │                                                        │             │                              
+                               │                                                        │             │                              
+   3.12-alpine3.21             │ Benefits:                                              │ 3 weeks ago │    0C     0H     0M     0L   
+  Minor runtime version update │ • Same OS detected                                     │             │    -3     -8     -8          
+  Also known as:               │ • Minor runtime version update                         │             │                              
+  • 3.12.11-alpine3.21         │ • Image is smaller by 2.8 MB                           │             │                              
+                               │ • Tag was pushed more recently                         │             │                              
+                               │ • Image introduces no new vulnerability but removes 19 │             │                              
+                               │ • Image contains equal number of packages              │             │                              
+                               │                                                        │             │                              
+                               │ Image details:                                         │             │                              
+                               │ • Size: 18 MB                                          │             │                              
+                               │ • Flavor: alpine                                       │             │                              
+                               │ • OS: 3.21                                             │             │                              
+                               │ • Runtime: 3.12.11                                     │             │                              
+                               │                                                        │             │                              
+                               │                                                        │             │                              
+                               │                                                        │             │                              
+```
+
+Ou seja, na imagem `3.12-alpine3.21` lançada há três semanas, todas as vulnerabilidades foram removidas e a imagem foi reduzida em 2.8 MB. Esse é o funcionamento geral do Docker Scout, nem sempre há uma vulnerabilidade identificada que já possua uma correcao, mas isso te deixa ciente do problema. 
+
+### Referências
+
+- [Docker Scout - Documentação Oficial](https://docs.docker.com/scout/)
+- [SBOM - Software Bill of Materials](https://www.fortinet.com/br/resources/cyberglossary/sbom)
+- [NVD - National Vulnerability Database](https://nvd.nist.gov/)
