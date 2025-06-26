@@ -18,6 +18,10 @@ Antes de mostrar como instalar e utilizar o Docker Scout, vamos relembrar alguns
 
 Podemos utilizar o chamado `multi-stage build` para criar imagens mais enxutas, onde apenas os artefatos necessários são mantidos na imagem final ou até mesmo usar soluções como o `distroless`, que cria imagens sem um sistema operacional completo, reduzindo ainda mais o tamanho e a superfície de ataque. Porém, mesmo com essas práticas, é comum que imagens ainda contenham vulnerabilidades de segurança, como dependências desatualizadas, uma vulnerabilidade nova relacionada a alguma biblioteca e etc. É aí que entra o Docker Scout.
 
+
+![Docker Scout](https://www.docker.com/app/uploads/2024/10/2400x1260_generic-scout-blog_d-1110x583.png)
+
+
 ### Software Bill of Materials (SBOM)
 
 O Software Bill of Materials (SBOM) é uma lista detalhada de todos os componentes de software, incluindo bibliotecas e dependências, que compõem uma aplicação. O Docker Scout gera um SBOM automaticamente durante a análise da imagem, facilitando a identificação de componentes vulneráveis e a aplicação de correções. Existem banco de dados de vulnerabilidades, como o NVD (National Vulnerability Database), que são utilizados pelo Docker Scout para identificar problemas conhecidos nas dependências. Aqui https://docs.docker.com/scout/deep-dive/advisory-db-sources/ você pode ver as fontes de dados de vulnerabilidades utilizadas pelo Docker Scout. 
