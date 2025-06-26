@@ -16,7 +16,7 @@ O Docker Scout se tornou uma ferramenta fundamental no meu dia a dia de trabalho
 
 Antes de mostrar como instalar e utilizar o Docker Scout, vamos relembrar alguns conceitos importantes sobre imagens Docker e vulnerabilidades de segurança. Quando construímos uma imagem de container, ela utiliza uma série de camadas, é uma boa prática reduzir ao máximo o número de camadas e dependências desnecessárias, pois isso não só reduz o tamanho da imagem, mas também minimiza a superfície de ataque, tornando a aplicação mais segura. 
 
-Podemos utilizar o chamado `multi-stage build` para criar imagens mais enxutas, onde apenas os artefatos necessários são mantidos na imagem final ou até mesmo usar solucões como o `distroless`, que cria imagens sem um sistema operacional completo, reduzindo ainda mais o tamanho e a superfície de ataque. Porém, mesmo com essas práticas, é comum que imagens ainda contenham vulnerabilidades de segurança, como dependências desatualizadas, uma vulnerabilidade nova relacionada a alguma bibliotec e etc. É aí que entra o Docker Scout.
+Podemos utilizar o chamado `multi-stage build` para criar imagens mais enxutas, onde apenas os artefatos necessários são mantidos na imagem final ou até mesmo usar soluções como o `distroless`, que cria imagens sem um sistema operacional completo, reduzindo ainda mais o tamanho e a superfície de ataque. Porém, mesmo com essas práticas, é comum que imagens ainda contenham vulnerabilidades de segurança, como dependências desatualizadas, uma vulnerabilidade nova relacionada a alguma biblioteca e etc. É aí que entra o Docker Scout.
 
 ### Software Bill of Materials (SBOM)
 
@@ -59,7 +59,7 @@ Available Commands
   watch                   Watch repositories in a registry and push images and indexes to Docker Scout (experimental)
 ```
 
-Agora vamos fazer uma análise de uma imagem que eu não mantenho há mais de um ano, para ver o que o Docker Scout pode nos mostrar.
+Agora vamos fazer uma análise de uma imagem que eu nao mantenho a mais de um ano, para ver o que o Docker Scout pode nos mostrar.
 
 ```bash
 docker scout quickview nataliagranato/rundeck-exporter:1
@@ -80,7 +80,7 @@ Ele me mostrou o seguinte resultado:
 ### Análise de Vulnerabilidades
 
 | Componente               | Nome                                | Critical | High   | Medium | Low   |
-| ------------------------ | ----------------------------------- | -------- | ------ | ------ | ----- |
+| :----------------------- | :---------------------------------- | :------- | :----- | :----- | :---- |
 | **Target**               | `nataliagranato/rundeck-exporter:1` | 3C       | 8H     | 13M    | 1L    |
 | Digest                   | `d83736b9c402`                      |          |        |        |       |
 | **Base image**           | `python:3-alpine`                   | 3C       | 8H     | 8M     | 0L    |
@@ -245,7 +245,7 @@ Change base image
                                │                                                        │             │                              
 ```
 
-Ou seja, na imagem `3.12-alpine3.21` lancada a tres semanas, todas as vulnerabilidades foram removidas e a imagem foi reduzida em 2.8 MB. Esse é o funcionamento geral do Docker Scout, nem sempre há uma vulnerabilidade identificada que já possua uma correcao, mas isso te deixa ciente do problema. 
+Ou seja, na imagem `3.12-alpine3.21` lançada há três semanas, todas as vulnerabilidades foram removidas e a imagem foi reduzida em 2.8 MB. Esse é o funcionamento geral do Docker Scout, nem sempre há uma vulnerabilidade identificada que já possua uma correcao, mas isso te deixa ciente do problema. 
 
 ### Referências
 
