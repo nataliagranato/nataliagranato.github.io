@@ -1,5 +1,6 @@
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
+import SubscriberCount from '@/components/SubscriberCount'
 import siteMetadata from '@/data/siteMetadata'
 import { formatDate } from 'pliny/utils/formatDate'
 import NewsletterForm from 'pliny/ui/NewsletterForm'
@@ -82,7 +83,12 @@ export default function Home({ posts }) {
         </div>
       )}
       {siteMetadata.newsletter?.provider && (
-        <div className="flex items-center justify-center pt-4">
+        <div className="flex flex-col items-center justify-center pt-4 space-y-2">
+          <div className="text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Junte-se a <SubscriberCount /> que recebem nossas atualizações
+            </p>
+          </div>
           <NewsletterForm />
         </div>
       )}
