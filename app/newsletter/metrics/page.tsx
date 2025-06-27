@@ -33,6 +33,7 @@ export default function NewsletterMetrics() {
   const fetchMetrics = async () => {
     try {
       setLoading(true)
+      setError(null)
       const response = await fetch('/api/newsletter')
       
       if (!response.ok) {
