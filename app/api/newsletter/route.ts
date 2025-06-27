@@ -1,5 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+interface ButtondownSubscriber {
+  id: string
+  email_address: string
+  subscriber_type: 'regular' | 'unactivated'
+  creation_date: string
+  tags?: string[]
+}
+
+interface ButtondownResponse {
+  count: number
+  next: string | null
+  results: ButtondownSubscriber[]
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json()
@@ -44,7 +58,11 @@ export async function POST(request: NextRequest) {
     })
 
     const responseText = await response.text()
-    console.log('Buttondown response:', response.status, responseText)
+    
+    // Log seguro apenas com status (sem dados sensíveis)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Buttondown API response status:', response.status)
+    }
 
     if (response.status === 201) {
       return NextResponse.json({ message: 'Inscrito com sucesso!' })
@@ -57,7 +75,10 @@ export async function POST(request: NextRequest) {
         errorData = { detail: 'Erro desconhecido' }
       }
 
-      console.log('Error data:', errorData)
+      // Log seguro apenas com tipos de erro (sem dados sensíveis)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Error type:', errorData.code || 'unknown')
+      }
 
       // Verifica se é erro de email já existente
       if (errorData.code === 'email_already_exists') {
@@ -75,7 +96,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     } else {
-      console.error('Erro na API do Buttondown:', response.status, responseText)
+      // Log seguro apenas com status (sem dados sensíveis)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erro na API do Buttondown - Status:', response.status)
+      }
       return NextResponse.json(
         { error: 'Erro interno do servidor' },
         { status: 500 }
@@ -83,7 +107,10 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Erro no processamento da newsletter:', error)
+    // Log seguro apenas em desenvolvimento (sem dados sensíveis)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Erro no processamento da newsletter:', error instanceof Error ? error.message : 'Erro desconhecido')
+    }
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }
@@ -102,75 +129,94 @@ export async function GET() {
       )
     }
 
-    // Buscar estatísticas dos assinantes
-    const response = await fetch('https://api.buttondown.email/v1/subscribers', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Token ${API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-    })
+    // Função para buscar todos os assinantes com paginação
+    const fetchAllSubscribers = async (): Promise<ButtondownSubscriber[]> => {
+      let allSubscribers: ButtondownSubscriber[] = []
+      let nextUrl: string | null = 'https://api.buttondown.email/v1/subscribers'
+      
+      while (nextUrl) {
+        const response = await fetch(nextUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Token ${API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        })
 
-    if (!response.ok) {
-      console.error('Erro ao buscar métricas:', response.status, await response.text())
-      return NextResponse.json(
-        { error: 'Erro ao buscar métricas' },
-        { status: response.status }
-      )
+        if (!response.ok) {
+          throw new Error(`Erro ao buscar assinantes: ${response.status}`)
+        }
+
+        const data: ButtondownResponse = await response.json()
+        allSubscribers = allSubscribers.concat(data.results || [])
+        nextUrl = data.next // URL da próxima página, null se não houver mais páginas
+      }
+      
+      return allSubscribers
     }
 
-    const data = await response.json()
+    const subscribers = await fetchAllSubscribers()
+    const totalSubscribers = subscribers.length
     
-    // Calcular métricas
-    const totalSubscribers = data.count || 0
-    const subscribers = data.results || []
-    
-    // Contar assinantes ativos vs pendentes
-    const activeSubscribers = subscribers.filter(sub => sub.subscriber_type === 'regular').length
-    const pendingSubscribers = subscribers.filter(sub => sub.subscriber_type === 'unactivated').length
-    
-    // Estatísticas por tags
-    const tagStats = {}
-    subscribers.forEach(sub => {
-      if (sub.tags && Array.isArray(sub.tags)) {
-        sub.tags.forEach(tag => {
-          tagStats[tag] = (tagStats[tag] || 0) + 1
-        })
-      }
-    })
-
-    // Métricas de crescimento (últimos 30 dias)
+    // Calcular todas as métricas em uma única iteração (otimização de performance)
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
     
-    const recentSubscribers = subscribers.filter(sub => {
+    const metrics = subscribers.reduce((acc, sub) => {
+      // Contar por tipo de assinante
+      if (sub.subscriber_type === 'regular') {
+        acc.activeSubscribers++
+      } else if (sub.subscriber_type === 'unactivated') {
+        acc.pendingSubscribers++
+      }
+      
+      // Contar assinantes recentes (últimos 30 dias)
       const createdDate = new Date(sub.creation_date)
-      return createdDate >= thirtyDaysAgo
-    }).length
+      if (createdDate >= thirtyDaysAgo) {
+        acc.recentSubscribers++
+      }
+      
+      // Contar tags
+      if (sub.tags && Array.isArray(sub.tags)) {
+        sub.tags.forEach(tag => {
+          acc.tagStats[tag] = (acc.tagStats[tag] || 0) + 1
+        })
+      }
+      
+      return acc
+    }, {
+      activeSubscribers: 0,
+      pendingSubscribers: 0,
+      recentSubscribers: 0,
+      tagStats: {} as Record<string, number>
+    })
 
-    const metrics = {
+    const newsletterMetrics = {
       newsletter: {
         status: 'funcionando',
         provider: 'buttondown'
       },
       subscribers: {
         total: totalSubscribers,
-        active: activeSubscribers,
-        pending: pendingSubscribers,
-        recent_30_days: recentSubscribers
+        active: metrics.activeSubscribers,
+        pending: metrics.pendingSubscribers,
+        recent_30_days: metrics.recentSubscribers
       },
       growth: {
-        last_30_days: recentSubscribers,
-        growth_rate: totalSubscribers > 0 ? ((recentSubscribers / totalSubscribers) * 100).toFixed(2) + '%' : '0%'
+        last_30_days: metrics.recentSubscribers,
+        growth_rate: totalSubscribers > 0 ? ((metrics.recentSubscribers / totalSubscribers) * 100).toFixed(2) + '%' : '0%'
       },
-      tags: tagStats,
+      tags: metrics.tagStats,
       last_updated: new Date().toISOString()
     }
 
-    return NextResponse.json(metrics)
+    return NextResponse.json(newsletterMetrics)
 
   } catch (error) {
-    console.error('Erro ao buscar métricas da newsletter:', error)
+    // Log seguro apenas em desenvolvimento (sem dados sensíveis)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Erro ao buscar métricas da newsletter:', error instanceof Error ? error.message : 'Erro desconhecido')
+    }
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

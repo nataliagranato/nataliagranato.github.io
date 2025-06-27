@@ -85,10 +85,7 @@ export default function Home({ posts }) {
       {siteMetadata.newsletter?.provider && (
         <div className="flex flex-col items-center justify-center pt-4 space-y-2">
           <div className="text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Junte-se a <SubscriberCount /> que{' '}
-              {parseInt(<SubscriberCount />, 10) === 1 ? 'recebe' : 'recebem'} nossas atualizações
-            </p>
+            <SubscriberCount showMessage={true} />
           </div>
           <NewsletterForm />
         </div>

@@ -21,12 +21,14 @@ export async function GET() {
     })
 
     if (!response.ok) {
-      console.error(`Buttondown API error: ${response.status} ${await response.text()}`)
+      // Log seguro apenas em desenvolvimento (sem dados sensíveis)
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`Buttondown API error status: ${response.status}`)
+      }
       return NextResponse.json(
-        { error: 'Error fetching data from Buttondown' },
-        { status: 502 } // Bad Gateway
+        { error: 'Erro ao buscar dados do provedor' },
+        { status: 502 } // Bad Gateway - erro do serviço externo
       )
-    }
     }
 
     const data = await response.json()
@@ -38,10 +40,13 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('Erro ao buscar contador de inscritos:', error)
+    // Log seguro apenas em desenvolvimento (sem dados sensíveis)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Erro ao buscar contador de inscritos:', error instanceof Error ? error.message : 'Erro desconhecido')
+    }
     return NextResponse.json(
-      { total: 0, status: 'error' },
-      { status: 200 }
+      { error: 'Erro interno do servidor' },
+      { status: 500 }
     )
   }
 }

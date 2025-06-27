@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react'
 
 interface SubscriberCountProps {
   showLabel?: boolean
+  showMessage?: boolean
   className?: string
 }
 
 export default function SubscriberCount({ 
-  showLabel = true, 
+  showLabel = true,
+  showMessage = false,
   className = '' 
 }: SubscriberCountProps) {
   const [count, setCount] = useState<number | null>(null)
@@ -32,11 +34,27 @@ export default function SubscriberCount({
   }
 
   if (loading) {
+    if (showMessage) {
+      return (
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Junte-se a <span className="animate-pulse bg-gray-300 dark:bg-gray-600 h-4 w-12 rounded inline-block"></span> que recebem nossas atualizações
+        </p>
+      )
+    }
+    
     return (
       <span className={`inline-flex items-center ${className}`}>
         <span className="animate-pulse bg-gray-300 dark:bg-gray-600 h-4 w-12 rounded"></span>
         {showLabel && <span className="ml-1 text-sm text-gray-500">inscritos</span>}
       </span>
+    )
+  }
+
+  if (showMessage) {
+    return (
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Junte-se a <span className="font-semibold text-primary-600 dark:text-primary-400">{count}</span> {count === 1 ? 'pessoa que recebe' : 'pessoas que recebem'} nossas atualizações
+      </p>
     )
   }
 
