@@ -21,10 +21,12 @@ export async function GET() {
     })
 
     if (!response.ok) {
+      console.error(`Buttondown API error: ${response.status} ${await response.text()}`)
       return NextResponse.json(
-        { total: 0, status: 'error' },
-        { status: 200 } // Retorna 200 mas com status de erro nos dados
+        { error: 'Error fetching data from Buttondown' },
+        { status: 502 } // Bad Gateway
       )
+    }
     }
 
     const data = await response.json()
