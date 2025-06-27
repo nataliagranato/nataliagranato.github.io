@@ -13,7 +13,8 @@ O newsletter está **completamente configurado e funcionando** com Buttondown.
 
 ### Variáveis de Ambiente (`.env.local`)
 ```bash
-BUTTONDOWN_API_KEY=e31d6e1c-ee84-4287-a282-735ef926dce5
+BUTTONDOWN_API_KEY=YOUR_BUTTONDOWN_API_KEY
+# Substitua `YOUR_BUTTONDOWN_API_KEY` pelo seu próprio valor no arquivo `.env.local`.
 ```
 
 ### Configuração do Site (`data/siteMetadata.js`)
