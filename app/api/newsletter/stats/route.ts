@@ -50,7 +50,7 @@ export async function GET() {
     const scheduledEmails = emails.filter(email => email.status === 'scheduled').length
 
     // Estatísticas de crescimento por mês
-    const monthlyGrowth = {}
+    const monthlyGrowth: Record<string, number> = {}
     subscribers.forEach(sub => {
       const date = new Date(sub.creation_date)
       const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`
