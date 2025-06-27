@@ -78,7 +78,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-white text-black antialiased dark:bg-gray-950 dark:text-white">
         <ThemeProviders>
           <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
+          {/* Vercel Analytics for performance monitoring */}
           <VercelAnalytics />
+          {/* Vercel Speed Insights for real user monitoring */}
           <SpeedInsights />
           <SectionContainer>
             <div className="flex h-screen flex-col justify-between font-sans">
