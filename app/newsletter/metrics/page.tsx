@@ -110,30 +110,18 @@ export default function NewsletterMetrics() {
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total Subscribers */}
-          <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                    <span className="text-white text-sm">📧</span>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                      Total de Inscritos
-                    </dt>
-                    <dd className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {metrics.subscribers.total}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Active Subscribers */}
+          <MetricCard
+            title="Total de Inscritos"
+            value={metrics.subscribers.total}
+            icon="📧"
+            iconBgColor="bg-blue-500"
+          />
+          <MetricCard
+            title="Inscritos Ativos"
+            value={metrics.subscribers.active}
+            icon="✅"
+            iconBgColor="bg-green-500"
+          />
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
