@@ -4,8 +4,8 @@ import 'katex/dist/katex.css'
 import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/MDXComponents'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
-import { sortPosts, coreContent, allCoreContent } from 'pliny/utils/contentlayer'
-import { allBlogs, allAuthors } from '.contentlayer/generated'
+import { coreContent } from 'pliny/utils/contentlayer'
+import { allAuthors } from '.contentlayer/generated'
 import type { Authors, Blog } from '.contentlayer/generated'
 import PostSimple from '@/layouts/PostSimple'
 import PostLayout from '@/layouts/PostLayout'
@@ -13,6 +13,12 @@ import PostBanner from '@/layouts/PostBanner'
 import { Metadata } from 'next'
 import siteMetadata from '@/data/siteMetadata'
 import { notFound } from 'next/navigation'
+import { getCachedPost, getCachedPosts } from '@/lib/blogCache'
+
+// Tipo para o post com propriedades necessárias do blog
+type BlogPost = Blog & {
+  structuredData?: Record<string, unknown>
+}
 
 const defaultLayout = 'PostLayout'
 const layouts = {
@@ -28,7 +34,7 @@ export async function generateMetadata({
 }): Promise<Metadata | undefined> {
   const resolvedParams = await params
   const slug = decodeURI(resolvedParams.slug.join('/'))
-  const post = allBlogs.find((p) => p.slug === slug)
+  const post = await getCachedPost(slug)
   const authorList = post?.authors || ['default']
   const authorDetails = authorList.map((author) => {
     const authorResults = allAuthors.find((p) => p.slug === author)
@@ -76,7 +82,8 @@ export async function generateMetadata({
 }
 
 export const generateStaticParams = async () => {
-  const paths = allBlogs.map((p) => ({ slug: p.slug.split('/') }))
+  const posts = await getCachedPosts()
+  const paths = posts.map((p) => ({ slug: p.slug.split('/') }))
 
   return paths
 }
@@ -84,8 +91,9 @@ export const generateStaticParams = async () => {
 export default async function Page({ params }: { params: Promise<{ slug: string[] }> }) {
   const resolvedParams = await params
   const slug = decodeURI(resolvedParams.slug.join('/'))
-  // Filter out drafts in production
-  const sortedCoreContents = allCoreContent(sortPosts(allBlogs))
+
+  // Get cached posts for navigation
+  const sortedCoreContents = await getCachedPosts()
   const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug)
   if (postIndex === -1) {
     return notFound()
@@ -93,22 +101,33 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
 
   const prev = sortedCoreContents[postIndex + 1]
   const next = sortedCoreContents[postIndex - 1]
-  const post = allBlogs.find((p) => p.slug === slug) as Blog
+  const post = await getCachedPost(slug)
+
+  if (!post) {
+    return notFound()
+  }
+
   const authorList = post?.authors || ['default']
   const authorDetails = authorList.map((author) => {
     const authorResults = allAuthors.find((p) => p.slug === author)
     return coreContent(authorResults as Authors)
   })
-  const mainContent = coreContent(post)
-  const jsonLd = post.structuredData
-  jsonLd['author'] = authorDetails.map((author) => {
-    return {
-      '@type': 'Person',
-      name: author.name,
-    }
-  })
 
-  const Layout = layouts[post.layout || defaultLayout]
+  const blogPost = post as BlogPost
+  const mainContent = coreContent(blogPost)
+  const jsonLd = blogPost.structuredData || {}
+
+  if (typeof jsonLd === 'object' && jsonLd !== null) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(jsonLd as any)['author'] = authorDetails.map((author) => {
+      return {
+        '@type': 'Person',
+        name: author.name,
+      }
+    })
+  }
+
+  const Layout = layouts[blogPost.layout || defaultLayout]
 
   return (
     <>
@@ -117,7 +136,11 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
-        <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
+        {blogPost.body?.code ? (
+          <MDXLayoutRenderer code={blogPost.body.code} components={components} toc={blogPost.toc} />
+        ) : (
+          <div>No content available</div>
+        )}
       </Layout>
     </>
   )

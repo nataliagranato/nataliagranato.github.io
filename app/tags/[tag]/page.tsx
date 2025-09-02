@@ -1,11 +1,9 @@
-import { slug } from 'github-slugger'
-import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 import siteMetadata from '@/data/siteMetadata'
 import ListLayout from '@/layouts/ListLayoutWithTags'
-import { allBlogs } from '.contentlayer/generated'
 import tagData from 'app/tag-data.json'
 import { genPageMetadata } from 'app/seo'
 import { Metadata } from 'next'
+import { getCachedPostsByTag } from '@/lib/blogCache'
 
 export async function generateMetadata({
   params,
@@ -40,8 +38,6 @@ export default async function TagPage({ params }: { params: Promise<{ tag: strin
   const tag = decodeURI(resolvedParams.tag)
   // Capitalize first letter and convert space to dash
   const title = tag[0].toUpperCase() + tag.split(' ').join('-').slice(1)
-  const filteredPosts = allCoreContent(
-    sortPosts(allBlogs.filter((post) => post.tags && post.tags.map((t) => slug(t)).includes(tag)))
-  )
+  const filteredPosts = await getCachedPostsByTag(tag)
   return <ListLayout posts={filteredPosts} title={title} />
 }
