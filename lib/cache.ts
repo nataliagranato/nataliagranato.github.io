@@ -2,12 +2,6 @@ import redisClient from './redis'
 import { CoreContent } from 'pliny/utils/contentlayer'
 import type { Blog } from 'contentlayer/generated'
 
-export interface CacheEntry<T> {
-    data: T
-    timestamp: number
-    ttl: number
-}
-
 interface PaginationData {
     currentPage: number
     totalPages: number
@@ -15,8 +9,9 @@ interface PaginationData {
     postsPerPage: number
 }
 
-// Usar o tipo correto do contentlayer
-export type Post = CoreContent<Blog>
+// Tipos para diferentes tipos de cache
+export type PostSummary = CoreContent<Blog> // Para listagens (sem body)
+export type FullPost = Blog // Para posts individuais (com body)
 
 class CacheService {
     private readonly defaultTTL = 3600 // 1 hora em segundos
@@ -35,16 +30,15 @@ class CacheService {
                 return null
             }
 
-            const parsed: CacheEntry<T> = JSON.parse(cached)
-
-            // Verificar se o cache expirou
-            const now = Date.now()
-            if (now > parsed.timestamp + parsed.ttl * 1000) {
-                await this.delete(prefix, identifier)
+            // Redis já cuida da expiração automática, então se o valor existe, é válido
+            try {
+                return JSON.parse(cached) as T
+            } catch (parseError) {
+                console.error(`Cache parse error for key ${key}:`, parseError)
+                // Cache corrompido, remover
+                await client.del(key)
                 return null
             }
-
-            return parsed.data
         } catch (error) {
             console.error('Cache get error:', error)
             return null
@@ -55,13 +49,10 @@ class CacheService {
         try {
             const client = await redisClient.getClient()
             const key = this.generateKey(prefix, identifier)
-            const cacheEntry: CacheEntry<T> = {
-                data,
-                timestamp: Date.now(),
-                ttl: ttl || this.defaultTTL,
-            }
+            const cacheTTL = ttl || this.defaultTTL
 
-            await client.setEx(key, cacheEntry.ttl, JSON.stringify(cacheEntry))
+            // Redis cuida da expiração automaticamente com setEx
+            await client.setEx(key, cacheTTL, JSON.stringify(data))
         } catch (error) {
             console.error('Cache set error:', error)
         }
@@ -97,60 +88,86 @@ class CacheService {
 
             if (keys.length > 0) {
                 await client.del(keys)
+                console.log(`Cache clear: Deleted ${keys.length} keys matching pattern ${pattern}`)
+            } else {
+                console.log(`Cache clear: No keys found matching pattern ${pattern}`)
             }
         } catch (error) {
             console.error('Cache clear error:', error)
         }
     }
 
-    // Métodos específicos para o blog
-    async getCachedPosts(): Promise<Post[] | null> {
-        return this.get<Post[]>('posts', 'all')
+    // Métodos específicos para posts resumidos (para listagens)
+    async getCachedPosts(): Promise<PostSummary[] | null> {
+        return this.get<PostSummary[]>('posts', 'all')
     }
 
-    async setCachedPosts(posts: Post[], ttl?: number): Promise<void> {
+    async setCachedPosts(posts: PostSummary[], ttl?: number): Promise<void> {
         return this.set('posts', 'all', posts, ttl)
     }
 
-    async getCachedPost(slug: string): Promise<Post | null> {
-        return this.get<Post>('post', slug)
+    async getCachedPost(slug: string): Promise<PostSummary | null> {
+        return this.get<PostSummary>('post', slug)
     }
 
-    async setCachedPost(slug: string, post: Post, ttl?: number): Promise<void> {
+    async setCachedPost(slug: string, post: PostSummary, ttl?: number): Promise<void> {
         return this.set('post', slug, post, ttl)
     }
 
-    async getCachedPostsByTag(tag: string): Promise<Post[] | null> {
-        return this.get<Post[]>('tag', tag)
+    async getCachedPostsByTag(tag: string): Promise<PostSummary[] | null> {
+        return this.get<PostSummary[]>('tag', tag)
     }
 
-    async setCachedPostsByTag(tag: string, posts: Post[], ttl?: number): Promise<void> {
+    async setCachedPostsByTag(tag: string, posts: PostSummary[], ttl?: number): Promise<void> {
         return this.set('tag', tag, posts, ttl)
     }
 
     async getCachedPagedPosts(
-        page: number
-    ): Promise<{ posts: Post[]; pagination: PaginationData } | null> {
-        return this.get<{ posts: Post[]; pagination: PaginationData }>('page', page.toString())
+        page: number,
+        postsPerPage: number
+    ): Promise<{ posts: PostSummary[]; pagination: PaginationData } | null> {
+        return this.get<{ posts: PostSummary[]; pagination: PaginationData }>('page', `${page}:${postsPerPage}`)
     }
 
     async setCachedPagedPosts(
         page: number,
-        data: { posts: Post[]; pagination: PaginationData },
+        postsPerPage: number,
+        data: { posts: PostSummary[]; pagination: PaginationData },
         ttl?: number
     ): Promise<void> {
-        return this.set('page', page.toString(), data, ttl)
+        return this.set('page', `${page}:${postsPerPage}`, data, ttl)
+    }
+
+    // Métodos específicos para posts completos (para páginas individuais)
+    async getCachedFullPost(slug: string): Promise<FullPost | null> {
+        return this.get<FullPost>('full-post', slug)
+    }
+
+    async setCachedFullPost(slug: string, post: FullPost, ttl?: number): Promise<void> {
+        return this.set('full-post', slug, post, ttl)
     }
 
     // Invalidar cache quando houver mudanças
     async invalidatePostCache(slug?: string): Promise<void> {
-        await this.clear('posts')
-        await this.clear('page')
-        await this.clear('tag')
+        // Agrupar operações para execução paralela
+        const ops: Promise<void>[] = [
+            this.clear('posts'),
+            this.clear('page'),
+            this.clear('tag')
+        ]
 
         if (slug) {
-            await this.delete('post', slug)
+            // Se slug específico, remover apenas esse post
+            ops.push(this.delete('post', slug))
+            ops.push(this.delete('full-post', slug))
+        } else {
+            // Se não há slug, limpar todas as chaves post:* e full-post:*
+            ops.push(this.clear('post'))
+            ops.push(this.clear('full-post'))
         }
+
+        // Executar todas as operações em paralelo
+        await Promise.all(ops)
     }
 }
 

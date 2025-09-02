@@ -12,8 +12,8 @@ export const generateStaticParams = async () => {
 }
 
 export default async function Page({ params }: { params: Promise<{ page: string }> }) {
-  const resolvedParams = await params
-  const pageNumber = parseInt(resolvedParams.page as string)
+  const { page } = await params
+  const pageNumber = parseInt(page)
   const { posts, pagination } = await getCachedPagedPosts(pageNumber, POSTS_PER_PAGE)
   const allPosts = await getCachedPosts()
 

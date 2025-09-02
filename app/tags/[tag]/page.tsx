@@ -10,15 +10,15 @@ export async function generateMetadata({
 }: {
   params: Promise<{ tag: string }>
 }): Promise<Metadata> {
-  const resolvedParams = await params
-  const tag = decodeURI(resolvedParams.tag)
+  const { tag } = await params
+  const decodedTag = decodeURI(tag)
   return genPageMetadata({
-    title: tag,
-    description: `${siteMetadata.title} ${tag} tagged content`,
+    title: decodedTag,
+    description: `${siteMetadata.title} ${decodedTag} tagged content`,
     alternates: {
       canonical: './',
       types: {
-        'application/rss+xml': `${siteMetadata.siteUrl}/tags/${tag}/feed.xml`,
+        'application/rss+xml': `${siteMetadata.siteUrl}/tags/${decodedTag}/feed.xml`,
       },
     },
   })
@@ -34,10 +34,10 @@ export const generateStaticParams = async () => {
 }
 
 export default async function TagPage({ params }: { params: Promise<{ tag: string }> }) {
-  const resolvedParams = await params
-  const tag = decodeURI(resolvedParams.tag)
+  const { tag } = await params
+  const decodedTag = decodeURI(tag)
   // Capitalize first letter and convert space to dash
-  const title = tag[0].toUpperCase() + tag.split(' ').join('-').slice(1)
-  const filteredPosts = await getCachedPostsByTag(tag)
+  const title = decodedTag[0].toUpperCase() + decodedTag.split(' ').join('-').slice(1)
+  const filteredPosts = await getCachedPostsByTag(decodedTag)
   return <ListLayout posts={filteredPosts} title={title} />
 }

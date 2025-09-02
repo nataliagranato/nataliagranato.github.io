@@ -58,10 +58,11 @@ REDIS_URL=rediss://username:password@hostname:port
 
 ### 2. Chaves do Cache
 ```
-blog:posts:all           - Todos os posts
-blog:post:slug-do-post   - Post específico
-blog:tag:nome-da-tag     - Posts por tag
-blog:page:numero         - Posts paginados
+blog:posts:all                    - Todos os posts
+blog:post:slug-do-post            - Post específico
+blog:tag:nome-da-tag              - Posts por tag
+blog:page:numero:posts-per-page   - Posts paginados (página:itens-por-página)
+blog:full-post:slug-do-post       - Post completo com conteúdo MDX
 ```
 
 ### 3. Fallback
@@ -107,12 +108,12 @@ curl -X POST http://localhost:3000/api/cache \
 ```bash
 curl -X POST http://localhost:3000/api/cache \
   -H "Content-Type: application/json" \
-  -d '{"action": "invalidate", "key": "post:meu-post-slug"}'
+  -d '{"action": "invalidate", "key": "blog:post:meu-post-slug"}'
 ```
 
 ### Ver um item do cache:
 ```bash
-curl "http://localhost:3000/api/cache?action=get&key=posts:all"
+curl "http://localhost:3000/api/cache?action=get&key=blog:posts:all"
 ```
 
 ## Instalação do Redis (Desenvolvimento Local)
