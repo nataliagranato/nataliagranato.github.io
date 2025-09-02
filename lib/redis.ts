@@ -2,57 +2,61 @@ import { createClient, RedisClientType } from 'redis'
 
 class RedisClient {
   private client: RedisClientType | null = null
-  private isConnecting = false
+  private connectingPromise: Promise<RedisClientType> | null = null
 
   async getClient(): Promise<RedisClientType> {
     if (this.client && this.client.isReady) {
       return this.client
     }
 
-    if (this.isConnecting) {
-      // Wait for the connection to complete
-      while (this.isConnecting) {
-        await new Promise((resolve) => setTimeout(resolve, 100))
-      }
+    if (this.connectingPromise) {
+      // Wait for the ongoing connection attempt to complete
+      await this.connectingPromise;
       if (this.client && this.client.isReady) {
-        return this.client
+        return this.client;
       }
+      // If connection failed, fall through to retry
     }
 
-    this.isConnecting = true
+    // Start a new connection attempt and store the promise
+    this.connectingPromise = (async () => {
+      try {
+        this.client = createClient({
+          url: process.env.REDIS_URL || 'redis://localhost:6379',
+          socket: {
+            connectTimeout: 5000,
+          },
+        });
 
-    try {
-      this.client = createClient({
-        url: process.env.REDIS_URL || 'redis://localhost:6379',
-        socket: {
-          connectTimeout: 5000,
-        },
-      })
+        this.client.on('error', (err) => {
+          console.error('Redis Client Error:', err);
+        });
 
-      this.client.on('error', (err) => {
-        console.error('Redis Client Error:', err)
-      })
+        this.client.on('connect', () => {
+          console.log('Redis Client Connected');
+        });
 
-      this.client.on('connect', () => {
-        console.log('Redis Client Connected')
-      })
+        this.client.on('ready', () => {
+          console.log('Redis Client Ready');
+        });
 
-      this.client.on('ready', () => {
-        console.log('Redis Client Ready')
-      })
+        this.client.on('end', () => {
+          console.log('Redis Client Disconnected');
+        });
 
-      this.client.on('end', () => {
-        console.log('Redis Client Disconnected')
-      })
+        await this.client.connect();
+        return this.client;
+      } catch (error) {
+        this.client = null;
+        console.error('Failed to connect to Redis:', error);
+        throw error;
+      } finally {
+        // Clear the promise so future calls can retry if needed
+        this.connectingPromise = null;
+      }
+    })();
 
-      await this.client.connect()
-      this.isConnecting = false
-      return this.client
-    } catch (error) {
-      this.isConnecting = false
-      console.error('Failed to connect to Redis:', error)
-      throw error
-    }
+    return this.connectingPromise;
   }
 
   async disconnect(): Promise<void> {
