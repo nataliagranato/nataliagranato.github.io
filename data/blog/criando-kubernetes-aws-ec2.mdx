@@ -1,7 +1,7 @@
 ---
 title: Criando um Cluster Kubernetes em Instâncias EC2
 date: '2024-05-07'
-tags: ['aws','ec2','kubernetes']
+tags: ['aws', 'ec2', 'kubernetes']
 draft: false
 summary: Criando um cluster em instância EC2 com o Kubeadm.
 ---
@@ -12,31 +12,29 @@ Este guia detalha o processo de criação de um cluster Kubernetes em instância
 
 ![kubernetes](https://www.ibm.com/content/dam/adobe-cms/instana/media_logo/Kubernetes.component.complex-narrative-xl.ts=1698760458686.png/content/adobe-cms/br/pt/products/instana/supported-technologies/kubernetes-monitoring/_jcr_content/root/table_of_contents/body/content_section_styled/content-section-body/complex_narrative/logoimage)
 
-
-
 ## Configurações das Instâncias EC2
 
-* **Nome**: k8s
-* **Número de Instâncias**: 5
-* **Imagem da Máquina**: Ubuntu Server 22.04 LTS (HVM), SSD Volume Type
-* **Arquitetura**: 64 bits (x86)
-* **Tipo de Instância**: t2.medium
-* **Key Pair**: key_par_k8s
-* **Configuração de Armazenamento**: Volume do tipo gp3
+- **Nome**: k8s
+- **Número de Instâncias**: 5
+- **Imagem da Máquina**: Ubuntu Server 22.04 LTS (HVM), SSD Volume Type
+- **Arquitetura**: 64 bits (x86)
+- **Tipo de Instância**: t2.medium
+- **Key Pair**: key_par_k8s
+- **Configuração de Armazenamento**: Volume do tipo gp3
 
 ## Configurações do Cluster Kubernetes
 
 Para criar um cluster Kubernetes usando o kubeadm, é necessário liberar algumas portas no grupo de segurança das instâncias EC2. Essas portas são essenciais para o funcionamento correto do cluster. A seguir, estão as portas que precisam ser liberadas:
 
-* **Porta 6443**: Essa porta é usada pelo servidor de API do Kubernetes para comunicação com os componentes do cluster. É necessário permitir o tráfego TCP na porta 6443 para que os nós do cluster possam se comunicar com o servidor de API.
+- **Porta 6443**: Essa porta é usada pelo servidor de API do Kubernetes para comunicação com os componentes do cluster. É necessário permitir o tráfego TCP na porta 6443 para que os nós do cluster possam se comunicar com o servidor de API.
 
-* **Portas 10250-10259**: Essas portas são usadas pelo kubelet, kube-scheduler e kube-controller-manager para comunicação interna no cluster. É necessário permitir o tráfego TCP nessas portas para que os componentes do cluster possam se comunicar entre si.
+- **Portas 10250-10259**: Essas portas são usadas pelo kubelet, kube-scheduler e kube-controller-manager para comunicação interna no cluster. É necessário permitir o tráfego TCP nessas portas para que os componentes do cluster possam se comunicar entre si.
 
-* **Porta 30000-32767**: Essas portas são usadas para serviços NodePort no Kubernetes. É necessário permitir o tráfego TCP nessas portas para que os serviços NodePort possam ser acessados externamente.
+- **Porta 30000-32767**: Essas portas são usadas para serviços NodePort no Kubernetes. É necessário permitir o tráfego TCP nessas portas para que os serviços NodePort possam ser acessados externamente.
 
-* **Portas 6783-6784**: Essas portas são usadas pelo Weave Net para comunicação interna no cluster. É necessário permitir o tráfego UDP nessas portas para que o Weave Net possa funcionar corretamente.
+- **Portas 6783-6784**: Essas portas são usadas pelo Weave Net para comunicação interna no cluster. É necessário permitir o tráfego UDP nessas portas para que o Weave Net possa funcionar corretamente.
 
-* **Portas 2379-2380**: Essas portas são usadas pelo etcd para comunicação interna no cluster. É necessário permitir o tráfego TCP nessas portas para que o etcd possa funcionar corretamente.
+- **Portas 2379-2380**: Essas portas são usadas pelo etcd para comunicação interna no cluster. É necessário permitir o tráfego TCP nessas portas para que o etcd possa funcionar corretamente.
 
 Além disso, é importante lembrar de liberar a porta 22 para permitir a conexão SSH com as instâncias EC2.
 
@@ -115,15 +113,14 @@ sudo sysctl --system
 
 Estes comandos são usados para configurar os parâmetros do sistema no Linux, especialmente para preparar o ambiente para a execução do Kubernetes.
 
-* `cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf`: Este comando redireciona a entrada para um arquivo chamado `k8s.conf` localizado no diretório `/etc/sysctl.d/`. O conteúdo que vem após `<<EOF` é inserido neste arquivo. Neste caso, estamos definindo três parâmetros do sistema relacionados ao funcionamento do Kubernetes:
-
-  * `net.bridge.bridge-nf-call-iptables  = 1`: Habilita a chamada do iptables para encaminhamento de pacotes entre interfaces de rede.
-  * `net.bridge.bridge-nf-call-ip6tables = 1`: Habilita a chamada do ip6tables para encaminhamento de pacotes IPv6 entre interfaces de rede.
-  * `net.ipv4.ip_forward                 = 1`: Habilita o encaminhamento de IP no sistema, permitindo que os pacotes sejam roteados entre diferentes interfaces de rede.
+- `cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf`: Este comando redireciona a entrada para um arquivo chamado `k8s.conf` localizado no diretório `/etc/sysctl.d/`. O conteúdo que vem após `<<EOF` é inserido neste arquivo. Neste caso, estamos definindo três parâmetros do sistema relacionados ao funcionamento do Kubernetes:
+  - `net.bridge.bridge-nf-call-iptables  = 1`: Habilita a chamada do iptables para encaminhamento de pacotes entre interfaces de rede.
+  - `net.bridge.bridge-nf-call-ip6tables = 1`: Habilita a chamada do ip6tables para encaminhamento de pacotes IPv6 entre interfaces de rede.
+  - `net.ipv4.ip_forward                 = 1`: Habilita o encaminhamento de IP no sistema, permitindo que os pacotes sejam roteados entre diferentes interfaces de rede.
 
   O `EOF` indica o fim do texto que será redirecionado para o arquivo.
 
-* `sudo sysctl --system`: Este comando é usado para recarregar as configurações do sistema sem precisar reiniciar. Isso faz com que o sistema leia e aplique as configurações definidas no arquivo `k8s.conf` e em outros arquivos de configuração no diretório `/etc/sysctl.d/`.
+- `sudo sysctl --system`: Este comando é usado para recarregar as configurações do sistema sem precisar reiniciar. Isso faz com que o sistema leia e aplique as configurações definidas no arquivo `k8s.conf` e em outros arquivos de configuração no diretório `/etc/sysctl.d/`.
 
 5. Instalando kubectl, kubeadm e kubelet:
 
@@ -170,7 +167,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 
 8. `sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin`: Instala o Docker, o CLI do Docker, o Containerd, o plugin Docker Buildx e o plugin Docker Compose.
 
-7. Configurando o Containerd:
+9. Configurando o Containerd:
 
 ```bash
 

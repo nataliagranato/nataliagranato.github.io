@@ -3,9 +3,8 @@ title: Parâmetros avançados no Docker Compose
 date: '2024-04-08'
 tags: ['docker', 'compose', 'containers']
 draft: false
-summary:  O Docker Compose é uma ferramenta poderosa para gerenciar aplicativos em contêineres. Vamos explorar alguns parâmetros avançados que você pode usar no seu arquivo `docker-compose.yml`.
+summary: O Docker Compose é uma ferramenta poderosa para gerenciar aplicativos em contêineres. Vamos explorar alguns parâmetros avançados que você pode usar no seu arquivo `docker-compose.yml`.
 ---
-
 
 # Utilizando parâmetros avançados no Docker Compose
 
@@ -22,7 +21,7 @@ services:
   giropops-senhas:
     build: .
     ports:
-      - "5000:5000"
+      - '5000:5000'
     networks:
       - giropops-senhas
     environment:
@@ -45,7 +44,7 @@ services:
     networks:
       - giropops-senhas
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:5000']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -86,12 +85,12 @@ Aqui estão algumas das instruções que você mencionou e o que elas fazem:
 A funcionalidade build é utilizada no arquivo docker-compose.yml para construir a imagem de um serviço a partir de um Dockerfile localizado no diretório atual. Isso permite personalizar a imagem do serviço antes de executá-lo.
 
 Exemplo:
-  
-  ```yaml
+
+```yaml
 services:
-  giropops-senhas:
-    build: .
-  ```
+giropops-senhas:
+  build: .
+```
 
 Neste exemplo, o serviço giropops-senhas está sendo construído a partir do Dockerfile localizado no diretório atual (.).
 
@@ -100,15 +99,16 @@ Neste exemplo, o serviço giropops-senhas está sendo construído a partir do Do
 A funcionalidade `replicas` define o número de réplicas de um serviço que serão criadas e executadas. Ela permite dimensionar horizontalmente os serviços, distribuindo a carga entre várias instâncias do mesmo serviço.
 
 Exemplo:
-  
-    ```yaml
-services:
-  giropops-senhas:
-    ...
-    deploy:
-      replicas: 3
 
-```
+    ```yaml
+
+services:
+giropops-senhas:
+...
+deploy:
+replicas: 3
+
+````
 
 Neste exemplo, o serviço `giropops-senhas` terá três réplicas em execução.
 
@@ -117,7 +117,7 @@ Neste exemplo, o serviço `giropops-senhas` terá três réplicas em execução.
 A funcionalidade resources permite definir limites e reservas de recursos para um serviço. Isso inclui especificações de CPU e memória para garantir que os recursos sejam alocados de forma eficiente e equitativa entre os serviços.
 
 Exemplo:
-    
+
       ```yaml
 services:
   giropops-senhas:
@@ -130,7 +130,7 @@ services:
         limits:
           cpus: '0.50'
           memory: 256M
-```
+````
 
 Neste exemplo, o serviço `giropops-senhas` tem uma reserva de 0,25 CPUs e 128MB de memória por réplica, com um limite máximo de 0,50 CPUs e 256MB de memória por réplica.
 

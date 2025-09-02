@@ -9,30 +9,37 @@ summary: 'O Ansible permite automatizar tarefas como configuração de sistemas,
 # Ansible: Uma Visão Geral
 
 ## Automatização de Tarefas
+
 O Ansible permite automatizar tarefas como configuração de sistemas, implantação de aplicativos e provisionamento de recursos de nuvem. Ele segue uma abordagem sem agentes, o que significa que não é necessário instalar um agente de software nos sistemas que você deseja gerenciar. Pode ser executado em qualquer sistema operacional que suporte Python.
 
 ## Modelagem Declarativa
+
 Em vez de escrever scripts para automatizar tarefas, os usuários definem o estado desejado dos sistemas usando uma linguagem de modelagem chamada YAML. O Ansible traduz essas definições em ações reais nos sistemas.
 
 ## Playbooks
+
 Os playbooks são arquivos YAML que descrevem as tarefas a serem executadas pelo Ansible. Eles definem o fluxo de trabalho e as configurações desejadas. Com os playbooks, você pode automatizar tarefas complexas e sequenciais.
 
 ## Integração com Nuvem e Contêineres
+
 O Ansible tem integrações nativas com várias plataformas de nuvem, incluindo AWS, Azure, Google Cloud Platform e OpenStack. Também pode ser usado para gerenciar contêineres, como Docker e Kubernetes.
 
 ## Arquitetura
+
 O Ansible usa um conjunto de módulos escritos principalmente em Python. Esses módulos são executados em um controlador remoto para gerenciar os sistemas. O Ansible não requer a instalação de um agente nos sistemas, pois se comunica diretamente com eles via SSH.
 
 ### Um projeto prático
 
 1. **Instalação do Ansible**
-Certifique-se de que o Ansible está instalado na sua máquina controladora. Caso não esteja, você pode instalá-lo via gerenciador de pacotes (por exemplo, apt, yum, brew, etc.). Se preferir utilize:
+   Certifique-se de que o Ansible está instalado na sua máquina controladora. Caso não esteja, você pode instalá-lo via gerenciador de pacotes (por exemplo, apt, yum, brew, etc.). Se preferir utilize:
+
 ```
 python3 -m pip install --user ansible
 ```
 
 2. **Criação de Chaves SSH**
-Se você ainda não possui um par de chaves SSH, gere um usando o comando:
+   Se você ainda não possui um par de chaves SSH, gere um usando o comando:
+
 ```
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
 ```
@@ -43,11 +50,13 @@ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
 
 - Copie a chave pública para o host de destino (onde você deseja executar o Ansible). Você pode fazer isso manualmente ou usar o Ansible para automatizar o processo.
 - Manualmente:
+
 ```
 ssh-copy-id -i ~/.ssh/id_rsa.pub user@host
 ```
 
 - Usando Ansible (em um playbook):
+
 ```
 ---
 - hosts: seu_host
@@ -59,8 +68,10 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub user@host
 ```
 
 4. **Configuração do Inventário**
+
 - Crie um arquivo de inventário (por exemplo, hosts.ini) com os detalhes dos hosts que você deseja gerenciar com o Ansible.
 - Exemplo de arquivo hosts.ini:
+
 ```
 [servidores]
 servidor1 ansible_host=192.168.1.10
@@ -68,6 +79,7 @@ servidor2 ansible_host=192.168.1.20
 ```
 
 5. **Teste a Conexão SSH**
+
 - Antes de tudo, verifique se o Ansible pode se conectar aos hosts. Execute o comando abaixo onde está localizado o seu arquivo de inventário:
 
 ```
@@ -75,6 +87,7 @@ ansible -i hosts.ini -m ping servidores
 ```
 
 - Caso tenha sucesso você verá algo como:
+
 ```
 192.168.0.146 | SUCCESS => {
     "changed": false,
@@ -83,21 +96,25 @@ ansible -i hosts.ini -m ping servidores
 ```
 
 6. Crie Seus Playbooks:
+
 - Agora você pode criar seus playbooks Ansible para automatizar tarefas nos servidores.
 
 # Executando o Ansible Node Exporter
 
 Faça o clone do repositório e modifique o inventário de acordo com os servidores que deseja gerenciar. Não se esqueça de seguir os passos anteriores para ter acesso aos servidores.
+
 ```
 https://github.com/Tech-Preta/ansible-node-exporter.git
 ```
 
 Para executar o playbook instalar_node_exporter.yml, você pode usar o comando `ansible-playbook`. Certifique-se de estar no diretório onde o playbook está localizado. Aqui está o comando que você pode usar:
+
 ```
 ansible-playbook instalar_node_exporter.yml --ask-become-pass
 ```
 
 Se o seu playbook estiver em um diretório específico, você precisará fornecer o caminho completo para o playbook:
+
 ```
 ansible-playbook /caminho/para/o/playbook/instalar_node_exporter.yml
 ```
@@ -145,13 +162,13 @@ TASK [node_exporter : Habilitar e iniciar o serviço do Node Exporter] *********
 ok: [192.168.0.146]
 
 PLAY RECAP *******************************************************************************************************************
-192.168.0.146              : ok=11   changed=5    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+192.168.0.146              : ok=11   changed=5    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 ```
 
 Certifique-se de ter um arquivo de inventário configurado corretamente e definido os hosts alvo no playbook ou passá-los como argumentos na linha de comando, conforme necessário. Isso garantirá que o Ansible execute as tarefas definidas no playbook nos hosts especificados.
 
-
 ## Referências
+
 - [O que é Ansible - 4Linux](https://4linux.com.br/o-que-e-ansible/)
 - [O que é o Ansible - CursoDevOps](https://cursodevops.com.br/o-que-e-o-ansible/)
 - [Blog do Ansible - InterOp](https://www.interop.com.br/blog/ansible/)

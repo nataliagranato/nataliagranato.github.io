@@ -6,8 +6,6 @@ draft: false
 images: ['/static/images/CloudNativeLandscape_latest.png']
 
 summary: A orquestração de containers é essencial para gerenciar aplicações em ambientes de produção, garantindo que elas atendam a requisitos críticos de desempenho, escalabilidade e confiabilidade. Ferramentas de orquestração, como Kubernetes, Docker Swarm e Apache Mesos, automatizam a implantação, o gerenciamento e a escalabilidade de containers, proporcionando uma infraestrutura robusta e eficiente para aplicações modernas.
-
-
 ---
 
 # O que é Cloud Native?
@@ -16,9 +14,7 @@ A ideia da arquitetura cloud native é otimizar seu software para eficiência de
 
 O termo cloud native pode ser encontrado em várias definições: algumas focam em tecnologias, enquanto outras destacam aspectos culturais.
 
-
 ![Containers](https://raw.githubusercontent.com/Tech-Preta/trailmap/refs/heads/master/CNCF_TrailMap_latest.png)
-
 
 ## A Cloud Native Computing Foundation define da seguinte forma:
 
@@ -39,6 +35,7 @@ Isso permite que múltiplas equipes assumam a responsabilidade por diferentes fu
 ## Característica de uma arquitetura Cloud Native
 
 ### Alto nível de automação
+
 Para gerenciar todos os componentes dinâmicos de uma aplicação cloud native, recomenda-se a automação em todas as etapas, do desenvolvimento à implantação. Isso pode ser alcançado com ferramentas modernas de automação e pipelines de Integração Contínua/Entrega Contínua (CI/CD) (falaremos mais sobre pipelines adiante no curso, mas, por ora, entenda que um pipeline CI/CD é um conceito usado para as múltiplas etapas necessárias ao entregar uma nova versão do software), suportados por um sistema de controle de versão como o git.
 
 Construir, testar e implantar aplicações — bem como a infraestrutura — com intervenção humana mínima permite que mudanças rápidas, frequentes e incrementais sejam feitas em produção. Um sistema automatizado confiável também facilita a recuperação de desastres, caso seja necessário reconstruir todo o sistema.
@@ -56,9 +53,11 @@ Essa capacidade de autocorreção minimiza interrupções e garante que a aplica
 Sua aplicação descreve o processo de lidar com uma carga maior enquanto ainda proporciona uma experiência agradável para o usuário. Uma maneira de escalar pode ser iniciar várias cópias da mesma aplicação e distribuir a carga entre elas. Automatizar esse comportamento com base em métricas da aplicação, como CPU ou memória, também pode garantir a disponibilidade e o desempenho dos seus serviços.
 
 ### Eficiência de custo
+
 Assim como escalar sua aplicação para situações de alto tráfego, reduzir a escala da sua aplicação e os modelos de preços baseados em uso dos provedores de nuvem podem economizar custos se o tráfego estiver baixo. Para otimizar o uso da sua infraestrutura, sistemas de orquestração como o Kubernetes podem ajudar com um posicionamento mais eficiente e denso das aplicações.
 
-### Fácil de manter 
+### Fácil de manter
+
 Usar Micro serviços permite dividir as aplicações em partes menores e torná-las mais portáteis, mais fáceis de testar e de distribuir entre várias equipes.
 
 ### Seguro por padrão
@@ -70,6 +69,7 @@ Uma boa linha de base e ponto de partida para sua jornada em cloud native é o [
 Embora esses padrões e tecnologias proporcionem plena vantagem se executados na nuvem, eles também podem oferecer muitos benefícios quando aplicados a sistemas on-premises. Por último, mas não menos importante, eles permitem uma transição mais suave se você migrar suas aplicações e infraestrutura para a nuvem.
 
 ### Autoscaling
+
 O padrão de autoscaling descreve o ajuste dinâmico de recursos com base na demanda atual. CPU e memória são as métricas óbvias para decidir quando escalar aplicações à medida que a carga aumenta ou diminui, mas outros métodos baseados em tempo ou métricas de negócios também podem ser considerados para escalar seus serviços para cima ou para baixo.
 
 Tipicamente, quando falamos de autoscaling estamos falando de escalonamento horizontal, que descreve o processo de gerar novos recursos de computação que podem ser novas cópias do seu processo de aplicação, máquinas virtuais ou - de uma maneira menos imediata - até mesmo novos racks de servidores e outros hardwares.

@@ -1,7 +1,7 @@
 ---
 title: Build de Imagens no Kubernetes com Gitlab Runner e Kaniko
 date: '2024-06-28'
-tags: ['gitlab','kanino','kubernetes']
+tags: ['gitlab', 'kanino', 'kubernetes']
 draft: false
 summary: Veremos como configurar e utilizar o Gitlab Runner em um cluster Kubernetes para construir imagens de container usando o Kaniko.
 ---
@@ -19,39 +19,40 @@ Após o deploy do Gitlab Runner no Kubernetes, você precisa registrar o runner 
 3. Clique em `Register a runner`.
 4. Copie o token de registro exibido.
 5. Execute o seguinte comando no seu cluster Kubernetes, substituindo `YOUR_REGISTRATION_TOKEN` pelo token copiado:
-    ```sh
-    kubectl exec -it gitlab-runner-gitlab-runner-XXXXX-XXXXX -- gitlab-runner register \
-      --non-interactive \
-      --url https://gitlab.example.com/ \
-      --registration-token YOUR_REGISTRATION_TOKEN \
-      --executor kubernetes
-    ```
+   ```sh
+   kubectl exec -it gitlab-runner-gitlab-runner-XXXXX-XXXXX -- gitlab-runner register \
+     --non-interactive \
+     --url https://gitlab.example.com/ \
+     --registration-token YOUR_REGISTRATION_TOKEN \
+     --executor kubernetes
+   ```
 
 ## Deploy do Gitlab Runner no Kubernetes usando Helm
 
 Para instalar o Gitlab Runner no Kubernetes usando Helm, siga estes passos:
 
 1. Adicione o repositório do Helm:
-    ```sh
-    helm repo add gitlab https://charts.gitlab.io/
-    ```
+
+   ```sh
+   helm repo add gitlab https://charts.gitlab.io/
+   ```
 
 2. Atualize os repositórios:
-    ```sh
-    helm repo update
-    ```
+
+   ```sh
+   helm repo update
+   ```
 
 3. Instale o Gitlab Runner:
-    ```sh
-    helm install gitlab-runner gitlab/gitlab-runner \
-      --set gitlabUrl=https://gitlab.example.com/ \
-      --set runnerRegistrationToken=YOUR_REGISTRATION_TOKEN
-    ```
-    Substitua `https://gitlab.example.com/` pela URL do seu Gitlab.  
-    Substitua `YOUR_REGISTRATION_TOKEN` pelo token de registro do runner, obtido na seção de CI/CD do seu projeto no Gitlab.
+   ```sh
+   helm install gitlab-runner gitlab/gitlab-runner \
+     --set gitlabUrl=https://gitlab.example.com/ \
+     --set runnerRegistrationToken=YOUR_REGISTRATION_TOKEN
+   ```
+   Substitua `https://gitlab.example.com/` pela URL do seu Gitlab.
+   Substitua `YOUR_REGISTRATION_TOKEN` pelo token de registro do runner, obtido na seção de CI/CD do seu projeto no Gitlab.
 
 ## Pontos de atenção no values.yaml
-
 
 ```
   rules:
@@ -77,7 +78,7 @@ Para instalar o Gitlab Runner no Kubernetes usando Helm, siga estes passos:
         - create
         - patch
         - delete
-### 
+###
 runners:
   cache: {}
   config: |
@@ -88,7 +89,7 @@ runners:
         privileged = true
         allow_privilege_escalation = true
         image_pull_secrets = ["aws-ecr"]
-          
+
   configPath: ''
   name: globalweb-gitlab-runner
   privileged: true
@@ -131,7 +132,7 @@ runnerRegistrationToken: glrt-1234567891011121415
 
 ## Regras (`rules`)
 
-Esta seção define permissões para acessar recursos do Kubernetes. 
+Esta seção define permissões para acessar recursos do Kubernetes.
 
 - **resources**: Lista de recursos do Kubernetes que o runner pode acessar. Isso inclui `configmaps`, `pods`, `pods/attach`, `secrets`, e `services`.
 - **verbs**: Ações que podem ser realizadas nos recursos listados acima, como `get`, `list`, `watch`, `create`, `patch`, `update`, e `delete`.
@@ -230,13 +231,11 @@ Volumes, atualmente `null`.
 
 URL do GitLab (`https://gitlab.com/`).
 
-
 ## Runner Registration Token (`runnerRegistrationToken`)
 
 Token de registro do runner (`glrt-1234567891011121415`).
 
 Essas configurações combinadas permitem que um GitLab Runner seja executado em um cluster Kubernetes com permissões e configurações específicas para realizar tarefas de CI/CD.
-
 
 ## Utilizando o novo runner em pipelines do Gitlab CI
 
@@ -259,7 +258,6 @@ O Kubernetes não utiliza o Docker como container runtime por padrão. Isso pode
 ## O que é o Kaniko e como ele funciona?
 
 O Kaniko é uma ferramenta de código aberto que constrói imagens de container a partir de um Dockerfile dentro de um container ou cluster Kubernetes. Ele funciona extraindo o filesystem do container base, executando os comandos do Dockerfile e empacotando o resultado em uma imagem de container.
-
 
 ## Configurando variáveis de ambiente no Gitlab CI
 
@@ -290,11 +288,11 @@ build:
     - echo "{\"credsStore\":\"ecr-login\",\"credHelpers\":{\"$REGISTRY/portal-colaborador-hml\":\"ecr-login\"}}" > /kaniko/.docker/config.json
     - >-
       /kaniko/executor
-      --context "${CI_PROJECT_DIR}" 
-      --dockerfile "${CI_PROJECT_DIR}/Dockerfile" 
-      --build-arg AWS_REGION=$AWS_REGION 
-      --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID 
-      --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY 
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --build-arg AWS_REGION=$AWS_REGION
+      --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+      --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
       --destination "${REGISTRY}/portal-colaborador-hml:${CI_COMMIT_SHORT_SHA:0:5}"
 
   tags:
@@ -306,6 +304,6 @@ build:
 
 Essa configuração permite que o GitLab CI/CD construa e empurre uma imagem Docker usando Kaniko, autenticando-se no registro de contêineres utilizando credenciais da AWS, e apenas executando este processo nas branches main e develop.
 
-
 ## Conclusão
+
 Utilizar o Gitlab Runner em conjunto com o Kaniko no Kubernetes permite construir e enviar imagens de container de forma eficiente e segura, sem depender do Docker como runtime. Esta configuração aproveita o poder do Kubernetes para escalar e gerenciar suas builds de CI/CD, garantindo maior flexibilidade e desempenho em seus pipelines.
