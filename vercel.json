@@ -6,5 +6,7 @@
     "app/api/**/*.ts": {
       "runtime": "@vercel/node@2.0.0"
     }
-  }
+  },
+  "installCommand": "npm install",
+  "buildCommand": "npm run build"
 }
