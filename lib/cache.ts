@@ -1,6 +1,6 @@
 import redisClient from './redis'
 import { CoreContent } from 'pliny/utils/contentlayer'
-import type { Blog } from '.contentlayer/generated'
+import type { Blog } from 'contentlayer/generated'
 
 export interface CacheEntry<T> {
     data: T
