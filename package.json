@@ -35,6 +35,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "reading-time": "^1.5.0",
+    "redis": "^5.8.2",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-citation": "^2.2.1",
     "rehype-katex": "^7.0.1",
