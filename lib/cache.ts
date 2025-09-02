@@ -1,6 +1,7 @@
 import redisClient from './redis'
 import { CoreContent } from 'pliny/utils/contentlayer'
 import type { Blog } from 'contentlayer/generated'
+import { RedisClientType } from 'redis'
 
 interface PaginationData {
   currentPage: number
@@ -69,9 +70,9 @@ class CacheService {
   }
 
   // Helper to scan for keys matching a pattern
-  private async scanKeys(client: any, pattern: string): Promise<string[]> {
+  private async scanKeys(client: RedisClientType, pattern: string): Promise<string[]> {
     let cursor = '0'
-    let keys: string[] = []
+    const keys: string[] = []
     do {
       const [nextCursor, foundKeys] = await client.scan(cursor, 'MATCH', pattern, 'COUNT', 100)
       cursor = nextCursor
