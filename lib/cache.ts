@@ -77,11 +77,23 @@ class CacheService {
         }
     }
 
+    // Helper to scan for keys matching a pattern
+    private async scanKeys(client: any, pattern: string): Promise<string[]> {
+        let cursor = '0';
+        let keys: string[] = [];
+        do {
+            const [nextCursor, foundKeys] = await client.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+            cursor = nextCursor;
+            keys.push(...foundKeys);
+        } while (cursor !== '0');
+        return keys;
+    }
+
     async clear(prefix: string): Promise<void> {
         try {
             const client = await redisClient.getClient()
             const pattern = this.generateKey(prefix, '*')
-            const keys = await client.keys(pattern)
+            const keys = await this.scanKeys(client, pattern)
 
             if (keys.length > 0) {
                 await client.del(keys)
