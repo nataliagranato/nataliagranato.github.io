@@ -74,9 +74,9 @@ class CacheService {
     let cursor = '0'
     const keys: string[] = []
     do {
-      const [nextCursor, foundKeys] = await client.scan(cursor, 'MATCH', pattern, 'COUNT', 100)
-      cursor = nextCursor
-      keys.push(...foundKeys)
+      const result = await client.scan(cursor, { MATCH: pattern, COUNT: 100 })
+      cursor = result.cursor
+      keys.push(...result.keys)
     } while (cursor !== '0')
     return keys
   }
