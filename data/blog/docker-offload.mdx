@@ -6,8 +6,6 @@ draft: false
 images: ['/static/images/docker-offload.png']
 
 summary: O Docker Offload é uma funcionalidade do Docker Desktop que permite o uso de recursos computacionais superiores na nuvem para executar builds e containers
-
-
 ---
 
 ## O Que é Docker Offload?
@@ -18,8 +16,7 @@ Antes de escrever esse artigo experimentei o Offload e realizei um teste compara
 
 ![docker-offload](https://www.docker.com/app/uploads/2024/12/2400x1260_docker-evergreen_logo_blog_D-1536x806.png)
 
-
- Ele é especialmente útil em cenários como:
+Ele é especialmente útil em cenários como:
 
 - **Builds complexos:** Para projetos com muitas dependências, onde o tempo de compilação é um desafio.
 - **Tarefas intensivas:** Ideal para Inteligência Artificial (IA), Machine Learning (ML) e processamento de grandes volumes de dados.
@@ -94,7 +91,6 @@ O fluxo de execução é simples:
 
 ---
 
-
 ## Caso de Estudo: Testes Reais
 
 Para medir o impacto prático do Docker Offload utilizei um cenário sintético, focado puramente em CPU. A ideia foi isolar o ganho no tempo de build e execução de uma carga determinística, evitando interferências de rede, disco ou I/O externo.
@@ -102,6 +98,7 @@ Para medir o impacto prático do Docker Offload utilizei um cenário sintético,
 ### Carga Sintética (heavy_task.py)
 
 A carga é um loop matemático intensivo que:
+
 - Executa N iterações (ITERATIONS, default 100_000_000).
 - Mantém tudo em memória (sem I/O).
 - Usa recorrência trigonométrica (atualização de sin(i) e cos(i)) para evitar chamadas repetidas a funções mais custosas do módulo math.
@@ -121,6 +118,7 @@ def run_heavy_computation(iterations):
 ```
 
 Características desejadas:
+
 - CPU-bound puro (ideal para evidenciar diferenças de build e execução).
 - Determinístico (mesmo resultado dado o número de iterações).
 - Escalável (basta aumentar ITERATIONS para intensificar a carga).
@@ -161,6 +159,7 @@ docker run --rm -e ITERATIONS=100000000 -e DOCKER_OFFLOAD_ACTIVE=1 offload-test:
 ### Metodologia de Testes
 
 A [metodologia](https://github.com/Tech-Preta/docker-offload/blob/main/docs/METODOLOGIA.md) garantiu que não houvesse vantagens artificiais, eliminando o cache antes e entre os testes, e controlando explicitamente o ambiente:
+
 - Limpeza de cache antes de cada build.
 - Mesma configuração de rede e sem interferência de volumes externos.
 - Repetição de execuções para estabilizar variação (descarte de outliers).
@@ -172,10 +171,10 @@ A [metodologia](https://github.com/Tech-Preta/docker-offload/blob/main/docs/METO
 
 Os resultados foram claros:
 
-| Cenário        | Tempo Total     | Performance         |
-| -------------- | -------------- | ------------------- |
-| Docker Local   | 66.62 segundos | Linha de base       |
-| Docker Offload | 54.66 segundos | 17% mais rápido 🎉  |
+| Cenário        | Tempo Total    | Performance        |
+| -------------- | -------------- | ------------------ |
+| Docker Local   | 66.62 segundos | Linha de base      |
+| Docker Offload | 54.66 segundos | 17% mais rápido 🎉 |
 
 A principal vantagem do Docker Offload reside na otimização do processo de build, que é onde a economia de tempo é mais perceptível.
 
@@ -199,10 +198,8 @@ O Docker Offload é mais do que uma simples funcionalidade; é uma mudança fund
 
 Para desenvolvedores e equipes que buscam eficiência, agilidade e acesso a recursos de alto desempenho sem o custo de investimento em hardware, o Docker Offload se mostra uma ferramenta essencial capaz de transformar a experiência de desenvolvimento.
 
-
-
 ### Referências
 
-* [Docker Build Cloud Documentation](https://docs.docker.com/build/cloud/)
-* [Docker Desktop Features](https://www.docker.com/products/docker-desktop/)
-* [Docker Build Best Practices](https://docs.docker.com/develop/dev-best-practices/)
+- [Docker Build Cloud Documentation](https://docs.docker.com/build/cloud/)
+- [Docker Desktop Features](https://www.docker.com/products/docker-desktop/)
+- [Docker Build Best Practices](https://docs.docker.com/develop/dev-best-practices/)

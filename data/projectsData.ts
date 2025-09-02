@@ -1,8 +1,8 @@
 interface Project {
-  title: string,
-  description: string,
-  href?: string,
-  imgSrc?: string,
+  title: string
+  description: string
+  href?: string
+  imgSrc?: string
 }
 
 const projectsData: Project[] = [
@@ -44,7 +44,7 @@ const projectsData: Project[] = [
   },
   {
     title: 'Gerador de Senhas com Redis',
-    description: `Projeto de dockerização de um gerador de senhas, com pipeline de build, push para o Docker Hub, scan de vulnerabilidades com o Trivy e assinatura de imagens com o Cosign. 
+    description: `Projeto de dockerização de um gerador de senhas, com pipeline de build, push para o Docker Hub, scan de vulnerabilidades com o Trivy e assinatura de imagens com o Cosign.
     O gerador de senhas é uma aplicação em Python que utiliza o Redis para armazenar as senhas geradas.`,
     imgSrc: '/static/images/dockerized.jpg',
     href: 'https://github.com/Tech-Preta/giropops-senhas',

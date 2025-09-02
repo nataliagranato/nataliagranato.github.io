@@ -6,8 +6,6 @@ draft: false
 images: ['/static/images/devlake.png']
 
 summary: DevOps Research and Assessment - DORA metrics fornecem insights sobre o desempenho da metodologia DevOps.
-
-
 ---
 
 # O que são Métricas DORA?
@@ -17,7 +15,6 @@ O [DevOps Research and Assessment (DORA)](https://dora.dev/guides/dora-metrics-f
 O DORA é utilizado para tomar decisões estratégicas, para justificar investimentos em melhorias de processos ou para comparar o desempenho de uma equipe com os padrões do setor. Existem quatro **métricas DORA** para medir aspectos críticos do DevOps:
 
 ![DORA Metrics](https://devlake.apache.org/assets/images/dora-intro-e3847646d8dbe47220e6c8347ab14f7b.png)
-
 
 Dentro da velocidade, existem duas métricas principais:
 
@@ -30,16 +27,15 @@ A estabilidade é composta por duas métricas principais:
 - **Taxa de falha de mudança (Change Failure Rate)**: Com que frequência um deploy causa falhas em produção? Para responder a essa pergunta, é preciso obter a porcentagem dessas falhas. Essa métrica é desafiadora, mas importante, pois frequentemente uma nova release ou um deploy para atender a um requisito pode inserir um bug em produção. A redução de tarefas em andamento e o aumento da automação podem ajudar na redução dessa métrica.
 
 - **Tempo Médio para Restauração do Serviço (MTTR)**: Quanto tempo leva para uma equipe se recuperar adequadamente após ocorrer uma falha e ela ser identificada? Seja para corrigir uma ameaça de segurança ou um bug, as equipes de DevOps devem ser capazes de responder rapidamente com:
-    - Correções de bugs
-    - Atualizações
-    - Correções de vulnerabilidades
+  - Correções de bugs
+  - Atualizações
+  - Correções de vulnerabilidades
 
 Você pode experimentar mensurar o desempenho de entrega de software da sua equipe em alguns minutos utilizando o [Take the DORA Quick Check](https://dora.dev/quickcheck/). A comunidade DORA fornece aprendizado, discussões e materiais sobre o tema, acessíveis em [https://dora.community/](https://dora.community/).
 
-
 # Implementando DORA metrics com Apache DevLake
 
-O Apache DevLake é uma plataforma de dados que ingere, analisa e visualiza dados de ferramentas DevOps, entre elas o Git. Se a sua equipe de DevOps é adepta da integração contínua, provavelmente o Git é utilizado como a principal fonte da verdade. 
+O Apache DevLake é uma plataforma de dados que ingere, analisa e visualiza dados de ferramentas DevOps, entre elas o Git. Se a sua equipe de DevOps é adepta da integração contínua, provavelmente o Git é utilizado como a principal fonte da verdade.
 
 ## O que pode ser realizado com o DevLake?
 
@@ -53,9 +49,7 @@ O Apache DevLake é uma plataforma de dados que ingere, analisa e visualiza dado
 
 **Crie uma cultura próspera:** O DevLake é centrado em práticas saudáveis que podem ajudar as equipes a adotar e construir uma cultura prática orientada por dados.
 
-
 O Apache DevLake pode ser implementado usando `Docker Compose` ou `Helm`. Agora vamos a uma demonstração:
-
 
 ### Instalando via Docker Compose
 
@@ -65,22 +59,21 @@ O Apache DevLake pode ser implementado usando `Docker Compose` ou `Helm`. Agora 
 
 3. Gere uma chave de criptografia segura usando um método como o OpenSSL. Eexecute o seguinte comando para gerar uma string de 128 caracteres composta por letras maiúsculas:
 
-      ```
-      openssl rand -base64 2000 | tr -dc 'A-Z' | fold -w 128 | head -n 1
-      ```
+   ```
+   openssl rand -base64 2000 | tr -dc 'A-Z' | fold -w 128 | head -n 1
+   ```
 
 Copie a string gerada. Defina o valor da variável de ambiente ENCRYPTION_SECRET no arquivo `.env`.
 
 4. Agora execute `docker compose up -d` para iniciar o servidor. A saída será algo semelhante a:
 
-
-    ```
-    [+] Running 4/4
-    ✔ Container devlake-mysql-1      Running                                                                 0.0s 
-    ✔ Container devlake-grafana-1    Running                                                                 0.0s 
-    ✔ Container devlake-devlake-1    Running                                                                 0.0s 
-    ✔ Container devlake-config-ui-1  Started                                                                 0.4s
-    ```
+   ```
+   [+] Running 4/4
+   ✔ Container devlake-mysql-1      Running                                                                 0.0s
+   ✔ Container devlake-grafana-1    Running                                                                 0.0s
+   ✔ Container devlake-devlake-1    Running                                                                 0.0s
+   ✔ Container devlake-config-ui-1  Started                                                                 0.4s
+   ```
 
 Você pode acessar o DevLake em `http://localhost:4000/` e o Grafana em `http://localhost:3002/`, utilizando `admin` como usuário e senha.
 
@@ -105,7 +98,6 @@ Aqui eu tenho dados de quantos pull requests foram mesclados no repositório, qu
 ![Métricas DORA](/static/images/dora2.png)
 
 Nesse outro exemplo, temos o tempo médio de um ciclo de pull request, tempo médio de codificação, de revisão e etc.
-
 
 ### Referências
 

@@ -1,7 +1,7 @@
 ---
 title: Criando um servidor NFS e utilizando como StorageClass
 date: '2024-05-07'
-tags: ['linux','nfs', 'storageclass', 'kubernetes']
+tags: ['linux', 'nfs', 'storageclass', 'kubernetes']
 draft: false
 summary: Natália Granato
 ---
@@ -18,8 +18,7 @@ O **Servidor NFS** é uma solução que permite compartilhar sistemas de arquivo
 
 ## Criando um servidor NFS
 
-Para criar um servidor NFS, siga estas etapas:
-0. Crie o diretório que deseja compartilhar:
+Para criar um servidor NFS, siga estas etapas: 0. Crie o diretório que deseja compartilhar:
 
      ```
      sudo mkdir /mnt/nfs
@@ -58,7 +57,7 @@ Para criar um servidor NFS, siga estas etapas:
    - Use o comando `showmount` para verificar os compartilhamentos exportados:
 
      ```
-     showmount -e 
+     showmount -e
      ```
 
 A saída deve mostrar os diretórios exportados e os clientes que têm permissão para acessá-los.
@@ -73,52 +72,52 @@ A saída deve mostrar os diretórios exportados e os clientes que têm permissã
 Para criar um StorageClass do tipo NFS no Kubernetes, você pode usar o seguinte exemplo:
 
 ```yaml
-apiVersion: storage.k8s.io/v1 
-kind: StorageClass 
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: nfs 
-provisioner: kubernetes.io/no-provisioner 
-reclaimPolicy: Retain 
+  name: nfs
+provisioner: kubernetes.io/no-provisioner
+reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
-parameters: 
-  archiveOnDelete: "false" 
+parameters:
+  archiveOnDelete: 'false'
 ```
 
 Agora vamos criar volumes que utilizam esse StorageClass:
 
 ```yaml
-apiVersion: v1 
-kind: PersistentVolume 
+apiVersion: v1
+kind: PersistentVolume
 metadata:
-  name: meu-pv-nfs 
+  name: meu-pv-nfs
   labels:
-    storage: nfs 
-spec: 
+    storage: nfs
+spec:
   capacity:
-    storage: 1Gi 
-  accessModes: 
-    - ReadWriteOnce 
-  persistentVolumeReclaimPolicy: Retain 
-  nfs: 
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
     server: 3.90.82.216
-    path: "/mnt/nfs" 
-  storageClassName: nfs  
+    path: '/mnt/nfs'
+  storageClassName: nfs
 ```
 
 Agora iremos criar um PersistentVolumeClaim (PVC) que utiliza esse PV:
 
-```yaml
-apiVersion: v1 
-kind: PersistentVolumeClaim 
-metadata: 
-  name: meu-pvc 
-spec: 
-  accessModes: 
-    - ReadWriteOnce 
-  resources: 
-    requests: 
-      storage: 1Gi 
-  storageClassName: nfs 
+````yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: meu-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: nfs
   selector:
     matchLabels:
       storage: nfs
@@ -143,6 +142,6 @@ spec:
   - name: meu-pvc
     persistentVolumeClaim:
       claimName: meu-pvc
-```
+````
 
 Agora você tem um Pod que utiliza um volume NFS no Kubernetes.

@@ -3,7 +3,7 @@ name: Generate SBOM
 on:
   push:
     branches:
-    - main
+      - main
 
 permissions:
   contents: write
@@ -22,4 +22,4 @@ jobs:
           format: 'github'
           output: 'dependency-results.sbom.json'
           image-ref: '.'
-          github-pat: ${{ secrets.USER_TOKEN }} 
+          github-pat: ${{ secrets.USER_TOKEN }}

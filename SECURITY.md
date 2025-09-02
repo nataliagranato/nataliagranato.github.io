@@ -2,8 +2,8 @@
 
 ## Versões Suportadas
 
-| Versão  | Suporte          |
-| ------- | ---------------- |
+| Versão | Suporte            |
+| ------ | ------------------ |
 | 1.0.0  | :white_check_mark: |
 
 ## Reportando Vulnerabilidades
@@ -34,7 +34,6 @@ Este projeto segue as seguintes práticas:
 - 🔒 Code Review obrigatório para todas as alterações
 - 🔄 Atualizações automáticas via Dependabot
 - 🛡️ Análise de código com CodeQL
-
 
 ## Ferramentas de Segurança
 

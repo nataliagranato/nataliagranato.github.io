@@ -15,9 +15,9 @@ O Helm funciona usando um modelo de pacote, onde os aplicativos são empacotados
 
 O Helm também inclui um sistema de gerenciamento de repositórios, onde os charts podem ser armazenados e compartilhados entre diferentes usuários e equipes. Isso permite que as equipes de desenvolvimento e operações compartilhem seus aplicativos com outras equipes e simplifiquem a implantação e a gestão de aplicativos em clusters Kubernetes.
 
-**Alguns dos recursos mais importantes do Helm são: 
+\*\*Alguns dos recursos mais importantes do Helm são:
 
-****Gerenciamento de dependências:** O Helm permite que as dependências dos aplicativos sejam gerenciadas automaticamente, facilitando a implantação de aplicativos complexos que precisam de vários componentes diferentes.
+\***\*Gerenciamento de dependências:** O Helm permite que as dependências dos aplicativos sejam gerenciadas automaticamente, facilitando a implantação de aplicativos complexos que precisam de vários componentes diferentes.
 
 **Rollbacks:** O Helm permite reverter rapidamente as alterações feitas em um aplicativo, em caso de problemas ou erros.
 
@@ -28,7 +28,6 @@ O Helm também inclui um sistema de gerenciamento de repositórios, onde os char
 O Helm é uma ferramenta de código aberto, mantida pela comunidade e hospedada no GitHub. Ele é amplamente utilizado no ecossistema Kubernetes e possui uma grande comunidade de usuários e desenvolvedores.
 
 Aqui estão alguns dos principais comandos do Helm que podem ser usados para debug:
-
 
 ```
 helm install --dry-run --debug
@@ -59,12 +58,14 @@ Esse comando exibe os valores de configuração que foram definidos para um dete
 helm rollback <release-name> <revision-number>
 
 ```
+
 Esse comando faz o rollback para uma versão anterior do release do Helm. Ele é útil para reverter uma atualização que pode ter causado problemas no ambiente Kubernetes.
 
 ```
 helm delete --purge <release-name>
 
 ```
+
 Esse comando remove um release do Helm e todos os seus recursos associados do cluster Kubernetes. É útil para limpar um ambiente que não está sendo mais utilizado.
 
 Esses são apenas alguns dos principais comandos do Helm para debug. Existem outros comandos e opções disponíveis que podem ser úteis para diferentes cenários de debug. Consulte a documentação oficial do Helm para obter mais informações.

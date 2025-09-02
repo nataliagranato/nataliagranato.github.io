@@ -6,9 +6,7 @@ draft: false
 images: ['/static/images/o-que-e-kubernetes.png']
 
 summary: Um sistema de código aberto para automatizar a implantação, escalabilidade e gerenciamento de aplicações containerizadas.
-
 ---
-
 
 ### O que é Kubernetes?
 
@@ -24,12 +22,9 @@ Kubernetes é altamente inspirado pelo sistema Google Borg, um orquestrador de c
 
 Kubernetes foi iniciado pelo Google e, com seu lançamento v1.0 em julho de 2015, o Google o doou para a Cloud Native Computing Foundation (CNCF), uma das maiores sub-fundações da Linux Foundation.
 
-Novas versões do Kubernetes são lançadas em ciclos de 4 meses. 
-
+Novas versões do Kubernetes são lançadas em ciclos de 4 meses.
 
 ![[Pasted image 20241113175127.png]]
-
-
 
 ### Do Borg ao Kubernetes
 
@@ -52,35 +47,45 @@ Entre os autores iniciais do Kubernetes estavam funcionários do Google que usar
 Kubernetes oferece um conjunto muito rico de funcionalidades para orquestração de containers. Algumas de suas funcionalidades totalmente suportadas são:
 
 #### Empacotamento automático
+
 Kubernetes agenda automaticamente containers com base nas necessidades de recursos e restrições, para maximizar a utilização sem sacrificar a disponibilidade.
 
 #### Projetado para extensibilidade
+
 Um cluster Kubernetes pode ser estendido com novos recursos personalizados sem modificar o código-fonte original.
 
 #### Auto-recuperação
+
 Kubernetes substitui e reprograma automaticamente containers de nós que falharam. Ele termina e reinicia containers que se tornam não responsivos a verificações de saúde, com base em regras/políticas existentes. Também impede que o tráfego seja roteado para containers não responsivos.
 
 #### Escalabilidade horizontal
+
 Kubernetes escala aplicações manualmente ou automaticamente com base na utilização de CPU ou métricas personalizadas.
 
 #### Descoberta de serviços e balanceamento de carga
+
 Containers recebem endereços IP do Kubernetes, enquanto ele atribui um único nome de Sistema de Nomes de Domínio (DNS) a um conjunto de containers para ajudar no balanceamento de carga das solicitações entre os containers do conjunto.
 
 ### Funcionalidades adicionais:
 
 #### Rollouts e rollbacks automatizados
+
 Kubernetes implementa e reverte atualizações de aplicações e mudanças de configuração de forma contínua, monitorando constantemente a saúde da aplicação para evitar qualquer tempo de inatividade.
 
 #### Gerenciamento de segredos e configurações
+
 Kubernetes gerencia dados sensíveis e detalhes de configuração de uma aplicação separadamente da imagem do container, para evitar a reconstrução da imagem respectiva. Segredos consistem em informações sensíveis/confidenciais passadas para a aplicação sem revelar o conteúdo sensível para a configuração da pilha, como no GitHub.
 
 #### Orquestração de armazenamento
+
 Kubernetes monta automaticamente soluções de armazenamento definido por software (SDS) em containers a partir de armazenamento local, provedores de nuvem externos, armazenamento distribuído ou sistemas de armazenamento em rede.
 
 #### Execução em lote
+
 Kubernetes suporta execução em lote, trabalhos de longa duração e substitui containers que falharam.
 
 #### Suporte Dual-Stack IPv4/IPv6
+
 Kubernetes suporta endereços IPv4 e IPv6.
 
 Kubernetes suporta funcionalidades comuns específicas de Plataforma como Serviço, como implantação de aplicações, escalabilidade e balanceamento de carga, mas permite que os usuários integrem suas soluções desejadas de monitoramento, registro e alerta através de plugins opcionais.
@@ -91,7 +96,7 @@ Uma das grandes forças do Kubernetes é sua portabilidade. Ele pode ser implant
 
 A extensibilidade do Kubernetes permite que ele suporte e seja suportado por muitas ferramentas de código aberto de terceiros que aprimoram suas capacidades e proporcionam uma experiência rica em recursos para seus usuários. Sua arquitetura é modular e plugável. Ele não apenas orquestra aplicações do tipo microsserviços modulares e desacoplados, mas também sua arquitetura segue padrões de microsserviços desacoplados. A funcionalidade do Kubernetes pode ser estendida escrevendo recursos personalizados, operadores, APIs personalizadas, regras de agendamento ou plugins.
 
-Para um projeto de código aberto bem-sucedido, a comunidade é tão importante quanto ter um ótimo código. O Kubernetes é suportado por uma comunidade próspera em todo o mundo. Ele tem mais de 3.500 colaboradores, que, ao longo do tempo, realizaram mais de 120.000 commits. Existem grupos de encontro em diferentes cidades e países que se reúnem regularmente para discutir o Kubernetes e seu ecossistema. A comunidade é dividida em Grupos de Interesse Especial (SIGs), grupos que se concentram em tópicos especiais, como escalabilidade, bare metal, redes, armazenamento, etc. 
+Para um projeto de código aberto bem-sucedido, a comunidade é tão importante quanto ter um ótimo código. O Kubernetes é suportado por uma comunidade próspera em todo o mundo. Ele tem mais de 3.500 colaboradores, que, ao longo do tempo, realizaram mais de 120.000 commits. Existem grupos de encontro em diferentes cidades e países que se reúnem regularmente para discutir o Kubernetes e seu ecossistema. A comunidade é dividida em Grupos de Interesse Especial (SIGs), grupos que se concentram em tópicos especiais, como escalabilidade, bare metal, redes, armazenamento, etc.
 
 ### Usuários do Kubernetes
 
@@ -113,7 +118,7 @@ Em menos de uma década desde sua estreia, o Kubernetes se tornou a plataforma d
 
 Esses exemplos demonstram a versatilidade e a eficácia do Kubernetes em diferentes setores, destacando sua capacidade de gerenciar cargas de trabalho complexas e variadas de maneira eficiente e escalável.
 
-### Cloud Native Computing Foundation (CNCF) 
+### Cloud Native Computing Foundation (CNCF)
 
 ![[Pasted image 20241113180406.png]]
 

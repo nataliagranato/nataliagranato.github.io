@@ -99,16 +99,16 @@ class RedisClient {
     async scanKeys(pattern: string): Promise<string[]> {
         const client = await this.getClient()
         const keys: string[] = []
-        let cursor = 0
+        let cursor = '0'
 
         do {
             const result = await client.scan(cursor, {
                 MATCH: pattern,
-                COUNT: 100
-            } as any)
+                COUNT: 100,
+            })
             cursor = result.cursor
             keys.push(...result.keys)
-        } while (cursor !== 0)
+        } while (cursor !== '0')
 
         return keys
     }

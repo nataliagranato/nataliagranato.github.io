@@ -3,8 +3,9 @@ title: Removendo um Namespace em estado terminanting
 date: '2024-07-15'
 tags: ['kubernetes']
 draft: false
-summary:  O erro de namespace em estado “Terminating” ocorre quando um namespace (ou espaço de nomes) no Kubernetes está sendo desligado ou excluído.
+summary: O erro de namespace em estado “Terminating” ocorre quando um namespace (ou espaço de nomes) no Kubernetes está sendo desligado ou excluído.
 ---
+
 # Removendo um Namespace em Estado Terminanting
 
 O erro de namespace em estado “Terminating” ocorre quando um namespace (ou espaço de nomes) no Kubernetes está sendo desligado ou excluído. Vamos explorar os detalhes desse erro:
@@ -24,11 +25,13 @@ O Kubernetes aguarda até que todos esses recursos sejam removidos com sucesso.
 Se algum recurso estiver preso ou não puder ser excluído, o namespace permanecerá no estado “Terminating”.
 
 **Possíveis Causas:**
+
 - Pods Pendentes: Se houver pods pendentes (que não podem ser encerrados), o namespace não poderá ser completamente excluído.
 - Volumes Persistentes: Volumes persistentes associados a pods podem impedir o término do namespace.
 - Controladores de Recursos: Controladores como Deployments, StatefulSets ou DaemonSets também podem afetar o término.
 
 **Soluções:**
+
 - Verifique os pods pendentes e tente corrigir quaisquer problemas.
 - Garanta que os volumes persistentes sejam liberados.
 - Analise os controladores de recursos e seus recursos associados.
@@ -38,11 +41,13 @@ Lembre-se de que o estado “Terminating” é temporário e, uma vez que todos 
 ## Caso não consiga remover recursos "presos" no namespace, tente a solução abaixo:
 
 1. Salve um arquivo JSON como no exemplo a seguir:
+
 ```
 kubectl get ns zabbix -o json > tempfile.json
 ```
 
 O conteúdo do arquivo será algo como:
+
 ```
 {
     "apiVersion": "v1",
@@ -78,20 +83,20 @@ O conteúdo do arquivo será algo como:
 ```
 
 2. Remova o bloco de finalizadores na seção spec do JSON:
+
 ```
 "spec" : {
     }
 ```
 
 3. Aplique as mudanças com o comando a seguir:
+
 ```
 kubectl replace --raw "/api/v1/namespaces/TERMINATING_NAMESPACE/finalize" -f ./tempfile.json
 ```
 
 4. Verifique se o namespace em questão foi removido:
+
 ```
 kubectl get namespaces
 ```
-
-
-

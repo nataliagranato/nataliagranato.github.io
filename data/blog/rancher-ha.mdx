@@ -3,7 +3,7 @@ title: Provisionamento de um Rancher HA
 date: '2024-09-19'
 tags: ['kubernetes', 'rancher']
 draft: false
-summary:  Este guia fornece instruções detalhadas para a instalação do Rancher em um ambiente de alta disponibilidade (HA) em um cluster Kubernetes dedicado.
+summary: Este guia fornece instruções detalhadas para a instalação do Rancher em um ambiente de alta disponibilidade (HA) em um cluster Kubernetes dedicado.
 ---
 
 ### Introdução ao Rancher
@@ -36,27 +36,27 @@ O NGINX Ingress Controller é necessário para gerenciar o tráfego de entrada p
 
 1. Crie o namespace para o NGINX Ingress Controller:
 
-    ```sh
-    kubectl create ns nginx-ingress
-    ```
+   ```sh
+   kubectl create ns nginx-ingress
+   ```
 
-    Este comando cria um namespace chamado `nginx-ingress` no cluster Kubernetes.
+   Este comando cria um namespace chamado `nginx-ingress` no cluster Kubernetes.
 
 2. Instale o NGINX Ingress Controller usando Helm:
 
-    ```sh
-    helm install nginx-ingress oci://ghcr.io/nginxinc/charts/nginx-ingress -n nginx-ingress
-    ```
+   ```sh
+   helm install nginx-ingress oci://ghcr.io/nginxinc/charts/nginx-ingress -n nginx-ingress
+   ```
 
-    Este comando instala o NGINX Ingress Controller no namespace `nginx-ingress` usando o Helm.
+   Este comando instala o NGINX Ingress Controller no namespace `nginx-ingress` usando o Helm.
 
 3. Verifique os serviços criados e obtenha o IP do LoadBalancer:
 
-    ```sh
-    kubectl get svc -n nginx-ingress
-    ```
+   ```sh
+   kubectl get svc -n nginx-ingress
+   ```
 
-    Este comando lista todos os serviços no namespace `nginx-ingress`, incluindo o IP do LoadBalancer. Anote este IP, pois ele será necessário para configurar o apontamento do DNS.
+   Este comando lista todos os serviços no namespace `nginx-ingress`, incluindo o IP do LoadBalancer. Anote este IP, pois ele será necessário para configurar o apontamento do DNS.
 
 ### 2. Instalação do Cert-manager
 
@@ -64,48 +64,48 @@ O Cert-manager é necessário para gerenciar certificados SSL/TLS automaticament
 
 1. Aplique as CustomResourceDefinitions (CRDs) necessárias:
 
-    ```sh
-    kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.9/deploy/manifests/00-crds.yaml
-    ```
+   ```sh
+   kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.9/deploy/manifests/00-crds.yaml
+   ```
 
-    Este comando aplica as definições de recursos personalizados necessárias para o Cert-manager.
+   Este comando aplica as definições de recursos personalizados necessárias para o Cert-manager.
 
 2. Crie o namespace para o Cert-manager:
 
-    ```sh
-    kubectl create namespace cert-manager
-    ```
+   ```sh
+   kubectl create namespace cert-manager
+   ```
 
-    Este comando cria um namespace chamado `cert-manager` no cluster Kubernetes.
+   Este comando cria um namespace chamado `cert-manager` no cluster Kubernetes.
 
 3. Adicione um rótulo ao namespace para desabilitar a validação:
 
-    ```sh
-    kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-    ```
+   ```sh
+   kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+   ```
 
-    Este comando adiciona um rótulo ao namespace `cert-manager` para desabilitar a validação.
+   Este comando adiciona um rótulo ao namespace `cert-manager` para desabilitar a validação.
 
 4. Adicione o repositório Helm do Cert-manager:
 
-    ```sh
-    helm repo add jetstack https://charts.jetstack.io --force-update
-    ```
+   ```sh
+   helm repo add jetstack https://charts.jetstack.io --force-update
+   ```
 
-    Este comando adiciona o repositório Helm do Cert-manager.
+   Este comando adiciona o repositório Helm do Cert-manager.
 
 5. Instale o Cert-manager usando Helm:
 
-    ```sh
-    helm install \
-      cert-manager jetstack/cert-manager \
-      --namespace cert-manager \
-      --create-namespace \
-      --version v1.15.3 \
-      --set crds.enabled=true
-    ```
+   ```sh
+   helm install \
+     cert-manager jetstack/cert-manager \
+     --namespace cert-manager \
+     --create-namespace \
+     --version v1.15.3 \
+     --set crds.enabled=true
+   ```
 
-    Este comando instala o Cert-manager no namespace `cert-manager` usando o Helm.
+   Este comando instala o Cert-manager no namespace `cert-manager` usando o Helm.
 
 ### 3. Instalação do Rancher
 
@@ -113,19 +113,19 @@ O Rancher é uma plataforma de gerenciamento de Kubernetes que facilita a opera�
 
 1. Adicione o repositório Helm do Rancher:
 
-    ```sh
-    helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
-    ```
+   ```sh
+   helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
+   ```
 
-    Este comando adiciona o repositório Helm do Rancher.
+   Este comando adiciona o repositório Helm do Rancher.
 
 2. Instale o Rancher usando Helm:
 
-    ```sh
-    helm upgrade -i rancher rancher-stable/rancher --set hostname=rancher.nataliagranato.xyz -n cattle-system
-    ```
+   ```sh
+   helm upgrade -i rancher rancher-stable/rancher --set hostname=rancher.nataliagranato.xyz -n cattle-system
+   ```
 
-    Este comando instala o Rancher no namespace `cattle-system` usando o Helm. O parâmetro `--set hostname=rancher.nataliagranato.xyz` define o hostname personalizado para o Rancher.
+   Este comando instala o Rancher no namespace `cattle-system` usando o Helm. O parâmetro `--set hostname=rancher.nataliagranato.xyz` define o hostname personalizado para o Rancher.
 
 ### Utilização de um Domínio Personalizado
 
@@ -151,15 +151,15 @@ echo https://rancher.nataliagranato.xyz/dashboard/?setup=$(kubectl get secret --
 
 1. **Obtenha o IP do LoadBalancer**:
 
-    ```sh
-    kubectl get svc -n nginx-ingress
-    ```
+   ```sh
+   kubectl get svc -n nginx-ingress
+   ```
 
-    Anote o IP do LoadBalancer listado no serviço `nginx-ingress`.
+   Anote o IP do LoadBalancer listado no serviço `nginx-ingress`.
 
 2. **Configure o apontamento do DNS**:
-    - Acesse o painel de controle do seu provedor de DNS.
-    - Crie um registro A para o domínio `rancher.nataliagranato.xyz` apontando para o IP do LoadBalancer obtido no passo anterior.
+   - Acesse o painel de controle do seu provedor de DNS.
+   - Crie um registro A para o domínio `rancher.nataliagranato.xyz` apontando para o IP do LoadBalancer obtido no passo anterior.
 
 ### Solução de Problemas com o Ingress
 
@@ -167,16 +167,13 @@ Se, por algum motivo o deploy do Rancher ocorreu corretamente, mas você não es
 
 1. Edite o Ingress do Rancher:
 
-    ```sh
-    kubectl edit ingress rancher -n nginx-ingress
-    ```
+   ```sh
+   kubectl edit ingress rancher -n nginx-ingress
+   ```
 
 2. Adicione a annotation do seu Ingress Controller e salve para acessar a URL.
 
 ```yaml
 annotations:
-  kubernetes.io/ingress.class: "nginx"
+  kubernetes.io/ingress.class: 'nginx'
 ```
-
-
-
