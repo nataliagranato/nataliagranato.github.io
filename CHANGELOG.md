@@ -20,6 +20,28 @@ straightforward as possible.
 ### Breaking Changes
 -->
 
+
+## v2.1.0 - 2025-09-02
+
+### Added
+
+- Implementação completa do sistema de cache utilizando Redis (`lib/cache.ts`, `lib/redis.ts`, `lib/blogCache.ts`)
+- Novos endpoints de API para gerenciamento de cache (`app/api/cache/route.ts`)
+- Documentação detalhada sobre o sistema de cache e Redis (`docs/CACHE_API.md`, `docs/REDIS_CACHE.md`)
+
+### Changed
+
+- Melhoria na formatação e qualidade dos artigos do blog em Markdown
+- Atualizações e aprimoramentos nos arquivos de configuração de build e deploy
+
+### Fixed
+
+- Correção de tipagem no TypeScript para o cliente Redis (`lib/cache.ts`)
+- Garantia de conformidade com ESLint em todo o projeto
+
+---
+
+Merge relacionado: [#52](https://github.com/nataliagranato/nataliagranato.github.io/pull/52)
 ## v2.0.0 - 2025-09-02
 
 ### Added
