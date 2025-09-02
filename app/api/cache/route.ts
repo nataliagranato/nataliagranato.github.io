@@ -20,6 +20,12 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ error: 'Key parameter is required' }, { status: 400 })
         }
         const [prefix, identifier] = key.split(':')
+        if (!prefix || !identifier) {
+          return NextResponse.json(
+            { error: 'Invalid key format. Use "prefix:identifier"' },
+            { status: 400 }
+          )
+        }
         const data = await cacheService.get(prefix, identifier)
         return NextResponse.json({ data })
       }
