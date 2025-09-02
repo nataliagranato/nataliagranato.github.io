@@ -88,7 +88,7 @@ class CacheService {
       const keys = await this.scanKeys(client, pattern)
 
       if (keys.length > 0) {
-        await client.del(keys)
+        await client.del(...keys)
         console.log(`Cache clear: Deleted ${keys.length} keys matching pattern ${pattern}`)
       } else {
         console.log(`Cache clear: No keys found matching pattern ${pattern}`)
