@@ -52,7 +52,7 @@ export default function TestSentryPage() {
         <p className="mb-6 text-gray-600 dark:text-gray-400">
           Teste todas as funcionalidades do Sentry: erros, logs e feedback de usuário.
         </p>
-        
+
         <div className="space-y-4">
           <button
             onClick={generateError}
@@ -60,7 +60,7 @@ export default function TestSentryPage() {
           >
             🔴 Gerar Erro de Teste
           </button>
-          
+
           <button
             onClick={generateLogs}
             className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
@@ -89,7 +89,7 @@ export default function TestSentryPage() {
               ✅ Erro gerado! Verifique o console e o painel do Sentry.
             </p>
           )}
-          
+
           {logsGenerated && (
             <p className="text-blue-600 dark:text-blue-400">
               ✅ Logs console gerados! Verifique o painel do Sentry na seção de Logs.
@@ -110,12 +110,10 @@ export default function TestSentryPage() {
         </div>
 
         <div className="mt-6 rounded bg-gray-100 p-4 dark:bg-gray-700">
-          <h3 className="mb-2 font-semibold text-gray-900 dark:text-gray-100">
-            💡 Dica:
-          </h3>
+          <h3 className="mb-2 font-semibold text-gray-900 dark:text-gray-100">💡 Dica:</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            O widget de User Feedback também aparece automaticamente como um botão flutuante na página. 
-            Procure por um ícone de feedback no canto da tela!
+            O widget de User Feedback também aparece automaticamente como um botão flutuante na
+            página. Procure por um ícone de feedback no canto da tela!
           </p>
         </div>
       </div>
