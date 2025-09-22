@@ -9,10 +9,6 @@ export async function register() {
     await import('./sentry.edge.config')
   }
 
-  // Initialize client-side Sentry when running in the browser
-  if (typeof window !== 'undefined') {
-    await import('./sentry.client.config')
-  }
 }
 
 export const onRequestError = Sentry.captureRequestError
