@@ -55,11 +55,11 @@ export default function Page() {
 
         <p className="description">
           Click the button below, and view the sample error on the Sentry{' '}
-          <a target="_blank" href={sentryIssuesUrl}>
+          <a target="_blank" rel="noopener noreferrer" href={sentryIssuesUrl}>
             Issues Page
           </a>
           . For more details about setting up Sentry,{' '}
-          <a target="_blank" href="https://docs.sentry.io/platforms/javascript/guides/nextjs/">
+          <a target="_blank" rel="noopener noreferrer" href="https://docs.sentry.io/platforms/javascript/guides/nextjs/">
             read our docs
           </a>
           .
