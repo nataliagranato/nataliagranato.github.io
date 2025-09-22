@@ -12,12 +12,15 @@ Sentry.init({
     Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
   ],
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1,
+  // Define how likely traces are sampled. Use env var with fallback to environment-based defaults
+  // Lower default for production to reduce overhead
+  tracesSampleRate: process.env.SENTRY_TRACES_SAMPLE_RATE 
+    ? parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE)
+    : process.env.NODE_ENV === 'production' ? 0.05 : 1.0,
 
-  // Enable logs to be sent to Sentry
-  enableLogs: true,
+  // Enable logs by default, disable only when explicitly set to false via env var
+  enableLogs: process.env.SENTRY_ENABLE_LOGS !== 'false',
 
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
+  // Enable debug only for development or when explicitly enabled via env var
+  debug: process.env.SENTRY_DEBUG === 'true' || (process.env.NODE_ENV === 'development' && process.env.SENTRY_DEBUG !== 'false'),
 })
