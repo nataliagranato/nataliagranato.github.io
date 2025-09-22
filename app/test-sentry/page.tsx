@@ -12,8 +12,7 @@ export default function TestSentryPage() {
   const generateError = () => {
     setErrorGenerated(true)
     // Isso irá gerar um erro que o Sentry deve capturar
-    // @ts-ignore
-    myUndefinedFunction()
+    throw new Error('Erro de teste gerado para Sentry')
   }
 
   const generateLogs = () => {
