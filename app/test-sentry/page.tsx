@@ -4,11 +4,18 @@ import { useState } from 'react'
 import * as Sentry from '@sentry/nextjs'
 
 export default function TestSentryPage() {
+  if (process.env.NEXT_PUBLIC_ENABLE_SENTRY_TEST_PAGE !== 'true') {
+    return (
+      <div className="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        Página de teste do Sentry desabilitada.
+      </div>
+    )
+  }
+
   const [errorGenerated, setErrorGenerated] = useState(false)
   const [logsGenerated, setLogsGenerated] = useState(false)
   const [sentryLogGenerated, setSentryLogGenerated] = useState(false)
   const [feedbackOpened, setFeedbackOpened] = useState(false)
-
   const generateError = () => {
     setErrorGenerated(true)
     // Isso irá gerar um erro que o Sentry deve capturar
