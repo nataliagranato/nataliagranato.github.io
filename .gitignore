@@ -45,3 +45,6 @@ yarn-error.log*
 .env
 # Contentlayer
 .contentlayer
+
+# Sentry Config File
+.env.sentry-build-plugin
