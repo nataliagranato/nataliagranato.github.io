@@ -4,24 +4,31 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs'
+import { parseSampleRate, SENTRY_DEFAULTS, shouldEnableDebug, shouldEnableLogs } from './lib/sentry-utils'
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN || '',
 
   integrations: [
     // send console.log, console.warn, and console.error calls as logs to Sentry
-    Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
+    // Only enable in production or when explicitly enabled
+    ...(shouldEnableLogs() 
+      ? [Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] })]
+      : []),
   ],
 
   // Define how likely traces are sampled. Use env var with fallback to environment-based defaults
   // Lower default for production to reduce overhead
-  tracesSampleRate: process.env.SENTRY_TRACES_SAMPLE_RATE 
-    ? parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE)
-    : process.env.NODE_ENV === 'production' ? 0.05 : 1.0,
+  tracesSampleRate: parseSampleRate(
+    process.env.SENTRY_TRACES_SAMPLE_RATE,
+    process.env.NODE_ENV === 'production' 
+      ? SENTRY_DEFAULTS.TRACES_SAMPLE_RATE.production 
+      : SENTRY_DEFAULTS.TRACES_SAMPLE_RATE.development
+  ),
 
-  // Enable logs by default, disable only when explicitly set to false via env var
-  enableLogs: process.env.SENTRY_ENABLE_LOGS !== 'false',
+  // Enable logs only when explicitly enabled or in production
+  enableLogs: shouldEnableLogs(),
 
-  // Enable debug only for development or when explicitly enabled via env var
-  debug: process.env.SENTRY_DEBUG === 'true' || (process.env.NODE_ENV === 'development' && process.env.SENTRY_DEBUG !== 'false'),
+  // Disable debug by default in development to reduce noise
+  debug: shouldEnableDebug(),
 })
