@@ -1,7 +1,7 @@
 {
   "servers": {
     "Sentry": {
-      "url": "https://mcp.sentry.dev/mcp/nataliagranato/nataliagranato-xyz",
+      "url": "${env:SENTRY_MCP_URL}",
       "type": "http"
     }
   }
