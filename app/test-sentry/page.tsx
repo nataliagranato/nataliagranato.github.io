@@ -47,7 +47,7 @@ export default function TestSentryPage() {
         feedback.createWidget()
       }
     } catch (error) {
-      console.log('Feedback widget não disponível:', error)
+      console.log('Feedback widget not available:', error)
     }
   }
 
