@@ -27,7 +27,15 @@ export default function TestSentryPage() {
   const generateSentryLog = () => {
     setSentryLogGenerated(true)
     // Teste específico usando Sentry.logger conforme instruções
-    Sentry.logger.info('User triggered test log', { log_source: 'sentry_test' })
+    try {
+      if (Sentry.logger && typeof Sentry.logger.info === 'function') {
+        Sentry.logger.info('User triggered test log', { log_source: 'sentry_test' })
+      } else {
+        console.log('Sentry.logger.info is not available in this SDK version.')
+      }
+    } catch (error) {
+      console.log('Error calling Sentry.logger.info:', error)
+    }
   }
 
   const openFeedback = () => {
