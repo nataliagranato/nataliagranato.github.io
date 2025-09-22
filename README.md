@@ -10,7 +10,12 @@ Site pessoal e blog de Natália Granato, focado em tecnologias Cloud Native, con
 
 ## Sobre o Projeto
 
-Este projeto utiliza [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/), [Contentlayer](https://www.contentlayer.dev/) e integra um sistema avançado de cache com Redis, acelerando a renderização dos artigos do blog, filtragens por tag e paginação.
+Este projeto utiliza [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/), [Contentlayer](https://www.contentlayer.dev/) e integra um sistema avançado de cache com Redis e monitoramento completo com Sentry, proporcionando uma experiência otimizada e observabilidade em produção.
+
+**Principais tecnologias:**
+- **Performance**: Cache Redis acelera a renderização dos artigos do blog, filtragens por tag e paginação
+- **Observabilidade**: Sentry para monitoramento de erros, logging e feedback de usuários
+- **Infraestrutura**: Deploy otimizado para Vercel com source maps e configurações de produção
 
 Principais temas abordados:
 - Cloud Native, Kubernetes, Docker, Observabilidade, DevOps, DevSecOps, automações, ferramentas CNCF.
@@ -36,8 +41,12 @@ npm install
 ```
 
 **Configuração de ambiente:**
-- Copie o arquivo `.env.example` para `.env` e configure as variáveis de ambiente conforme necessário (ex: credenciais Redis, API keys).
+- Copie o arquivo `.env.example` para `.env` e configure as variáveis de ambiente conforme necessário:
+  - **Redis**: Credenciais para o sistema de cache (opcional para desenvolvimento)
+  - **Sentry**: DSN, organização e projeto para monitoramento de erros
+  - **API Keys**: Chaves para autenticação da API de cache
 - Para testar funcionalidades do cache, é recomendável rodar um servidor Redis local (`docker run -p 6379:6379 redis`).
+- Para testar o Sentry, configure o DSN e habilite a página de teste com `NEXT_PUBLIC_ENABLE_SENTRY_TEST_PAGE=true`.
 
 **Inicie o servidor de desenvolvimento:**
 ```bash
@@ -50,10 +59,44 @@ Abra [http://localhost:3000](http://localhost:3000) no navegador.
 
 ## Principais Funcionalidades
 
+### 🚀 Sistema de Cache com Redis
 - Integração de cache Redis para o blog: acelera listagem, busca por tags, paginação e exibição de posts.
 - API REST para gerenciamento do cache (`/api/cache`) com autenticação por chave, restrição de IP e rate limiting.
 - Scripts de teste para validação automática do cache e da conexão Redis.
 - Documentação detalhada para uso da API e do sistema de cache.
+
+### 🔍 Monitoramento e Observabilidade com Sentry
+- **Monitoramento de Erros**: Captura automática de erros JavaScript/TypeScript no frontend e backend
+- **Logging Avançado**: Integração com console.log, console.warn, console.error para envio automático ao Sentry
+- **Performance Monitoring**: Rastreamento de performance com sampling configurável por ambiente
+- **User Feedback**: Widget integrado para coleta de feedback dos usuários
+- **Source Maps**: Upload automático de source maps para debugging em produção
+- **Configuração Multi-Runtime**: Suporte para Server, Client e Edge runtimes do Next.js
+- **Controle por Ambiente**: Configuração flexível via variáveis de ambiente para desenvolvimento/produção
+
+#### Variáveis de Ambiente do Sentry
+```bash
+# Configuração básica
+SENTRY_DSN=seu_dsn_aqui
+NEXT_PUBLIC_SENTRY_ORG=sua_organizacao
+NEXT_PUBLIC_SENTRY_PROJECT=seu_projeto
+
+# Controles de produção
+SENTRY_TRACES_SAMPLE_RATE=0.05          # Taxa de sampling (5% em prod)
+SENTRY_ENABLE_LOGS=true                  # Habilitar logs (padrão: true)
+NEXT_PUBLIC_ENABLE_SENTRY_TEST_PAGE=false # Página de teste (padrão: false)
+
+# Upload de source maps
+SENTRY_ORG=sua_organizacao
+SENTRY_PROJECT=seu_projeto
+SENTRY_AUTH_TOKEN=seu_token_de_auth
+```
+
+#### Página de Teste do Sentry
+- Acessível em `/test-sentry` (apenas quando `NEXT_PUBLIC_ENABLE_SENTRY_TEST_PAGE=true`)
+- Interface para testar: geração de erros, logs console, Sentry.logger e feedback de usuário
+- Protegida em produção (retorna 404 por padrão)
+- Metadata com `robots: noindex` para evitar indexação
 
 ---
 
@@ -148,6 +191,7 @@ sequenceDiagram
 
 - **docs/CACHE_API.md**: Como usar a API de cache, autenticação e variáveis de ambiente.
 - **docs/REDIS_CACHE.md**: Como funciona a integração com Redis, comandos de teste e configuração.
+- **docs/SENTRY_CONFIG.md**: Configuração completa do Sentry, monitoramento de erros, logging e feedback de usuários.
 
 ---
 
