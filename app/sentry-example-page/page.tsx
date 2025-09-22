@@ -15,9 +15,12 @@ export default function Page() {
   const [isConnected, setIsConnected] = useState(true)
 
   // Build Sentry issues URL from environment variables
-  const sentryOrg = process.env.NEXT_PUBLIC_SENTRY_ORG || 'nataliagranato'
-  const sentryProject = process.env.NEXT_PUBLIC_SENTRY_PROJECT || '4510063897870336'
-  const sentryIssuesUrl = `https://${sentryOrg}.sentry.io/issues/?project=${sentryProject}`
+  const sentryOrg = process.env.NEXT_PUBLIC_SENTRY_ORG
+  const sentryProject = process.env.NEXT_PUBLIC_SENTRY_PROJECT
+  const sentryIssuesUrl =
+    sentryOrg && sentryProject
+      ? `https://${sentryOrg}.sentry.io/issues/?project=${sentryProject}`
+      : undefined
 
   useEffect(() => {
     // Set page title
