@@ -14,7 +14,10 @@ Sentry.init({
       maskAllText: true,
       blockAllMedia: true,
     }),
-    // Capture console calls in the browser - fallback to consoleLoggingIntegration if captureConsoleIntegration is not available
+    // Capture console calls in the browser.
+    // Compatibility layer: Sentry.captureConsoleIntegration was introduced in Sentry SDK v7.80.0.
+    // For older SDK versions, fallback to Sentry.consoleLoggingIntegration.
+    // Remove this fallback when minimum supported Sentry SDK version is >= 7.80.0.
     Sentry.captureConsoleIntegration ? 
       Sentry.captureConsoleIntegration({ levels: ['error', 'warn', 'info'] }) :
       Sentry.consoleLoggingIntegration({ levels: ['error', 'warn', 'info'] }),
