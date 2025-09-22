@@ -54,6 +54,26 @@ const securityHeaders = [
   },
 ]
 
+const monitoringHeaders = [
+  // Custom monitoring headers for external alerts
+  {
+    key: 'X-Header-Value',
+    value: 'monitoring-active',
+  },
+  {
+    key: 'Header-Value',
+    value: 'nataliagranato-xyz-health-check',
+  },
+  {
+    key: 'X-Server-Status',
+    value: 'online',
+  },
+  {
+    key: 'X-Environment',
+    value: process.env.NODE_ENV || 'production',
+  },
+]
+
 // Injected content via Sentry wizard below
 const { withSentryConfig } = require('@sentry/nextjs')
 
@@ -78,7 +98,7 @@ const nextConfig = {
     return [
       {
         source: '/(.*)',
-        headers: securityHeaders,
+        headers: [...securityHeaders, ...monitoringHeaders],
       },
     ]
   },
@@ -120,7 +140,7 @@ module.exports = withSentryConfig(configWithPlugins, {
   tunnelRoute: '/monitoring',
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
+  disableLogger: false,
 
   // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
   // See the following for more information:
