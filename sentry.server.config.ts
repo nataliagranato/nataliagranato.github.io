@@ -5,7 +5,7 @@
 import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN || '',
+  dsn: process.env.SENTRY_DSN || undefined,
 
   integrations: [
     // send console.log, console.warn, and console.error calls as logs to Sentry
