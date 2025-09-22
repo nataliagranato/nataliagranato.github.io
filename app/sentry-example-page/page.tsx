@@ -1,6 +1,5 @@
 'use client'
 
-import Head from 'next/head'
 import * as Sentry from '@sentry/nextjs'
 import { useState, useEffect } from 'react'
 
@@ -15,6 +14,25 @@ export default function Page() {
   const [hasSentError, setHasSentError] = useState(false)
   const [isConnected, setIsConnected] = useState(true)
 
+  // Build Sentry issues URL from environment variables
+  const sentryOrg = process.env.NEXT_PUBLIC_SENTRY_ORG || 'nataliagranato'
+  const sentryProject = process.env.NEXT_PUBLIC_SENTRY_PROJECT || '4510063897870336'
+  const sentryIssuesUrl = `https://${sentryOrg}.sentry.io/issues/?project=${sentryProject}`
+
+  useEffect(() => {
+    // Set page title
+    document.title = 'sentry-example-page'
+    const metaDescription = document.querySelector('meta[name="description"]')
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Test Sentry for your Next.js app!')
+    } else {
+      const meta = document.createElement('meta')
+      meta.name = 'description'
+      meta.content = 'Test Sentry for your Next.js app!'
+      document.head.appendChild(meta)
+    }
+  }, [])
+
   useEffect(() => {
     async function checkConnectivity() {
       const result = await Sentry.diagnoseSdkConnectivity()
@@ -25,11 +43,6 @@ export default function Page() {
 
   return (
     <div>
-      <Head>
-        <title>sentry-example-page</title>
-        <meta name="description" content="Test Sentry for your Next.js app!" />
-      </Head>
-
       <main>
         <div className="flex-spacer" />
         <svg height="40" width="40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -42,10 +55,7 @@ export default function Page() {
 
         <p className="description">
           Click the button below, and view the sample error on the Sentry{' '}
-          <a
-            target="_blank"
-            href="https://nataliagranato.sentry.io/issues/?project=4510063897870336"
-          >
+          <a target="_blank" href={sentryIssuesUrl}>
             Issues Page
           </a>
           . For more details about setting up Sentry,{' '}
@@ -125,8 +135,10 @@ export default function Page() {
           color: #6341F0;
           text-decoration: underline;
           cursor: pointer;
+        }
 
-          @media (prefers-color-scheme: dark) {
+        @media (prefers-color-scheme: dark) {
+          a {
             color: #B3A1FF;
           }
         }
@@ -139,36 +151,36 @@ export default function Page() {
           border: none;
           padding: 0;
           margin-top: 4px;
+        }
 
-          & > span {
-            display: inline-block;
-            padding: 12px 16px;
-            border-radius: inherit;
-            font-size: 20px;
-            font-weight: bold;
-            line-height: 1;
-            background-color: #7553FF;
-            border: 1px solid #553DB8;
-            transform: translateY(-4px);
-          }
+        button > span {
+          display: inline-block;
+          padding: 12px 16px;
+          border-radius: inherit;
+          font-size: 20px;
+          font-weight: bold;
+          line-height: 1;
+          background-color: #7553FF;
+          border: 1px solid #553DB8;
+          transform: translateY(-4px);
+        }
 
-          &:hover > span {
-            transform: translateY(-8px);
-          }
+        button:hover > span {
+          transform: translateY(-8px);
+        }
 
-          &:active > span {
-            transform: translateY(0);
-          }
+        button:active > span {
+          transform: translateY(0);
+        }
 
-          &:disabled {
-	            cursor: not-allowed;
-	            opacity: 0.6;
-	
-	            & > span {
-	              transform: translateY(0);
-	              border: none
-	            }
-	          }
+        button:disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+
+        button:disabled > span {
+          transform: translateY(0);
+          border: none;
         }
 
         .description {
@@ -177,8 +189,10 @@ export default function Page() {
           max-width: 500px;
           line-height: 1.5;
           font-size: 20px;
+        }
 
-          @media (prefers-color-scheme: dark) {
+        @media (prefers-color-scheme: dark) {
+          .description {
             color: #A49FB5;
           }
         }

@@ -48,3 +48,6 @@ yarn-error.log*
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# VS Code MCP Configuration
+.vscode/mcp.json
