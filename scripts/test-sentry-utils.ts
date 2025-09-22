@@ -1,5 +1,10 @@
 // Test script to validate Sentry utility functions
-import { parseSampleRate, SENTRY_DEFAULTS, shouldEnableDebug, shouldEnableLogs } from '../lib/sentry-utils'
+import {
+  parseSampleRate,
+  SENTRY_DEFAULTS,
+  shouldEnableDebug,
+  shouldEnableLogs,
+} from '../lib/sentry-utils'
 
 console.log('🧪 Testing Sentry utility functions...\n')
 

@@ -9,15 +9,15 @@
  */
 export function parseSampleRate(value: string | undefined, fallback: number): number {
   if (!value) return fallback
-  
+
   const parsed = parseFloat(value)
-  
+
   // Validate: must be a number between 0 and 1
   if (isNaN(parsed) || parsed < 0 || parsed > 1) {
     console.warn(`[Sentry] Invalid sample rate "${value}". Using fallback: ${fallback}`)
     return fallback
   }
-  
+
   return parsed
 }
 
@@ -48,14 +48,12 @@ export function shouldEnableSentry(): boolean {
  * Check if debug mode should be enabled
  */
 export function shouldEnableDebug(): boolean {
-  return process.env.SENTRY_DEBUG === 'true' || 
-         process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true'
+  return process.env.SENTRY_DEBUG === 'true' || process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true'
 }
 
 /**
  * Check if logs should be enabled
  */
 export function shouldEnableLogs(): boolean {
-  return process.env.SENTRY_ENABLE_LOGS === 'true' || 
-         process.env.NODE_ENV === 'production'
+  return process.env.SENTRY_ENABLE_LOGS === 'true' || process.env.NODE_ENV === 'production'
 }

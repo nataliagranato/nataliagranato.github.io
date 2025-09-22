@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now()
-  
+
   try {
     // Perform basic health checks
     const healthData = {
@@ -14,12 +14,12 @@ export async function GET(request: NextRequest) {
       checks: {
         server: 'ok',
         memory: getMemoryUsage(),
-        responseTime: `${Date.now() - startTime}ms`
-      }
+        responseTime: `${Date.now() - startTime}ms`,
+      },
     }
 
     const response = NextResponse.json(healthData, { status: 200 })
-    
+
     // Add specific monitoring headers
     response.headers.set('X-Header-Value', 'monitoring-active')
     response.headers.set('Header-Value', 'nataliagranato-xyz-health-check')
@@ -27,25 +27,25 @@ export async function GET(request: NextRequest) {
     response.headers.set('X-Response-Time', `${Date.now() - startTime}ms`)
     response.headers.set('X-Request-ID', generateRequestId())
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
-    
+
     return response
   } catch (error) {
     const errorResponse = {
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       error: error instanceof Error ? error.message : 'Unknown error',
-      responseTime: `${Date.now() - startTime}ms`
+      responseTime: `${Date.now() - startTime}ms`,
     }
 
     const response = NextResponse.json(errorResponse, { status: 500 })
-    
+
     // Add monitoring headers even for errors
     response.headers.set('X-Header-Value', 'monitoring-error')
     response.headers.set('Header-Value', 'nataliagranato-xyz-health-check')
     response.headers.set('X-Health-Status', 'unhealthy')
     response.headers.set('X-Response-Time', `${Date.now() - startTime}ms`)
     response.headers.set('X-Request-ID', generateRequestId())
-    
+
     return response
   }
 }
@@ -56,7 +56,7 @@ function getMemoryUsage() {
     rss: `${Math.round(usage.rss / 1024 / 1024)}MB`,
     heapTotal: `${Math.round(usage.heapTotal / 1024 / 1024)}MB`,
     heapUsed: `${Math.round(usage.heapUsed / 1024 / 1024)}MB`,
-    external: `${Math.round(usage.external / 1024 / 1024)}MB`
+    external: `${Math.round(usage.external / 1024 / 1024)}MB`,
   }
 }
 
