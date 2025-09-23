@@ -1,7 +1,5 @@
 'use server'
 
-import { cacheService } from '@/lib/cache'
-
 // Newsletter subscription result type
 export type NewsletterResult = {
   success: boolean
@@ -17,20 +15,23 @@ export type NewsletterSubscriber = {
   unsubscribeToken: string
 }
 
+// Simple in-memory storage for demonstration
+// In production, you'd use a proper database or Redis with custom keys
+const subscribers = new Map<string, NewsletterSubscriber>()
+let subscriberCount = 0
+
 // Generate a random token for unsubscribe functionality
 function generateUnsubscribeToken(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36)
 }
 
-// Custom newsletter subscription function (stores locally in Redis)
+// Custom newsletter subscription function (stores locally in memory)
 async function subscribeToCustomNewsletter(email: string): Promise<NewsletterResult> {
   try {
     const normalizedEmail = email.toLowerCase().trim()
-    const subscriberKey = `newsletter:subscriber:${normalizedEmail}`
     
     // Check if already subscribed
-    const existingSubscriber = await cacheService.get(subscriberKey)
-    if (existingSubscriber) {
+    if (subscribers.has(normalizedEmail)) {
       return {
         success: false,
         message: 'Este email já está inscrito na newsletter',
@@ -46,19 +47,9 @@ async function subscribeToCustomNewsletter(email: string): Promise<NewsletterRes
       unsubscribeToken: generateUnsubscribeToken(),
     }
     
-    // Store subscriber in Redis
-    await cacheService.set(subscriberKey, subscriber, 60 * 60 * 24 * 365) // 1 year TTL
-    
-    // Add to subscribers list
-    const allSubscribersKey = 'newsletter:subscribers:list'
-    const subscribersList = await cacheService.get(allSubscribersKey) || []
-    const updatedList = [...subscribersList, normalizedEmail]
-    await cacheService.set(allSubscribersKey, updatedList, 60 * 60 * 24 * 365)
-    
-    // Update subscriber count
-    const countKey = 'newsletter:subscribers:count'
-    const currentCount = await cacheService.get(countKey) || 0
-    await cacheService.set(countKey, currentCount + 1, 60 * 60 * 24 * 365)
+    // Store subscriber
+    subscribers.set(normalizedEmail, subscriber)
+    subscriberCount++
     
     console.log(`Newsletter subscription: ${normalizedEmail} subscribed successfully`)
     
@@ -78,34 +69,21 @@ async function subscribeToCustomNewsletter(email: string): Promise<NewsletterRes
 
 // Get subscriber count
 export async function getSubscriberCount(): Promise<number> {
-  try {
-    const count = await cacheService.get('newsletter:subscribers:count')
-    return count || 0
-  } catch (error) {
-    console.error('Error getting subscriber count:', error)
-    return 0
-  }
+  return subscriberCount
 }
 
 // Get all subscribers (admin function)
 export async function getAllSubscribers(): Promise<string[]> {
-  try {
-    const subscribers = await cacheService.get('newsletter:subscribers:list')
-    return subscribers || []
-  } catch (error) {
-    console.error('Error getting subscribers list:', error)
-    return []
-  }
+  return Array.from(subscribers.keys())
 }
 
 // Unsubscribe function
 export async function unsubscribeFromNewsletter(email: string, token: string): Promise<NewsletterResult> {
   try {
     const normalizedEmail = email.toLowerCase().trim()
-    const subscriberKey = `newsletter:subscriber:${normalizedEmail}`
     
     // Get subscriber data
-    const subscriber = await cacheService.get(subscriberKey) as NewsletterSubscriber | null
+    const subscriber = subscribers.get(normalizedEmail)
     if (!subscriber) {
       return {
         success: false,
@@ -124,18 +102,8 @@ export async function unsubscribeFromNewsletter(email: string, token: string): P
     }
     
     // Remove subscriber
-    await cacheService.delete(subscriberKey)
-    
-    // Remove from subscribers list
-    const allSubscribersKey = 'newsletter:subscribers:list'
-    const subscribersList = await cacheService.get(allSubscribersKey) || []
-    const updatedList = subscribersList.filter((sub: string) => sub !== normalizedEmail)
-    await cacheService.set(allSubscribersKey, updatedList, 60 * 60 * 24 * 365)
-    
-    // Update subscriber count
-    const countKey = 'newsletter:subscribers:count'
-    const currentCount = await cacheService.get(countKey) || 0
-    await cacheService.set(countKey, Math.max(0, currentCount - 1), 60 * 60 * 24 * 365)
+    subscribers.delete(normalizedEmail)
+    subscriberCount = Math.max(0, subscriberCount - 1)
     
     console.log(`Newsletter unsubscription: ${normalizedEmail} unsubscribed successfully`)
     
@@ -151,6 +119,28 @@ export async function unsubscribeFromNewsletter(email: string, token: string): P
       error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
+}
+
+// Rate limiting storage
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
+
+// Simple rate limiting
+function checkRateLimit(identifier: string, maxAttempts = 5, windowMs = 60000): boolean {
+  const now = Date.now()
+  const record = rateLimitStore.get(identifier)
+  
+  if (!record || now > record.resetTime) {
+    // First attempt or window expired
+    rateLimitStore.set(identifier, { count: 1, resetTime: now + windowMs })
+    return true
+  }
+  
+  if (record.count >= maxAttempts) {
+    return false // Rate limit exceeded
+  }
+  
+  record.count++
+  return true
 }
 
 // Main newsletter subscription server action
@@ -176,23 +166,19 @@ export async function subscribeToNewsletter(formData: FormData): Promise<Newslet
     }
   }
   
-  // Rate limiting - prevent spam (max 5 subscriptions per minute per IP)
+  // Rate limiting - prevent spam (max 5 subscriptions per minute)
   const userAgent = formData.get('userAgent') as string || 'unknown'
   const rateLimitKey = `newsletter:ratelimit:${userAgent}`
   
-  try {
-    const currentAttempts = await cacheService.get(rateLimitKey) || 0
-    if (currentAttempts >= 5) {
-      return {
-        success: false,
-        message: 'Muitas tentativas. Tente novamente em alguns minutos.',
-        error: 'Rate limit exceeded',
-      }
+  if (!checkRateLimit(rateLimitKey)) {
+    return {
+      success: false,
+      message: 'Muitas tentativas. Tente novamente em alguns minutos.',
+      error: 'Rate limit exceeded',
     }
-    
-    // Increment rate limit counter
-    await cacheService.set(rateLimitKey, currentAttempts + 1, 60) // 1 minute TTL
-    
+  }
+  
+  try {
     // Use custom newsletter system
     return await subscribeToCustomNewsletter(email)
   } catch (error) {
