@@ -3,6 +3,16 @@ import { openai } from '@ai-sdk/openai'
 import { NextRequest } from 'next/server'
 
 export async function POST(request: NextRequest) {
+  // Verificar se o AI monitoring está habilitado
+  if (process.env.ENABLE_AI_MONITORING_PAGE !== 'true') {
+    return new Response('AI Monitoring is disabled', { status: 403 })
+  }
+
+  // Verificar se a API key do OpenAI está configurada
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response('OpenAI API key not configured', { status: 500 })
+  }
+
   try {
     const { prompt } = await request.json()
 

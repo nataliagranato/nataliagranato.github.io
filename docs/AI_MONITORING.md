@@ -72,12 +72,71 @@ O Sentry captura automaticamente:
 
 ## Variáveis de ambiente necessárias
 
-Certifique-se de ter as seguintes variáveis de ambiente configuradas:
+### Para desenvolvimento:
+
+Crie um arquivo `.env.local` com as seguintes variáveis:
 
 ```env
+# Habilitar página de teste (apenas desenvolvimento)
+ENABLE_AI_MONITORING_PAGE=true
+
+# OpenAI API key para as operações de AI
 OPENAI_API_KEY=sua_chave_openai
+
+# Outras variáveis conforme necessário...
+REDIS_URL=redis://localhost:6379
+```
+
+### Para produção:
+
+**⚠️ IMPORTANTE**: Nunca deixe `ENABLE_AI_MONITORING_PAGE=true` em produção!
+
+```env
+# Página de teste desabilitada em produção
+ENABLE_AI_MONITORING_PAGE=false
+
+# OpenAI API key (configurar no painel da Vercel)
+OPENAI_API_KEY=sua_chave_openai
+
+# Sentry DSN (já configurado)
 SENTRY_DSN=https://4e3932a0fff725102d6bcbaac821fb62@o4508636574842880.ingest.us.sentry.io/4510063897870336
 ```
+
+## 🔒 Segurança
+
+### Controle de Acesso
+
+A página de teste (`/test-ai-monitoring`) e suas APIs são protegidas por:
+
+1. **Variável de ambiente**: `ENABLE_AI_MONITORING_PAGE`
+   - `true`: Habilita a página e APIs (desenvolvimento)
+   - `false` ou undefined: Desabilita completamente (produção)
+
+2. **Verificação de API Key**: 
+   - Todas as APIs verificam se `OPENAI_API_KEY` está configurada
+   - Retorna erro 500 se não estiver disponível
+
+3. **Proteção em runtime**:
+   - APIs retornam 403 (Forbidden) se não habilitadas
+   - Página mostra mensagem de "não disponível"
+
+### Como habilitar para desenvolvimento:
+
+1. **Copie o arquivo de exemplo**:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+2. **Configure suas chaves**:
+   ```env
+   ENABLE_AI_MONITORING_PAGE=true
+   OPENAI_API_KEY=sk-your-actual-openai-key
+   ```
+
+3. **Reinicie o servidor**:
+   ```bash
+   npm run dev
+   ```
 
 ## Visualização no Sentry
 

@@ -12,14 +12,21 @@ const responseSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
+  // Verificar se o AI monitoring está habilitado
+  if (process.env.ENABLE_AI_MONITORING_PAGE !== 'true') {
+    return NextResponse.json({ error: 'AI Monitoring is disabled' }, { status: 403 })
+  }
+
+  // Verificar se a API key do OpenAI está configurada
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
+  }
+
   try {
     const { content } = await request.json()
 
     if (!content) {
-      return NextResponse.json(
-        { error: 'Content is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Content is required' }, { status: 400 })
     }
 
     // Generate structured object with Sentry telemetry enabled
@@ -42,9 +49,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error generating object:', error)
-    return NextResponse.json(
-      { error: 'Failed to generate structured object' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to generate structured object' }, { status: 500 })
   }
 }

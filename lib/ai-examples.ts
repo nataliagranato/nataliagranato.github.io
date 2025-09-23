@@ -64,7 +64,7 @@ export async function analyzeContent(content: string) {
 export async function generateConversation(messages: Array<{ role: string; content: string }>) {
   const result = await generateText({
     model: openai('gpt-4o-mini'),
-    messages: messages.map(msg => ({
+    messages: messages.map((msg) => ({
       role: msg.role as 'user' | 'assistant' | 'system',
       content: msg.content,
     })),
@@ -114,9 +114,9 @@ export async function safeGenerate(prompt: string) {
   } catch (error) {
     // O Sentry automaticamente captura este erro com contexto de AI
     console.error('AI Generation failed:', error)
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 }
