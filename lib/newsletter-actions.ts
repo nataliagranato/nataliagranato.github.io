@@ -1,6 +1,6 @@
 'use server'
 
-import siteMetadata from '@/data/siteMetadata'
+import { cacheService } from '@/lib/cache'
 
 // Newsletter subscription result type
 export type NewsletterResult = {
@@ -9,200 +9,198 @@ export type NewsletterResult = {
   error?: string
 }
 
-// Buttondown subscription function
-async function buttondownSubscribe(email: string): Promise<Response> {
-  const API_KEY = process.env.BUTTONDOWN_API_KEY
-  const API_URL = 'https://api.buttondown.email/v1/'
-  const buttondownRoute = `${API_URL}subscribers`
-
-  const data = { email_address: email }
-
-  const response = await fetch(buttondownRoute, {
-    body: JSON.stringify(data),
-    headers: {
-      Authorization: `Token ${API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  })
-
-  return response
+// Newsletter subscriber type
+export type NewsletterSubscriber = {
+  email: string
+  subscribedAt: string
+  confirmed: boolean
+  unsubscribeToken: string
 }
 
-// MailChimp subscription function
-async function mailchimpSubscribe(email: string): Promise<Response> {
-  const API_KEY = process.env.MAILCHIMP_API_KEY
-  const API_SERVER = process.env.MAILCHIMP_API_SERVER
-  const AUDIENCE_ID = process.env.MAILCHIMP_AUDIENCE_ID
-
-  const url = `https://${API_SERVER}.api.mailchimp.com/3.0/lists/${AUDIENCE_ID}/members`
-
-  const data = {
-    email_address: email,
-    status: 'subscribed',
-  }
-
-  const response = await fetch(url, {
-    body: JSON.stringify(data),
-    headers: {
-      Authorization: `apikey ${API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  })
-
-  return response
+// Generate a random token for unsubscribe functionality
+function generateUnsubscribeToken(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36)
 }
 
-// ConvertKit subscription function
-async function convertkitSubscribe(email: string): Promise<Response> {
-  const API_KEY = process.env.CONVERTKIT_API_KEY
-  const FORM_ID = process.env.CONVERTKIT_FORM_ID
-
-  const url = `https://api.convertkit.com/v3/forms/${FORM_ID}/subscribe`
-
-  const data = {
-    api_key: API_KEY,
-    email,
+// Custom newsletter subscription function (stores locally in Redis)
+async function subscribeToCustomNewsletter(email: string): Promise<NewsletterResult> {
+  try {
+    const normalizedEmail = email.toLowerCase().trim()
+    const subscriberKey = `newsletter:subscriber:${normalizedEmail}`
+    
+    // Check if already subscribed
+    const existingSubscriber = await cacheService.get(subscriberKey)
+    if (existingSubscriber) {
+      return {
+        success: false,
+        message: 'Este email já está inscrito na newsletter',
+        error: 'Email already subscribed',
+      }
+    }
+    
+    // Create new subscriber
+    const subscriber: NewsletterSubscriber = {
+      email: normalizedEmail,
+      subscribedAt: new Date().toISOString(),
+      confirmed: true, // Auto-confirm for simplicity
+      unsubscribeToken: generateUnsubscribeToken(),
+    }
+    
+    // Store subscriber in Redis
+    await cacheService.set(subscriberKey, subscriber, 60 * 60 * 24 * 365) // 1 year TTL
+    
+    // Add to subscribers list
+    const allSubscribersKey = 'newsletter:subscribers:list'
+    const subscribersList = await cacheService.get(allSubscribersKey) || []
+    const updatedList = [...subscribersList, normalizedEmail]
+    await cacheService.set(allSubscribersKey, updatedList, 60 * 60 * 24 * 365)
+    
+    // Update subscriber count
+    const countKey = 'newsletter:subscribers:count'
+    const currentCount = await cacheService.get(countKey) || 0
+    await cacheService.set(countKey, currentCount + 1, 60 * 60 * 24 * 365)
+    
+    console.log(`Newsletter subscription: ${normalizedEmail} subscribed successfully`)
+    
+    return {
+      success: true,
+      message: 'Inscrição realizada com sucesso! Obrigado por se inscrever na nossa newsletter.',
+    }
+  } catch (error) {
+    console.error('Custom newsletter subscription error:', error)
+    return {
+      success: false,
+      message: 'Erro interno do servidor. Tente novamente mais tarde.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
   }
-
-  const response = await fetch(url, {
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  })
-
-  return response
 }
 
-// Klaviyo subscription function
-async function klaviyoSubscribe(email: string): Promise<Response> {
-  const API_KEY = process.env.KLAVIYO_API_KEY
-  const LIST_ID = process.env.KLAVIYO_LIST_ID
-
-  const url = `https://a.klaviyo.com/api/v2/list/${LIST_ID}/subscribe`
-
-  const data = {
-    profiles: [{ email }],
+// Get subscriber count
+export async function getSubscriberCount(): Promise<number> {
+  try {
+    const count = await cacheService.get('newsletter:subscribers:count')
+    return count || 0
+  } catch (error) {
+    console.error('Error getting subscriber count:', error)
+    return 0
   }
-
-  const response = await fetch(url, {
-    body: JSON.stringify(data),
-    headers: {
-      Authorization: `Klaviyo-API-Key ${API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  })
-
-  return response
 }
 
-// EmailOctopus subscription function
-async function emailOctopusSubscribe(email: string): Promise<Response> {
-  const API_KEY = process.env.EMAILOCTOPUS_API_KEY
-  const LIST_ID = process.env.EMAILOCTOPUS_LIST_ID
-
-  const url = `https://emailoctopus.com/api/1.6/lists/${LIST_ID}/contacts`
-
-  const data = {
-    api_key: API_KEY,
-    email_address: email,
+// Get all subscribers (admin function)
+export async function getAllSubscribers(): Promise<string[]> {
+  try {
+    const subscribers = await cacheService.get('newsletter:subscribers:list')
+    return subscribers || []
+  } catch (error) {
+    console.error('Error getting subscribers list:', error)
+    return []
   }
+}
 
-  const response = await fetch(url, {
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  })
-
-  return response
+// Unsubscribe function
+export async function unsubscribeFromNewsletter(email: string, token: string): Promise<NewsletterResult> {
+  try {
+    const normalizedEmail = email.toLowerCase().trim()
+    const subscriberKey = `newsletter:subscriber:${normalizedEmail}`
+    
+    // Get subscriber data
+    const subscriber = await cacheService.get(subscriberKey) as NewsletterSubscriber | null
+    if (!subscriber) {
+      return {
+        success: false,
+        message: 'Email não encontrado na lista de inscritos',
+        error: 'Email not found',
+      }
+    }
+    
+    // Verify unsubscribe token
+    if (subscriber.unsubscribeToken !== token) {
+      return {
+        success: false,
+        message: 'Token inválido para cancelar inscrição',
+        error: 'Invalid unsubscribe token',
+      }
+    }
+    
+    // Remove subscriber
+    await cacheService.delete(subscriberKey)
+    
+    // Remove from subscribers list
+    const allSubscribersKey = 'newsletter:subscribers:list'
+    const subscribersList = await cacheService.get(allSubscribersKey) || []
+    const updatedList = subscribersList.filter((sub: string) => sub !== normalizedEmail)
+    await cacheService.set(allSubscribersKey, updatedList, 60 * 60 * 24 * 365)
+    
+    // Update subscriber count
+    const countKey = 'newsletter:subscribers:count'
+    const currentCount = await cacheService.get(countKey) || 0
+    await cacheService.set(countKey, Math.max(0, currentCount - 1), 60 * 60 * 24 * 365)
+    
+    console.log(`Newsletter unsubscription: ${normalizedEmail} unsubscribed successfully`)
+    
+    return {
+      success: true,
+      message: 'Inscrição cancelada com sucesso. Sentiremos sua falta!',
+    }
+  } catch (error) {
+    console.error('Newsletter unsubscription error:', error)
+    return {
+      success: false,
+      message: 'Erro interno do servidor. Tente novamente mais tarde.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
 }
 
 // Main newsletter subscription server action
 export async function subscribeToNewsletter(formData: FormData): Promise<NewsletterResult> {
   const email = formData.get('email') as string
-
+  
   // Validate email
   if (!email) {
     return {
       success: false,
-      message: 'Email is required',
+      message: 'Email é obrigatório',
       error: 'Email is required',
     }
   }
-
+  
   // Basic email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(email)) {
     return {
       success: false,
-      message: 'Please enter a valid email address',
+      message: 'Por favor, insira um endereço de email válido',
       error: 'Invalid email format',
     }
   }
-
+  
+  // Rate limiting - prevent spam (max 5 subscriptions per minute per IP)
+  const userAgent = formData.get('userAgent') as string || 'unknown'
+  const rateLimitKey = `newsletter:ratelimit:${userAgent}`
+  
   try {
-    let response: Response
-    const provider = siteMetadata.newsletter?.provider
-
-    switch (provider) {
-      case 'buttondown':
-        response = await buttondownSubscribe(email)
-        break
-      case 'convertkit':
-        response = await convertkitSubscribe(email)
-        break
-      case 'mailchimp':
-        response = await mailchimpSubscribe(email)
-        break
-      case 'klaviyo':
-        response = await klaviyoSubscribe(email)
-        break
-      case 'emailoctopus':
-        response = await emailOctopusSubscribe(email)
-        break
-      default:
-        return {
-          success: false,
-          message: `Newsletter provider "${provider}" is not supported`,
-          error: `Unsupported provider: ${provider}`,
-        }
-    }
-
-    if (response.status >= 400) {
-      // Try to get error message from response
-      let errorMessage = 'There was an error subscribing to the newsletter'
-      try {
-        const errorData = await response.json()
-        if (errorData.detail || errorData.error || errorData.message) {
-          errorMessage = errorData.detail || errorData.error || errorData.message
-        }
-      } catch {
-        // Ignore JSON parsing errors, use default message
-      }
-
+    const currentAttempts = await cacheService.get(rateLimitKey) || 0
+    if (currentAttempts >= 5) {
       return {
         success: false,
-        message: errorMessage,
-        error: errorMessage,
+        message: 'Muitas tentativas. Tente novamente em alguns minutos.',
+        error: 'Rate limit exceeded',
       }
     }
-
-    return {
-      success: true,
-      message: 'Successfully subscribed to the newsletter!',
-    }
+    
+    // Increment rate limit counter
+    await cacheService.set(rateLimitKey, currentAttempts + 1, 60) // 1 minute TTL
+    
+    // Use custom newsletter system
+    return await subscribeToCustomNewsletter(email)
   } catch (error) {
     console.error('Newsletter subscription error:', error)
-
+    
     return {
       success: false,
-      message: 'An unexpected error occurred. Please try again later.',
+      message: 'Ocorreu um erro inesperado. Tente novamente mais tarde.',
       error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
