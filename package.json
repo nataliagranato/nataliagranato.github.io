@@ -14,12 +14,14 @@
     "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.32",
     "@next/bundle-analyzer": "^15.5.2",
     "@sentry/nextjs": "^10.13.0",
     "@tailwindcss/forms": "^0.5.4",
     "@tailwindcss/typography": "^0.5.9",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
+    "ai": "^5.0.48",
     "autoprefixer": "^10.4.13",
     "contentlayer2": "^0.5.8",
     "esbuild": "^0.25.3",
@@ -47,7 +49,8 @@
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "tailwindcss": "^3.3.3",
-    "unist-util-visit": "^5.0.0"
+    "unist-util-visit": "^5.0.0",
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.0.1",
