@@ -83,9 +83,6 @@ export async function generateWithAdvancedConfig(prompt: string) {
   const result = await generateText({
     model: openai('gpt-4o-mini'),
     prompt: prompt,
-    temperature: 0.7,
-    maxTokens: 1000,
-    topP: 0.9,
     experimental_telemetry: {
       isEnabled: true,
       recordInputs: true,
