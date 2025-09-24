@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { unsubscribeFromNewsletter, getSubscriberCount, getAllSubscribers } from '@/lib/newsletter-actions'
+import {
+  unsubscribeFromNewsletter,
+  getSubscriberCount,
+  getAllSubscribers,
+} from '@/lib/newsletter-actions'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -10,13 +14,13 @@ export async function GET(request: NextRequest) {
       case 'unsubscribe': {
         const email = searchParams.get('email')
         const token = searchParams.get('token')
-        
+
         if (!email || !token) {
           return NextResponse.json({ error: 'Email and token are required' }, { status: 400 })
         }
-        
+
         const result = await unsubscribeFromNewsletter(email, token)
-        
+
         // Return HTML page for unsubscribe
         const html = `
           <!DOCTYPE html>
@@ -45,23 +49,23 @@ export async function GET(request: NextRequest) {
           </body>
           </html>
         `
-        
+
         return new NextResponse(html, {
           headers: { 'Content-Type': 'text/html' },
         })
       }
-      
+
       case 'count': {
         const count = await getSubscriberCount()
         return NextResponse.json({ count })
       }
-      
+
       case 'subscribers': {
         // Admin only - in production you'd add authentication
         const subscribers = await getAllSubscribers()
         return NextResponse.json({ subscribers, count: subscribers.length })
       }
-      
+
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
@@ -75,24 +79,27 @@ export async function POST(request: NextRequest) {
   // Handle newsletter subscription via API (alternative to server actions)
   try {
     const { email } = await request.json()
-    
+
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
-    
+
     // Create FormData to reuse existing server action
     const formData = new FormData()
     formData.set('email', email)
-    
+
     const { subscribeToNewsletter } = await import('@/lib/newsletter-actions')
     const result = await subscribeToNewsletter(formData)
-    
+
     return NextResponse.json(result)
   } catch (error) {
     console.error('Newsletter subscription API error:', error)
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Internal server error' 
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Internal server error',
+      },
+      { status: 500 }
+    )
   }
 }
