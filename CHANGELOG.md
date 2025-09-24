@@ -19,7 +19,31 @@ straightforward as possible.
 
 ### Breaking Changes
 -->
+## [2.2.0] - 2025-09-24
 
+### Added
+- Integração completa com Sentry para monitoramento de erros e performance (frontend, backend e edge)
+- Logging avançado via Sentry, incluindo captura automática de logs do console
+- Widget de feedback do usuário integrado
+- Upload automático de source maps para debugging em produção
+- Configuração multi-runtime para Next.js (Server, Client e Edge)
+- Página de teste para erros e feedback (`/test-sentry`)
+- Documentação detalhada sobre variáveis de ambiente, recomendações de produção e exemplos de uso ([docs/SENTRY_CONFIG.md](docs/SENTRY_CONFIG.md))
+- Utilitários para controle de sampling, logs e debug por ambiente
+
+### Changed
+- Atualização do README com instruções de configuração do Sentry
+- Adição de headers personalizados para monitoramento externo
+
+### Fixed
+- Melhor tratamento de erros globais e integração com a página padrão do Next.js
+
+### Notes
+- Para produção, recomenda-se configurar sampling rate em 0.05, desabilitar logs e debug via variáveis de ambiente.
+- Página de teste do Sentry protegida para ambientes de produção.
+
+Para detalhes completos dos commits e arquivos alterados, acesse:  
+[Busca por Sentry no código](https://github.com/nataliagranato/nataliagranato.github.io/search?q=Sentry)
 
 ## v2.1.0 - 2025-09-02
 
