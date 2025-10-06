@@ -1,0 +1,736 @@
+---
+title: 'Erros Personalizados no Go'
+date: '2025-01-07'
+tags: ['go', 'golang', 'error-handling', 'programming', 'boas-práticas']
+draft: false
+summary: 'Aprenda a criar e utilizar erros personalizados em Go para melhorar a robustez e manutenibilidade das suas aplicações, implementando tratamento de erros mais expressivo e eficaz.'
+---
+
+## Introdução ao Tratamento de Erros em Go
+
+O tratamento de erros em Go é uma das características mais marcantes da linguagem. Diferente de outras linguagens que utilizam exceções (try/catch), Go adota uma abordagem explícita onde os erros são valores que devem ser verificados e tratados.
+
+Este artigo explora como criar erros personalizados em Go, tornando suas aplicações mais robustas, expressivas e fáceis de manter. Veremos desde os conceitos básicos até técnicas avançadas de error handling.
+
+## O Tipo Error Básico em Go
+
+Em Go, um erro é qualquer tipo que implementa a interface `error`:
+
+```go
+type error interface {
+    Error() string
+}
+```
+
+Esta interface simples permite que qualquer tipo que possua um método `Error() string` seja tratado como um erro.
+
+### Criando Erros Simples
+
+A forma mais básica de criar um erro é usando o pacote `errors`:
+
+```go
+package main
+
+import (
+    "errors"
+    "fmt"
+)
+
+func dividir(a, b float64) (float64, error) {
+    if b == 0 {
+        return 0, errors.New("divisão por zero não é permitida")
+    }
+    return a / b, nil
+}
+
+func main() {
+    resultado, err := dividir(10, 0)
+    if err != nil {
+        fmt.Println("Erro:", err)
+        return
+    }
+    fmt.Println("Resultado:", resultado)
+}
+```
+
+Também podemos usar `fmt.Errorf` para criar erros com formatação:
+
+```go
+func processar(id int) error {
+    if id < 0 {
+        return fmt.Errorf("id inválido: %d (deve ser positivo)", id)
+    }
+    return nil
+}
+```
+
+## Por Que Criar Erros Personalizados?
+
+Erros personalizados oferecem várias vantagens:
+
+1. **Contexto Rico**: Permitem incluir informações adicionais sobre o erro
+2. **Tipagem**: Facilitam a identificação e tratamento específico de erros
+3. **Manutenibilidade**: Tornam o código mais legível e fácil de debugar
+4. **Estruturação**: Permitem agrupar erros relacionados
+
+## Criando Erros Personalizados com Structs
+
+A forma mais comum de criar erros personalizados é definindo uma struct que implementa a interface `error`:
+
+```go
+package main
+
+import "fmt"
+
+// ValidationError representa um erro de validação
+type ValidationError struct {
+    Field   string
+    Message string
+}
+
+// Implementa a interface error
+func (e *ValidationError) Error() string {
+    return fmt.Sprintf("erro de validação no campo '%s': %s", e.Field, e.Message)
+}
+
+// Função que usa o erro personalizado
+func validarUsuario(nome string, idade int) error {
+    if nome == "" {
+        return &ValidationError{
+            Field:   "nome",
+            Message: "o nome não pode estar vazio",
+        }
+    }
+    
+    if idade < 18 {
+        return &ValidationError{
+            Field:   "idade",
+            Message: "idade deve ser maior ou igual a 18",
+        }
+    }
+    
+    return nil
+}
+
+func main() {
+    err := validarUsuario("", 15)
+    if err != nil {
+        fmt.Println(err)
+        
+        // Type assertion para acessar campos específicos
+        if valErr, ok := err.(*ValidationError); ok {
+            fmt.Printf("Campo com erro: %s\n", valErr.Field)
+        }
+    }
+}
+```
+
+## Erros com Type Assertions
+
+Uma das grandes vantagens dos erros personalizados é poder usar type assertions para tratamento específico:
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+// Diferentes tipos de erros
+type NetworkError struct {
+    Operation string
+    Timestamp time.Time
+}
+
+func (e *NetworkError) Error() string {
+    return fmt.Sprintf("erro de rede durante %s às %s", e.Operation, e.Timestamp.Format(time.RFC3339))
+}
+
+type DatabaseError struct {
+    Query string
+    Cause error
+}
+
+func (e *DatabaseError) Error() string {
+    return fmt.Sprintf("erro ao executar query '%s': %v", e.Query, e.Cause)
+}
+
+// Função que pode retornar diferentes tipos de erro
+func executarOperacao(tipo string) error {
+    switch tipo {
+    case "network":
+        return &NetworkError{
+            Operation: "conectar ao servidor",
+            Timestamp: time.Now(),
+        }
+    case "database":
+        return &DatabaseError{
+            Query: "SELECT * FROM users",
+            Cause: fmt.Errorf("timeout de conexão"),
+        }
+    default:
+        return nil
+    }
+}
+
+func main() {
+    err := executarOperacao("network")
+    if err != nil {
+        // Tratamento específico baseado no tipo
+        switch e := err.(type) {
+        case *NetworkError:
+            fmt.Printf("Erro de rede: %s\n", e.Operation)
+            fmt.Printf("Ocorreu às: %s\n", e.Timestamp.Format("15:04:05"))
+        case *DatabaseError:
+            fmt.Printf("Erro no banco: %s\n", e.Query)
+        default:
+            fmt.Printf("Erro desconhecido: %v\n", err)
+        }
+    }
+}
+```
+
+## Usando errors.Is e errors.As (Go 1.13+)
+
+A partir do Go 1.13, foram introduzidas funções para trabalhar melhor com erros encapsulados:
+
+```go
+package main
+
+import (
+    "errors"
+    "fmt"
+)
+
+// Definindo erros sentinelas
+var (
+    ErrNotFound     = errors.New("recurso não encontrado")
+    ErrUnauthorized = errors.New("não autorizado")
+    ErrInvalidInput = errors.New("entrada inválida")
+)
+
+// Erro personalizado que pode encapsular outros erros
+type AppError struct {
+    Op  string // Operação que falhou
+    Err error  // Erro original
+}
+
+func (e *AppError) Error() string {
+    return fmt.Sprintf("erro na operação %s: %v", e.Op, e.Err)
+}
+
+// Unwrap permite que errors.Is e errors.As funcionem
+func (e *AppError) Unwrap() error {
+    return e.Err
+}
+
+// Simula uma função que pode falhar
+func buscarUsuario(id int) error {
+    if id < 0 {
+        return &AppError{
+            Op:  "buscarUsuario",
+            Err: ErrInvalidInput,
+        }
+    }
+    
+    if id > 1000 {
+        return &AppError{
+            Op:  "buscarUsuario",
+            Err: ErrNotFound,
+        }
+    }
+    
+    return nil
+}
+
+func main() {
+    err := buscarUsuario(1500)
+    
+    // errors.Is verifica se o erro na cadeia é igual ao erro sentinela
+    if errors.Is(err, ErrNotFound) {
+        fmt.Println("Usuário não encontrado!")
+    }
+    
+    // errors.As tenta fazer type assertion na cadeia de erros
+    var appErr *AppError
+    if errors.As(err, &appErr) {
+        fmt.Printf("Operação que falhou: %s\n", appErr.Op)
+    }
+    
+    // Também podemos encapsular erros com %w
+    err2 := fmt.Errorf("falha ao processar requisição: %w", err)
+    if errors.Is(err2, ErrNotFound) {
+        fmt.Println("Ainda conseguimos identificar o erro original!")
+    }
+}
+```
+
+## Padrões Avançados de Error Handling
+
+### 1. Erros com Stack Trace
+
+Para produção, é útil capturar onde o erro ocorreu:
+
+```go
+package main
+
+import (
+    "fmt"
+    "runtime"
+)
+
+type DetailedError struct {
+    Message string
+    File    string
+    Line    int
+}
+
+func (e *DetailedError) Error() string {
+    return fmt.Sprintf("%s (em %s:%d)", e.Message, e.File, e.Line)
+}
+
+func NewDetailedError(msg string) *DetailedError {
+    _, file, line, _ := runtime.Caller(1)
+    return &DetailedError{
+        Message: msg,
+        File:    file,
+        Line:    line,
+    }
+}
+
+func processar() error {
+    return NewDetailedError("falha ao processar dados")
+}
+
+func main() {
+    if err := processar(); err != nil {
+        fmt.Println(err)
+    }
+}
+```
+
+### 2. Múltiplos Erros
+
+Às vezes precisamos coletar e retornar múltiplos erros:
+
+```go
+package main
+
+import (
+    "fmt"
+    "strings"
+)
+
+type MultiError struct {
+    Errors []error
+}
+
+func (m *MultiError) Error() string {
+    var msgs []string
+    for _, err := range m.Errors {
+        msgs = append(msgs, err.Error())
+    }
+    return fmt.Sprintf("múltiplos erros: [%s]", strings.Join(msgs, "; "))
+}
+
+func (m *MultiError) Add(err error) {
+    if err != nil {
+        m.Errors = append(m.Errors, err)
+    }
+}
+
+func (m *MultiError) HasErrors() bool {
+    return len(m.Errors) > 0
+}
+
+func validarFormulario(dados map[string]string) error {
+    erros := &MultiError{}
+    
+    if dados["nome"] == "" {
+        erros.Add(fmt.Errorf("nome é obrigatório"))
+    }
+    
+    if dados["email"] == "" {
+        erros.Add(fmt.Errorf("email é obrigatório"))
+    } else if !strings.Contains(dados["email"], "@") {
+        erros.Add(fmt.Errorf("email inválido"))
+    }
+    
+    if erros.HasErrors() {
+        return erros
+    }
+    
+    return nil
+}
+
+func main() {
+    dados := map[string]string{
+        "nome":  "",
+        "email": "invalido",
+    }
+    
+    if err := validarFormulario(dados); err != nil {
+        fmt.Println(err)
+        
+        // Acessar erros individuais
+        if multiErr, ok := err.(*MultiError); ok {
+            fmt.Println("\nErros individuais:")
+            for i, e := range multiErr.Errors {
+                fmt.Printf("%d. %v\n", i+1, e)
+            }
+        }
+    }
+}
+```
+
+### 3. Erros com Códigos
+
+Para APIs, é útil ter códigos de erro:
+
+```go
+package main
+
+import "fmt"
+
+type ErrorCode int
+
+const (
+    CodeInvalidInput ErrorCode = iota + 1000
+    CodeNotFound
+    CodeUnauthorized
+    CodeInternal
+)
+
+type APIError struct {
+    Code    ErrorCode
+    Message string
+    Details map[string]interface{}
+}
+
+func (e *APIError) Error() string {
+    return fmt.Sprintf("[%d] %s", e.Code, e.Message)
+}
+
+func NewAPIError(code ErrorCode, message string) *APIError {
+    return &APIError{
+        Code:    code,
+        Message: message,
+        Details: make(map[string]interface{}),
+    }
+}
+
+func (e *APIError) WithDetail(key string, value interface{}) *APIError {
+    e.Details[key] = value
+    return e
+}
+
+func buscarProduto(id string) error {
+    if id == "" {
+        return NewAPIError(CodeInvalidInput, "ID do produto é obrigatório").
+            WithDetail("campo", "id")
+    }
+    
+    // Simula produto não encontrado
+    return NewAPIError(CodeNotFound, "Produto não encontrado").
+        WithDetail("id", id)
+}
+
+func main() {
+    err := buscarProduto("")
+    if err != nil {
+        if apiErr, ok := err.(*APIError); ok {
+            fmt.Printf("Código: %d\n", apiErr.Code)
+            fmt.Printf("Mensagem: %s\n", apiErr.Message)
+            fmt.Printf("Detalhes: %v\n", apiErr.Details)
+        }
+    }
+}
+```
+
+## Boas Práticas
+
+### 1. Retorne Erros, Não os Ignore
+
+```go
+// ❌ Ruim
+func processar() {
+    arquivo, _ := os.Open("dados.txt")
+    // Ignorar o erro pode causar problemas
+}
+
+// ✅ Bom
+func processar() error {
+    arquivo, err := os.Open("dados.txt")
+    if err != nil {
+        return fmt.Errorf("falha ao abrir arquivo: %w", err)
+    }
+    defer arquivo.Close()
+    return nil
+}
+```
+
+### 2. Use Erros Sentinelas para Casos Comuns
+
+```go
+var (
+    ErrNotFound = errors.New("não encontrado")
+    ErrInvalid  = errors.New("inválido")
+)
+
+// Facilita testes e comparações
+if errors.Is(err, ErrNotFound) {
+    // tratamento específico
+}
+```
+
+### 3. Adicione Contexto aos Erros
+
+```go
+// ❌ Ruim
+return err
+
+// ✅ Bom
+return fmt.Errorf("falha ao processar pedido %d: %w", pedidoID, err)
+```
+
+### 4. Use Ponteiros para Erros Personalizados
+
+```go
+// ✅ Recomendado - permite usar type assertions
+func (e *MeuErro) Error() string { ... }
+
+// ❌ Evitar - pode causar problemas com nil
+func (e MeuErro) Error() string { ... }
+```
+
+## Exemplo Prático Completo
+
+Vamos criar um exemplo de aplicação com tratamento de erros robusto:
+
+```go
+package main
+
+import (
+    "errors"
+    "fmt"
+    "time"
+)
+
+// Erros sentinelas
+var (
+    ErrUserNotFound    = errors.New("usuário não encontrado")
+    ErrInvalidPassword = errors.New("senha inválida")
+    ErrAccountLocked   = errors.New("conta bloqueada")
+)
+
+// Erro personalizado para autenticação
+type AuthError struct {
+    Username  string
+    Reason    error
+    Timestamp time.Time
+    Attempts  int
+}
+
+func (e *AuthError) Error() string {
+    return fmt.Sprintf(
+        "falha na autenticação para '%s' às %s: %v (tentativas: %d)",
+        e.Username,
+        e.Timestamp.Format("15:04:05"),
+        e.Reason,
+        e.Attempts,
+    )
+}
+
+func (e *AuthError) Unwrap() error {
+    return e.Reason
+}
+
+// Simula um banco de dados
+type User struct {
+    Username string
+    Password string
+    Locked   bool
+    Attempts int
+}
+
+var usuarios = map[string]*User{
+    "alice": {Username: "alice", Password: "senha123", Locked: false, Attempts: 0},
+    "bob":   {Username: "bob", Password: "senha456", Locked: true, Attempts: 3},
+}
+
+// Função de autenticação
+func autenticar(username, password string) error {
+    user, exists := usuarios[username]
+    if !exists {
+        return &AuthError{
+            Username:  username,
+            Reason:    ErrUserNotFound,
+            Timestamp: time.Now(),
+            Attempts:  0,
+        }
+    }
+    
+    if user.Locked {
+        return &AuthError{
+            Username:  username,
+            Reason:    ErrAccountLocked,
+            Timestamp: time.Now(),
+            Attempts:  user.Attempts,
+        }
+    }
+    
+    if user.Password != password {
+        user.Attempts++
+        return &AuthError{
+            Username:  username,
+            Reason:    ErrInvalidPassword,
+            Timestamp: time.Now(),
+            Attempts:  user.Attempts,
+        }
+    }
+    
+    user.Attempts = 0
+    fmt.Printf("✓ Usuário '%s' autenticado com sucesso!\n", username)
+    return nil
+}
+
+// Handler de autenticação com tratamento robusto
+func handleLogin(username, password string) {
+    err := autenticar(username, password)
+    if err != nil {
+        // Verifica o tipo específico do erro
+        var authErr *AuthError
+        if errors.As(err, &authErr) {
+            // Tratamento específico baseado na razão
+            switch {
+            case errors.Is(authErr.Reason, ErrUserNotFound):
+                fmt.Printf("✗ Usuário '%s' não existe no sistema\n", username)
+            case errors.Is(authErr.Reason, ErrAccountLocked):
+                fmt.Printf("✗ Conta '%s' está bloqueada após %d tentativas\n", 
+                    username, authErr.Attempts)
+            case errors.Is(authErr.Reason, ErrInvalidPassword):
+                fmt.Printf("✗ Senha incorreta para '%s' (tentativa %d)\n", 
+                    username, authErr.Attempts)
+            default:
+                fmt.Printf("✗ Erro de autenticação: %v\n", err)
+            }
+        } else {
+            fmt.Printf("✗ Erro inesperado: %v\n", err)
+        }
+        return
+    }
+}
+
+func main() {
+    fmt.Println("=== Sistema de Autenticação ===\n")
+    
+    // Casos de teste
+    fmt.Println("1. Tentativa com usuário válido e senha correta:")
+    handleLogin("alice", "senha123")
+    
+    fmt.Println("\n2. Tentativa com usuário inexistente:")
+    handleLogin("charlie", "qualquer")
+    
+    fmt.Println("\n3. Tentativa com senha incorreta:")
+    handleLogin("alice", "senhaerrada")
+    
+    fmt.Println("\n4. Tentativa com conta bloqueada:")
+    handleLogin("bob", "senha456")
+}
+```
+
+## Testando Erros Personalizados
+
+```go
+package main
+
+import (
+    "errors"
+    "testing"
+)
+
+func TestValidarUsuario(t *testing.T) {
+    tests := []struct {
+        nome        string
+        usuario     string
+        idade       int
+        esperaErro  bool
+        campoErro   string
+    }{
+        {
+            nome:       "usuário válido",
+            usuario:    "João",
+            idade:      25,
+            esperaErro: false,
+        },
+        {
+            nome:       "nome vazio",
+            usuario:    "",
+            idade:      25,
+            esperaErro: true,
+            campoErro:  "nome",
+        },
+        {
+            nome:       "idade menor que 18",
+            usuario:    "Maria",
+            idade:      16,
+            esperaErro: true,
+            campoErro:  "idade",
+        },
+    }
+    
+    for _, tt := range tests {
+        t.Run(tt.nome, func(t *testing.T) {
+            err := validarUsuario(tt.usuario, tt.idade)
+            
+            if tt.esperaErro && err == nil {
+                t.Errorf("esperava erro, mas não obteve nenhum")
+            }
+            
+            if !tt.esperaErro && err != nil {
+                t.Errorf("não esperava erro, mas obteve: %v", err)
+            }
+            
+            if tt.esperaErro && err != nil {
+                var valErr *ValidationError
+                if !errors.As(err, &valErr) {
+                    t.Errorf("esperava ValidationError, obteve: %T", err)
+                } else if valErr.Field != tt.campoErro {
+                    t.Errorf("esperava campo '%s', obteve '%s'", 
+                        tt.campoErro, valErr.Field)
+                }
+            }
+        })
+    }
+}
+```
+
+## Bibliotecas Úteis
+
+Para projetos mais complexos, considere estas bibliotecas:
+
+- **[pkg/errors](https://github.com/pkg/errors)**: Adiciona stack traces aos erros
+- **[cockroachdb/errors](https://github.com/cockroachdb/errors)**: Error handling avançado
+- **[hashicorp/go-multierror](https://github.com/hashicorp/go-multierror)**: Para trabalhar com múltiplos erros
+
+## Conclusão
+
+O tratamento de erros em Go pode parecer verboso no início, mas oferece várias vantagens:
+
+- **Explícito**: Sempre sabemos quais funções podem falhar
+- **Flexível**: Podemos criar erros ricos em contexto
+- **Seguro**: Sem exceções inesperadas quebrando o programa
+- **Testável**: Fácil de testar diferentes cenários de erro
+
+Erros personalizados são uma ferramenta poderosa para criar aplicações Go robustas e fáceis de manter. Com as técnicas apresentadas neste artigo, você pode implementar error handling profissional em seus projetos.
+
+## Referências
+
+- [Go Blog: Error handling and Go](https://go.dev/blog/error-handling-and-go)
+- [Go Blog: Working with Errors in Go 1.13](https://go.dev/blog/go1.13-errors)
+- [Effective Go: Errors](https://go.dev/doc/effective_go#errors)
+- [Go by Example: Errors](https://gobyexample.com/errors)
+- [Dave Cheney: Don't just check errors, handle them gracefully](https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully)
+
+Este artigo foi elaborado para ajudar desenvolvedores Go a dominar o tratamento de erros e criar aplicações mais robustas e profissionais.
