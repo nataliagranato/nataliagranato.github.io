@@ -19,6 +19,18 @@ straightforward as possible.
 
 ### Breaking Changes
 -->
+## [2.2.1] - 2025-10-25
+
+### Added
+- Novo artigo: "O que é Engenharia de Plataforma?" (`data/blog/hist-evol-platform-engineer.mdx`)
+- Imagem ilustrativa para o artigo de Platform Engineering (`public/static/images/platform-engineer.jpg`)
+
+### Changed
+- Formatação das referências bibliográficas do artigo de Platform Engineering para formato markdown com links clicáveis
+- Atualizações em artigos existentes: `o-que-arquitetura-cloud-native.mdx` e `o-que-e-kubernetes.mdx`
+- Melhorias nos metadados do site (`data/siteMetadata.js`)
+- Atualização das informações do autor (`data/authors/default.mdx`)
+
 ## [2.2.0] - 2025-09-24
 
 ### Added
@@ -42,7 +54,7 @@ straightforward as possible.
 - Para produção, recomenda-se configurar sampling rate em 0.05, desabilitar logs e debug via variáveis de ambiente.
 - Página de teste do Sentry protegida para ambientes de produção.
 
-Para detalhes completos dos commits e arquivos alterados, acesse:  
+Para detalhes completos dos commits e arquivos alterados, acesse:
 [Busca por Sentry no código](https://github.com/nataliagranato/nataliagranato.github.io/search?q=Sentry)
 
 ## v2.1.0 - 2025-09-02

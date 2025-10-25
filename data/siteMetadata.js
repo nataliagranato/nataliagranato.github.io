@@ -6,7 +6,7 @@ const siteMetadata = {
   description: 'Sempre aprendendo sobre Cloud Native, Kubernetes e Observability.',
   language: 'pt-br',
   theme: 'system', // system, dark or light
-  siteUrl: 'https://nataliagranato.vercel.app',
+  siteUrl: 'https://nataliagranato.xyz',
   siteRepo: 'https://github.com/nataliagranato/nataliagranato.github.io',
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',
