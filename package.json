@@ -21,7 +21,7 @@
     "@tailwindcss/typography": "^0.5.9",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
-    "ai": "^5.0.48",
+    "ai": "^5.0.52",
     "autoprefixer": "^10.4.13",
     "contentlayer2": "^0.5.8",
     "esbuild": "^0.25.3",
