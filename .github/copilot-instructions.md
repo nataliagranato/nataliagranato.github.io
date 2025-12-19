@@ -14,7 +14,7 @@ Este repositório é um site/blog Next.js (App Router) em TypeScript que usa Con
 - Start rápido:
    - `npm install` (Node.js 22.x)
    - `cp .env.example .env.local` e ajustar variáveis (ex.: `REDIS_URL`, `OPENAI_API_KEY`)
-   - `npm run dev` para desenvolvimento (http://localhost:3000)
+   - `npm run dev` para desenvolvimento (`http://localhost:3000`)
    - `npm run build` para validar alterações (gera `.contentlayer/`)
 
 - Arquivos/chaves para revisar primeiro:
@@ -41,15 +41,13 @@ Este repositório é um site/blog Next.js (App Router) em TypeScript que usa Con
    - Para mudanças em posts MDX, atualize frontmatter e rode build para validar paths/metadata.
    - Evite mudanças massivas de layout sem checar homepage (`app/page.tsx`) e listagens (`layouts/*`).
 
+- Quando for editar/implementar código:
    - Prefira alterações pequenas e testáveis; abra PRs com `npm run lint` e `npm run build` passando localmente.
    - Documente em `docs/` se alterar comportamento de cache ou monitoramento.
- Quando for editar/implementar código:
-    - Prefira alterações pequenas e testáveis; abra PRs com `npm run lint` e `npm run build` passando localmente.
-    - Documente em `docs/` se alterar comportamento de cache ou monitoramento.
 
- Se algo deste resumo estiver incompleto ou você quiser que eu inclu a checklist de validação detalhada (build/dev/test), diga e eu atualizo.
+Se algo deste resumo estiver incompleto ou você quiser que eu inclua a checklist de validação detalhada (build/dev/test), diga e eu atualizo.
 
- Checklist de validação (detalhada)
+Checklist de validação (detalhada)
 
  - Passo 1 — Preparar ambiente
     - Verifique Node.js: `node --version` (recomenda-se 22.x).
@@ -65,7 +63,7 @@ Este repositório é um site/blog Next.js (App Router) em TypeScript que usa Con
     - Mensagens esperadas: "Collecting page data" e "Generating static pages".
 
  - Passo 4 — Testar servidor de desenvolvimento
-    - Inicie: `npm run dev` e abra http://localhost:3000
+    - Inicie: `npm run dev` e abra `http://localhost:3000`
     - Verificações rápidas:
        - Homepage: cabeçalho "Latest" e listagem de posts
        - Navegação: Blog, Tags, Projects, About
@@ -84,6 +82,4 @@ Este repositório é um site/blog Next.js (App Router) em TypeScript que usa Con
 
  - Ficheiros para inspeção rápida ao revisar PRs:
     - `app/layout.tsx`, `app/page.tsx`, `layouts/PostLayout.tsx`, `contentlayer.config.js`, `lib/blogCache.ts`, `lib/redis.ts`.
-
- ```
 
