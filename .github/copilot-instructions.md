@@ -74,7 +74,7 @@ Este repositório é um site/blog Next.js (App Router) em TypeScript que usa Con
 
  - Passo 5 — Testar cache opcional (Redis)
     - Iniciar Redis local: `docker run -d -p 6379:6379 --name redis redis`
-    - Teste de cache (após build): `npx tsx scripts/test-cache.ts` ou `node scripts/test-redis.js`.
+   - Testes de cache (após build): para a lógica da aplicação, use `npx tsx scripts/test-cache.ts`; para testar a conexão com Redis, use `node scripts/test-redis.js`.
     - Se Redis não estiver disponível, comportamento esperado: fallback para Contentlayer via `lib/blogCache.ts`.
 
  - Passo 6 — Verificações finais antes do PR
