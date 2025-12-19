@@ -6,9 +6,10 @@ This is a Next.js 15.5.2 TypeScript blog application focused on Cloud Native, De
 
 ## Working Effectively
 
-Instruções para agentes (GitHub Copilot / AI)
+## Instruções para agentes (GitHub Copilot / AI)
 
-Resumo rápido: este repositório é um site/blog Next.js (App Router) em TypeScript que usa Contentlayer para MDX, Tailwind para estilos, Redis opcional para cache e Sentry para monitoramento. Antes de editar, leia este arquivo e execute `npm run lint` e `npm run build` localmente.
+### Resumo rápido
+Este repositório é um site/blog Next.js (App Router) em TypeScript que usa Contentlayer para MDX, Tailwind para estilos, Redis opcional para cache e Sentry para monitoramento. Antes de editar, leia este arquivo e execute `npm run lint` e `npm run build` localmente.
 
 - Start rápido:
    - `npm install` (Node.js 22.x)
