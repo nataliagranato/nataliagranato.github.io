@@ -38,7 +38,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "reading-time": "^1.5.0",
-    "redis": "^5.8.2",
+    "redis": "^5.10.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-citation": "^2.2.1",
     "rehype-katex": "^7.0.1",
@@ -78,7 +78,8 @@
     "@opentelemetry/sdk-trace-node": "1.13.0",
     "@opentelemetry/semantic-conventions": "1.13.0",
     "brace-expansion": "2.0.2",
-    "mdast-util-to-hast": ">=13.2.1"
+    "mdast-util-to-hast": ">=13.2.1",
+    "@ai-sdk/provider": "^0.0.16"
   },
   "overrides": {
     "mdast-util-to-hast": ">=13.2.1"

@@ -8,7 +8,6 @@
 !/.yarn/releases
 !/.yarn/plugins
 !/.yarn/sdks
-.yarnrc.yml
 
 # testing
 /coverage

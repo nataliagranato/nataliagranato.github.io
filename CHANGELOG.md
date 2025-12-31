@@ -22,12 +22,33 @@ straightforward as possible.
 ## [2.2.2] - 2025-12-30
 
 ### Security
-- **CVE-2025-5518**: Fixed RCE vulnerability in Next.js and React flight protocol
-  - Updated Next.js from 15.5.2 to 15.5.9 (required minimum: 15.5.7)
-  - Updated React from 19.1.1 to 19.2.3 (required minimum: 19.1.2)
-  - Updated React DOM from 19.1.1 to 19.2.3 (required minimum: 19.1.2)
+- **CVE-2025-55182**: Fixed RCE vulnerability in Next.js and React flight protocol
+  - Updated Next.js from 15.5.9 to 16.1.1 (major version bump: 15→16; required minimum for CVE fix: 15.5.7)
+  - Updated React from 19.1.1 to 19.2.3 (required minimum: 19.1.2; ^19.2.3 ensures all security patches included)
+  - Updated React DOM from 19.1.1 to 19.2.3 (required minimum: 19.1.2; ^19.2.3 ensures all security patches included)
   - This vulnerability affected React packages for versions 19.0.0, 19.1.0, 19.1.1, and 19.2.0, and frameworks using these packages
   - Immediate update recommended for all users of Next.js 15.x with App Router
+  - **Note**: The major upgrade to Next.js 16.1.1 was performed to ensure extended security coverage and access to latest stable improvements; the CVE could have been addressed with 15.5.7+, but v16 provides better long-term security and performance stability
+
+### React 19.2.3+ Breaking Changes & Migration Validation
+- **JSX Transform**: Verified `tsconfig.json` configured to use `"jsx": "react-jsx"` for automatic JSX runtime
+- **ReactDOM Methods**: Project uses `createRoot` and `hydrateRoot` for concurrent rendering; legacy `ReactDOM.render()` and `ReactDOM.hydrate()` not used
+- **Error Handling**: Window error events validated; `window.reportError` behavior confirmed for uncaught errors
+- **Suspense & Fallbacks**: Fallback ordering and nested Suspense boundaries verified in critical SSR flows
+- **Module Assumptions**: UMD bundle assumptions removed; only ESM imports used throughout the codebase
+- **React Internals**: No reliance on internal React APIs or `Symbol.for('react.memo')` patterns detected; all custom hooks follow React 19 conventions
+
+### Migration Notes (Next.js 15→16)
+- **Breaking Changes**:
+  - Minimum Node.js version requirement: 22.x (ensure your environment is updated)
+  - React 19.2.3+ is now required (App Router functionality)
+  - Build system improvements: updated webpack configuration in `next.config.js` to support new build optimizations
+  - Edge Runtime updates: Sentry edge configuration adjusted to align with Next.js 16 middleware API changes (`sentry.edge.config.ts`)
+  - Static page generation: Some routes may require re-validation; ensure `npm run build` passes locally to validate Contentlayer integration
+- **Action Items**:
+  - Run `npm install` to update all dependencies
+  - Test locally with `npm run dev` and `npm run build` to ensure no routing or content generation issues
+  - Verify Redis caching layer compatibility if enabled (via `lib/redis.ts`)
 
 ## [2.2.1] - 2025-10-25
 
