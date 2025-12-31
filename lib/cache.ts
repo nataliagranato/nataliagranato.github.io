@@ -35,7 +35,7 @@ class CacheService {
       try {
         return JSON.parse(cached) as T
       } catch (parseError) {
-        console.error(`Cache parse error for key ${key}:`, parseError)
+        console.error('Cache parse error for key %s:', key, parseError)
         // Cache corrompido, remover
         await client.del(key)
         return null
