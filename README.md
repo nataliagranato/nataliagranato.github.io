@@ -10,10 +10,10 @@ Site pessoal e blog de Natália Granato, focado em tecnologias Cloud Native, con
 
 ## Sobre o Projeto
 
-Este projeto utiliza [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/), [Contentlayer](https://www.contentlayer.dev/) e integra um sistema avançado de cache com Redis e monitoramento completo com Sentry, proporcionando uma experiência otimizada e observabilidade em produção.
+Este projeto utiliza [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/), [Contentlayer](https://www.contentlayer.dev/) e integra monitoramento completo com Sentry, proporcionando uma experiência otimizada e observabilidade em produção.
 
 **Principais tecnologias:**
-- **Performance**: Cache Redis acelera a renderização dos artigos do blog, filtragens por tag e paginação
+- **Performance**: Contentlayer para processamento eficiente de conteúdo MDX
 - **Observabilidade**: Sentry para monitoramento de erros, logging e feedback de usuários
 - **Infraestrutura**: Deploy otimizado para Vercel com source maps e configurações de produção
 
@@ -26,8 +26,7 @@ Principais temas abordados:
 
 **Pré-requisitos:**
 - Node.js 22.x ou superior
-- Redis em execução local ou remoto (opcional, mas recomendado para testar o cache)
-- npm (Yarn não é mais suportado)
+- npm ou yarn
 
 **Clone o repositório:**
 ```bash
@@ -38,19 +37,20 @@ cd nataliagranato.github.io
 **Instale as dependências:**
 ```bash
 npm install
+# ou
+yarn install
 ```
 
 **Configuração de ambiente:**
 - Copie o arquivo `.env.example` para `.env` e configure as variáveis de ambiente conforme necessário:
-  - **Redis**: Credenciais para o sistema de cache (opcional para desenvolvimento)
   - **Sentry**: DSN, organização e projeto para monitoramento de erros
-  - **API Keys**: Chaves para autenticação da API de cache
-- Para testar funcionalidades do cache, é recomendável rodar um servidor Redis local (`docker run -p 6379:6379 redis`).
 - Para testar o Sentry, configure o DSN e habilite a página de teste com `NEXT_PUBLIC_ENABLE_SENTRY_TEST_PAGE=true`.
 
 **Inicie o servidor de desenvolvimento:**
 ```bash
 npm run dev
+# ou
+yarn dev
 ```
 
 Abra [http://localhost:3000](http://localhost:3000) no navegador.
@@ -59,13 +59,7 @@ Abra [http://localhost:3000](http://localhost:3000) no navegador.
 
 ## Principais Funcionalidades
 
-### 🚀 Sistema de Cache com Redis
-- Integração de cache Redis para o blog: acelera listagem, busca por tags, paginação e exibição de posts.
-- API REST para gerenciamento do cache (`/api/cache`) com autenticação por chave, restrição de IP e rate limiting.
-- Scripts de teste para validação automática do cache e da conexão Redis.
-- Documentação detalhada para uso da API e do sistema de cache.
-
-### 🔍 Monitoramento e Observabilidade com Sentry
+###  Monitoramento e Observabilidade com Sentry
 - **Monitoramento de Erros**: Captura automática de erros JavaScript/TypeScript no frontend e backend
 - **Logging Avançado**: Integração com console.log, console.warn, console.error para envio automático ao Sentry
 - **Performance Monitoring**: Rastreamento de performance com sampling configurável por ambiente
@@ -100,9 +94,9 @@ SENTRY_AUTH_TOKEN=seu_token_de_auth
 
 ---
 
-## Diagramas de Sequência
+## Diagramas de Arquitetura
 
-### Renderização/Cache de Posts do Blog
+### Renderização de Posts do Blog
 
 ```mermaid
 sequenceDiagram
@@ -110,67 +104,14 @@ sequenceDiagram
   actor User as Usuário
   participant Page as Página do Blog (Next.js)
   participant BlogCache as lib/blogCache
-  participant CacheSvc as lib/cache (cacheService)
-  participant Redis as Redis
   participant CL as Contentlayer
 
   User->>Page: Acessa página/lista/post
   Page->>BlogCache: getCachedPosts / getCachedPost / getCachedPostsByTag / getCachedPagedPosts
-  BlogCache->>CacheSvc: get(key)
-  CacheSvc->>Redis: GET key
-  alt Cache HIT
-    Redis-->>CacheSvc: valor serializado
-    CacheSvc-->>BlogCache: objeto
-    BlogCache-->>Page: dados cacheados
-  else Cache MISS ou erro
-    BlogCache->>CL: carregar posts (allBlogs/allCoreContent)
-    CL-->>BlogCache: dados processados
-    BlogCache->>CacheSvc: set(key, valor, TTL)
-    CacheSvc->>Redis: SETEX key TTL valor
-    BlogCache-->>Page: dados calculados
-  end
+  BlogCache->>CL: carregar posts (allBlogs/allCoreContent)
+  CL-->>BlogCache: dados processados
+  BlogCache-->>Page: dados formatados
   Page-->>User: HTML renderizado
-```
-
-### API de Cache
-
-```mermaid
-sequenceDiagram
-  autonumber
-  actor Client as Cliente (CLI/Serviço)
-  participant Route as /api/cache (app/api/cache/route.ts)
-  participant Sec as Validações (API Key/IP/Rate limit)
-  participant CacheSvc as lib/cache
-  participant Redis as Redis
-
-  Client->>Route: GET/POST/DELETE ?action=&key=
-  Route->>Sec: Verifica ambiente, API Key, IP, rate limit
-  alt Não autorizado/bloqueado
-    Sec-->>Route: Falha
-    Route-->>Client: 401/403/429
-  else Autorizado
-    alt GET status/get
-      Route->>CacheSvc: get(...)
-      CacheSvc->>Redis: GET
-      Redis-->>CacheSvc: valor/empty
-      CacheSvc-->>Route: resultado
-      Route-->>Client: 200 JSON
-    else POST set/clear (requer admin)
-      Route->>Sec: Valida admin
-      alt Admin inválido
-        Route-->>Client: 403
-      else OK
-        Route->>CacheSvc: set/clear
-        CacheSvc->>Redis: SETEX/SCAN+DEL
-        Route-->>Client: 200 JSON
-      end
-    else DELETE delete/invalidate-all (requer admin)
-      Route->>Sec: Valida admin
-      Route->>CacheSvc: delete/invalidatePostCache
-      CacheSvc->>Redis: DEL/SCAN+DEL
-      Route-->>Client: 200 JSON
-    end
-  end
 ```
 
 ---
@@ -189,9 +130,8 @@ sequenceDiagram
 
 ## Documentação
 
-- **docs/CACHE_API.md**: Como usar a API de cache, autenticação e variáveis de ambiente.
-- **docs/REDIS_CACHE.md**: Como funciona a integração com Redis, comandos de teste e configuração.
 - **docs/SENTRY_CONFIG.md**: Configuração completa do Sentry, monitoramento de erros, logging e feedback de usuários.
+- **docs/MONITORING.md**: Documentação sobre monitoramento e observabilidade.
 
 ---
 

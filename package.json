@@ -1,27 +1,25 @@
 {
   "name": "tailwind-nextjs-starter-blog",
-  "version": "2.0.0",
+  "version": "2.2.3",
   "private": true,
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.x"
   },
   "scripts": {
     "start": "next dev",
     "dev": "cross-env INIT_CWD=$PWD next dev",
-    "build": "cross-env INIT_CWD=$PWD next build && cross-env NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
+    "build": "cross-env INIT_CWD=$PWD next build --webpack && cross-env NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
     "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.32",
     "@next/bundle-analyzer": "^15.5.2",
-    "@sentry/nextjs": "^10.30.0",
+    "@sentry/nextjs": "^10.32.1",
     "@tailwindcss/forms": "^0.5.4",
     "@tailwindcss/typography": "^0.5.9",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
-    "ai": "^5.0.113",
     "autoprefixer": "^10.4.13",
     "contentlayer2": "^0.5.8",
     "esbuild": "^0.25.3",
@@ -30,15 +28,14 @@
     "gray-matter": "^4.0.2",
     "image-size": "^1.1.1",
     "micromatch": "^4.0.8",
-    "next": "^15.5.9",
+    "next": "^16.1.1",
     "next-contentlayer2": "^0.5.8",
     "next-themes": "^0.2.1",
     "pliny": "^0.4.1",
     "postcss": "^8.4.24",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "reading-time": "^1.5.0",
-    "redis": "^5.8.2",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-citation": "^2.2.1",
     "rehype-katex": "^7.0.1",
@@ -55,6 +52,7 @@
   "devDependencies": {
     "@svgr/webpack": "^8.0.1",
     "@types/mdx": "^2.0.5",
+    "@types/node": "^25.0.3",
     "@types/react": "^19.0.1",
     "@typescript-eslint/eslint-plugin": "^8.14.0",
     "@typescript-eslint/parser": "^8.14.0",
@@ -70,15 +68,11 @@
     "typescript": "^5.8.3"
   },
   "resolutions": {
-    "@opentelemetry/api": "1.4.1",
-    "@opentelemetry/core": "1.13.0",
-    "@opentelemetry/exporter-trace-otlp-grpc": "0.39.1",
-    "@opentelemetry/resources": "1.13.0",
-    "@opentelemetry/sdk-trace-base": "1.13.0",
-    "@opentelemetry/sdk-trace-node": "1.13.0",
-    "@opentelemetry/semantic-conventions": "1.13.0",
-    "ip": "2.0.1",
-    "brace-expansion": "2.0.2"
+    "brace-expansion": "2.0.2",
+    "mdast-util-to-hast": ">=13.2.1"
+  },
+  "overrides": {
+    "mdast-util-to-hast": ">=13.2.1"
   },
   "lint-staged": {
     "*.+(js|jsx|ts|tsx)": [

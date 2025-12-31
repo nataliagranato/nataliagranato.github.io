@@ -8,12 +8,19 @@ export default function TestSentryClient() {
   const [errorGenerated, setErrorGenerated] = useState(false)
   const [logsGenerated, setLogsGenerated] = useState(false)
   const [sentryLogGenerated, setSentryLogGenerated] = useState(false)
+  const [metricsGenerated, setMetricsGenerated] = useState(false)
   const [feedbackOpened, setFeedbackOpened] = useState(false)
 
   const generateError = () => {
     setErrorGenerated(true)
+    // Send a log before throwing the error (nova API)
+    Sentry.logger.info('User triggered test error', {
+      action: 'test_error_button_click',
+    })
+    // Send a test metric before throwing the error (nova API)
+    Sentry.metrics.count('test_counter', 1)
     // Isso irá gerar um erro que o Sentry deve capturar
-    throw new Error('Erro de teste gerado para Sentry')
+    throw new Error('This is your first error!')
   }
 
   const generateLogs = () => {
@@ -28,6 +35,14 @@ export default function TestSentryClient() {
     setSentryLogGenerated(true)
     // Teste específico usando Sentry.logger conforme instruções
     Sentry.logger.info('User triggered test log', { log_source: 'sentry_test' })
+  }
+
+  const generateMetrics = () => {
+    setMetricsGenerated(true)
+    // Testar métricas customizadas
+    Sentry.metrics.count('test_button_clicks', 1)
+    Sentry.metrics.gauge('test_gauge', 42)
+    Sentry.metrics.distribution('test_distribution', 100)
   }
 
   const openFeedback = () => {
@@ -88,6 +103,13 @@ export default function TestSentryClient() {
           </button>
 
           <button
+            onClick={generateMetrics}
+            className="w-full rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+          >
+            📊 Gerar Métricas
+          </button>
+
+          <button
             onClick={openFeedback}
             className="w-full rounded bg-purple-500 px-4 py-2 text-white hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
           >
@@ -111,6 +133,12 @@ export default function TestSentryClient() {
           {sentryLogGenerated && (
             <p className="text-green-600 dark:text-green-400">
               ✅ Log Sentry.logger.info enviado! Verifique no painel do Sentry.
+            </p>
+          )}
+
+          {metricsGenerated && (
+            <p className="text-yellow-600 dark:text-yellow-400">
+              ✅ Métricas enviadas! Verifique no painel do Sentry (count, gauge, distribution).
             </p>
           )}
 
