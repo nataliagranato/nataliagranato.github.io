@@ -30,6 +30,7 @@ class RedisClient {
 
   private async createConnection(): Promise<RedisClientType> {
     try {
+      // Criar cliente Redis com nova API simplificada
       this.client = createClient({
         url: process.env.REDIS_URL || 'redis://localhost:6379',
         socket: {
@@ -45,6 +46,7 @@ class RedisClient {
         },
       })
 
+      // Event listeners
       this.client.on('error', (err) => {
         console.error('Redis Client Error:', err)
       })
@@ -68,6 +70,7 @@ class RedisClient {
         console.log('Redis Client Reconnecting...')
       })
 
+      // Conectar ao Redis
       await this.client.connect()
 
       // Limpar a Promise de conexão após sucesso

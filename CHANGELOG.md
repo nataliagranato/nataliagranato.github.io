@@ -30,6 +30,27 @@ straightforward as possible.
   - Immediate update recommended for all users of Next.js 15.x with App Router
   - **Note**: The major upgrade to Next.js 16.1.1 was performed to ensure extended security coverage and access to latest stable improvements; the CVE could have been addressed with 15.5.7+, but v16 provides better long-term security and performance stability
 
+### Changed
+- **Redis SDK**: Updated to modern initialization pattern
+  - Removed deprecated `lazyConnect` option
+  - Simplified connection flow with `createClient()` followed by `.connect()`
+  - Updated scripts: `test-redis.js` and `clear-cache.js`
+  - Maintained robust error handling and singleton pattern in `lib/redis.ts`
+
+- **Sentry SDK**: Enhanced monitoring configuration
+  - Added `browserTracingIntegration()` for improved performance monitoring
+  - Enabled `sendDefaultPii: true` for better error context
+  - Added `tracePropagationTargets` for distributed tracing control
+  - Enabled `enableLogs: true` for automatic log capture
+  - Updated test component with new `Sentry.logger` and `Sentry.metrics` APIs
+  - Added metrics testing (count, gauge, distribution) in test UI
+
+- **Next.js Configuration**: Removed deprecated settings
+  - Removed `eslint.dirs` configuration (deprecated in Next.js 16)
+  - Updated Sentry config to use `webpack.treeshake.removeDebugLogging` instead of `disableLogger`
+  - Updated Sentry config to use `webpack.automaticVercelMonitors` in new structure
+  - Removed obsolete OpenTelemetry resolutions to fix runtime conflicts
+
 ### React 19.2.3+ Breaking Changes & Migration Validation
 - **JSX Transform**: Verified `tsconfig.json` configured to use `"jsx": "react-jsx"` for automatic JSX runtime
 - **ReactDOM Methods**: Project uses `createRoot` and `hydrateRoot` for concurrent rendering; legacy `ReactDOM.render()` and `ReactDOM.hydrate()` not used

@@ -11,10 +11,12 @@ async function clearCache() {
   console.log('🗑️ Limpando cache Redis...\n')
 
   try {
+    // Criar e conectar cliente Redis
     const client = createClient({
       url: process.env.REDIS_URL || 'redis://localhost:6379',
     })
 
+    // Conectar ao Redis
     await client.connect()
     console.log('✅ Conectado ao Redis')
 

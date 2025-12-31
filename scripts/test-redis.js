@@ -10,11 +10,11 @@ import { createClient } from 'redis'
 async function testRedisConnection() {
   console.log('🔄 Testando conexão com Redis...')
 
+  // Criar e conectar cliente Redis em uma única operação
   const client = createClient({
     url: process.env.REDIS_URL || 'redis://localhost:6379',
     socket: {
       connectTimeout: 5000,
-      lazyConnect: true,
     },
   })
 
@@ -31,6 +31,7 @@ async function testRedisConnection() {
   })
 
   try {
+    // Conectar ao Redis
     await client.connect()
 
     // Teste básico de set/get

@@ -8,8 +8,15 @@ import { parseSampleRate, SENTRY_DEFAULTS, shouldEnableDebug } from './lib/sentr
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true,
+
   // Add optional integrations for additional features
   integrations: [
+    // Browser tracing integration for performance monitoring
+    Sentry.browserTracingIntegration(),
+    // Session replay for debugging
     Sentry.replayIntegration({
       // Additional Replay configuration goes in here, for example:
       maskAllText: true,
@@ -39,6 +46,16 @@ Sentry.init({
       ? SENTRY_DEFAULTS.TRACES_SAMPLE_RATE.production 
       : SENTRY_DEFAULTS.TRACES_SAMPLE_RATE.development
   ),
+
+  // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+  tracePropagationTargets: [
+    'localhost',
+    /^https:\/\/nataliagranato\.xyz\//,
+    /^https:\/\/.*\.vercel\.app\//,
+  ],
+
+  // Enable logs to be sent to Sentry
+  enableLogs: true,
 
   // Enable debug based on env var
   debug: shouldEnableDebug(),
