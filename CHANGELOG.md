@@ -19,6 +19,16 @@ straightforward as possible.
 
 ### Breaking Changes
 -->
+## [2.2.2] - 2025-12-30
+
+### Security
+- **CVE-2025-5518**: Fixed RCE vulnerability in Next.js and React flight protocol
+  - Updated Next.js from 15.5.2 to 15.5.9 (required minimum: 15.5.7)
+  - Updated React from 19.1.1 to 19.2.3 (required minimum: 19.1.2)
+  - Updated React DOM from 19.1.1 to 19.2.3 (required minimum: 19.1.2)
+  - This vulnerability affected React packages for versions 19.0.0, 19.1.0, 19.1.1, and 19.2.0, and frameworks using these packages
+  - Immediate update recommended for all users of Next.js 15.x with App Router
+
 ## [2.2.1] - 2025-10-25
 
 ### Added
