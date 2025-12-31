@@ -77,7 +77,6 @@
     "@opentelemetry/sdk-trace-base": "1.13.0",
     "@opentelemetry/sdk-trace-node": "1.13.0",
     "@opentelemetry/semantic-conventions": "1.13.0",
-    "ip": "2.0.1",
     "brace-expansion": "2.0.2"
   },
   "lint-staged": {
