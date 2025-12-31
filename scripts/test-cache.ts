@@ -54,7 +54,7 @@ async function testCache(): Promise<void> {
       const pagedResult = await getCachedPagedPosts(1, 5)
       console.log(`✅ Página 1 carregada com ${pagedResult.posts.length} posts`)
       console.log(
-        `📊 Total de ${pagedResult.pagination.totalPosts} posts, ${pagedResult.pagination.totalPages} páginas`
+        `📊 Página ${pagedResult.pagination.currentPage} de ${pagedResult.pagination.totalPages} páginas`
       )
     }
 

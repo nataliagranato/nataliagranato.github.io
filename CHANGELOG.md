@@ -31,12 +31,6 @@ straightforward as possible.
   - **Note**: The major upgrade to Next.js 16.1.1 was performed to ensure extended security coverage and access to latest stable improvements; the CVE could have been addressed with 15.5.7+, but v16 provides better long-term security and performance stability
 
 ### Changed
-- **Redis SDK**: Updated to modern initialization pattern
-  - Removed deprecated `lazyConnect` option
-  - Simplified connection flow with `createClient()` followed by `.connect()`
-  - Updated scripts: `test-redis.js` and `clear-cache.js`
-  - Maintained robust error handling and singleton pattern in `lib/redis.ts`
-
 - **Sentry SDK**: Enhanced monitoring configuration
   - Added `browserTracingIntegration()` for improved performance monitoring
   - Enabled `sendDefaultPii: true` for better error context
@@ -50,6 +44,20 @@ straightforward as possible.
   - Updated Sentry config to use `webpack.treeshake.removeDebugLogging` instead of `disableLogger`
   - Updated Sentry config to use `webpack.automaticVercelMonitors` in new structure
   - Removed obsolete OpenTelemetry resolutions to fix runtime conflicts
+
+### Removed
+- **Redis Integration**: Simplified caching system
+  - Removed Redis dependency and related configuration
+  - Cache now uses Contentlayer directly for better simplicity and reliability
+  - Removed cache API endpoints and management scripts
+  - Simplified blog data fetching without external cache layer
+- **Vercel AI SDK**: Removed AI SDK integration to fix production deployment type conflicts
+  - Removed `@ai-sdk/openai` and `ai` dependencies
+  - Removed all AI-related API endpoints (`app/api/ai/*`)
+  - Removed AI monitoring test page (`app/test-ai-monitoring`)
+  - Removed AI documentation (`docs/AI_MONITORING.md`) and examples (`lib/ai-examples.ts`)
+  - Removed `@ai-sdk/provider` resolution from `package.json`
+  - This resolves type conflicts caused by duplicate `@ai-sdk/provider` packages in the dependency tree
 
 ### React 19.2.3+ Breaking Changes & Migration Validation
 - **JSX Transform**: Verified `tsconfig.json` configured to use `"jsx": "react-jsx"` for automatic JSX runtime
