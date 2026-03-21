@@ -1,0 +1,138 @@
+---
+title: 'Modelo de Maturidade de Engenharia de Plataforma'
+date: '2026-03-21'
+tags: ['platform', 'maturity', 'cncf']
+draft: false
+images: ['/static/images/PlatformEngineering_blog.png']
+summary: A Engenharia de Plataforma (Platform Engineering) é uma disciplina que tem ganhado destaque no cenário tecnológico atual, focando na criação e manutenção de plataformas de autoatendimento que abstraem a complexidade da infraestrutura, permitindo que os desenvolvedores provisionem e gerenciem recursos de maneira simples.
+---
+
+# Modelo de Maturidade de Platform Engineering
+
+A Engenharia de Plataforma (Platform Engineering) é uma disciplina que tem ganhado destaque no cenário tecnológico atual, focando na criação e manutenção de plataformas de autoatendimento que abstraem a complexidade da infraestrutura, permitindo que os desenvolvedores provisionem e gerenciem recursos de maneira simples. Trata-se de uma evolução natural do DevOps, visando otimizar a produtividade dos desenvolvedores e acelerar o tempo de entrega de valor ao negócio. Gartner prevê que, até 2026, 80% das grandes organizações de engenharia de software terão equipes dedicadas à Engenharia de Plataforma.
+
+Para entender e avaliar a evolução de uma organização nesse campo, a Cloud Native Computing Foundation (CNCF) desenvolveu um Modelo de Maturidade de Platform Engineering. Este modelo não é uma fórmula rígida, mas um framework para guiar organizações em sua jornada de Platform Engineering, ajudando-as a identificar onde estão e para onde podem evoluir.
+
+## Detalhamento dos Níveis de Maturidade
+
+O modelo da CNCF categoriza a maturidade da Platform Engineering em quatro níveis principais, avaliados em dimensões como Investimento, Adoção, Interfaces, Operações e Medição.
+
+### Provisional (Provisório)
+
+Neste estágio inicial, as soluções de plataforma são ad-hoc e criadas por necessidade imediata, sem um investimento dedicado ou planejamento formal.
+
+#### Investimento
+É voluntário ou temporário; as capacidades são construídas e mantidas por equipes "tigres" ou indivíduos designados temporariamente, sem financiamento central ou planejamento de longo prazo. Há queixas de burnout e frustração.
+
+#### Adoção
+É errática e inconsistente. Não há uma estratégia organizacional clara, e as equipes podem preferir usar ferramentas externas em vez das soluções internas.
+
+#### Interfaces
+Utilizam processos personalizados e não padronizados, muitas vezes dependendo de intervenção manual e suporte profundo dos provedores. O conhecimento é compartilhado de pessoa para pessoa.
+
+#### Operações
+São baseadas em solicitações (by request); as plataformas e capacidades são desenvolvidas e atualizadas de forma reativa. A responsabilidade pela manutenção é informal.
+
+#### Medição
+É ad hoc, com métricas de uso e satisfação coletadas de forma inconsistente, se é que são coletadas. As decisões são baseadas em dados anedóticos e incompletos.
+
+### Operationalized (Operacionalizado)
+
+Neste nível, a organização reconhece o valor das plataformas, e há uma equipe dedicada responsável por fornecer um conjunto de capacidades comuns para acelerar a entrega de software.
+
+#### Investimento
+Possui uma equipe dedicada com alocação de orçamento e pessoal. Essas equipes focam em atender a requisitos técnicos reativos e são frequentemente vistas como centros de custo, dificultando a medição de seu impacto direto. A maioria das organizações (43.28%) se encontra neste nível.
+
+#### Adoção
+É impulsionada por um "extrinsic push" (impulso externo), com diretrizes internas incentivando ou exigindo o uso de serviços da plataforma.
+
+#### Interfaces
+Utilizam ferramentas padronizadas e caminhos dourados (golden paths) na forma de documentação e templates. Ainda assim, soluções podem exigir expertise de domínio profundo e suporte dos mantenedores.
+
+#### Operações
+São rastreadas centralmente com algum grau de organização. Há expectativas para coletar dados de uso e feedback, embora a tradução em ações seja um desafio.
+
+#### Medição
+Foca na coleta consistente de feedback estruturado dos usuários, mas a organização pode ter dificuldade em integrar efetivamente esse feedback no roadmap da plataforma.
+
+### Scalable (Escalável)
+
+Neste estágio, a plataforma é tratada como um produto interno, com foco explícito em usabilidade, automação e eficiência. Os usuários são atraídos pelo valor intrínseco da plataforma.
+
+#### Investimento
+É como o investimento em um produto (as product), baseado no valor esperado para os clientes internos. A gestão de produto e a experiência do usuário são explicitamente consideradas. Há uso de dados para alocar fundos e pessoal, otimizando o negócio e contribuindo para a rentabilidade. Cerca de 35.71% das organizações estão aqui.
+
+#### Adoção
+É por "intrinsic pull" (atração intrínseca); os usuários escolhem a plataforma por seu valor claro em reduzir a carga cognitiva e fornecer serviços de alta qualidade.
+
+#### Interfaces
+Oferecem soluções de autoatendimento, dando autonomia aos usuários com pouco suporte dos mantenedores. Há consistência nas interfaces, facilitando a descoberta e portabilidade da experiência do usuário.
+
+#### Operações
+São centralmente habilitadas, com as equipes de plataforma compreendendo as necessidades da organização e priorizando o trabalho. Existem processos padronizados para contribuição de novas capacidades e contínuos delivery.
+
+#### Medição
+Gera insights que vão além da mera coleta de dados, focando em medidas de confiabilidade e estabilidade do serviço. As decisões são impulsionadas por dados e feedback, visando melhorias antes que os problemas causem frustração.
+
+### Optimizing (Otimizado)
+
+No nível mais alto, a plataforma está totalmente integrada ao ecossistema da empresa, com melhorias contínuas, automação e autonomia para os times de produto. O foco é na otimização de toda a organização.
+
+#### Investimento
+Resulta em um ecossistema habilitado, onde as equipes de plataforma otimizam o time-to-market, reduzem custos, permitem governança e conformidade eficientes, e escalam cargas de trabalho. Apenas 12.18% das organizações alcançaram este nível.
+
+#### Adoção
+É participativa, indicando que a cultura da organização está totalmente alinhada com o uso da plataforma.
+
+#### Interfaces
+Oferecem serviços integrados de forma nativa e coesa.
+
+#### Operações
+São serviços gerenciados, onde o ciclo de vida de cada capacidade é automatizado e padronizado. As atualizações são contínuas, sem impacto para os usuários, com um modelo claro de responsabilidade compartilhada.
+
+#### Medição
+É quantitativa e qualitativa, profundamente integrada à cultura da organização. Há uma democratização dos dados, e os stakeholders estão ativamente envolvidos na identificação e medição de melhorias. O foco está em métricas de liderança (leading measures) para antecipar necessidades.
+
+![Modelo de Maturidade de Platform Engineering](https://substackcdn.com/image/fetch/$s_!-Sp9!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F6fbaccac-2d71-44fb-bbc4-4de12e939b92_1444x888.png)
+
+## Estratégias de Evolução para Cada Estágio
+
+A evolução de um estágio para o outro exige intencionalidade e planejamento. A chave é adotar uma mentalidade de produto, tratando os desenvolvedores como clientes e buscando resolver suas dores de forma incremental.
+
+### Para sair do Provisório
+O primeiro passo é reconhecer os problemas e a necessidade de uma solução. É fundamental formar uma equipe dedicada para a plataforma e estabelecer uma missão clara para ela, evitando que seja vista apenas como um help desk. Comece com um Produto Mínimo Viável (MVP) ou Plataforma Viável Mais Fina (TVP), focando nas dores mais comuns dos desenvolvedores.
+
+### Para ir do Operacionalizado ao Escalável
+A plataforma deve começar a ser tratada como um produto, com foco em user research para entender as reais necessidades dos desenvolvedores e implementar feedback loops eficazes. Invista em interfaces de autoatendimento para empoderar os desenvolvedores, reduzindo gargalos e dependência de equipes de operações. Padronize e automatize o máximo possível, desde o provisionamento de infraestrutura até os pipelines de CI/CD.
+
+### Para alcançar o Otimizado
+O foco deve ser em escalar e otimizar o produto para muitos usuários e equipes. Isso envolve a integração da plataforma ao ecossistema da empresa, permitindo que especialistas (como segurança, desempenho) estendam as capacidades da plataforma. A automação precisa ser abrangente, com o ciclo de vida das capacidades gerenciado de forma padronizada e automática, garantindo melhorias contínuas sem impacto para os usuários. A utilização de IA e Machine Learning no futuro pode potencializar ainda mais essa otimização, prevendo falhas e automatizando tarefas complexas.
+
+## Como Avaliar a Maturidade de uma Organização
+
+A avaliação da maturidade não visa classificar uma organização como um único nível, mas sim identificar as características presentes em cada aspecto para entender oportunidades de melhoria.
+
+### Reflexão e Autoavaliação
+O modelo da CNCF serve como um guia para a autoavaliação, ajudando as equipes a refletirem sobre suas práticas atuais em cada uma das cinco dimensões (Investimento, Adoção, Interfaces, Operações, Medição).
+
+### Mapeamento e Identificação
+Compare as características da sua organização com as descrições de cada nível. É comum que uma organização apresente características de diferentes níveis em diferentes aspectos.
+
+### Foco em Melhoria Contínua
+O verdadeiro valor da avaliação não é o nível alcançado, mas a lista de ações para melhoria. Assegure-se de que a evolução seja um processo contínuo, adaptando-se às necessidades do projeto, organização e momento.
+
+### Uso de Métricas
+Colete dados quantitativos e qualitativos.
+
+## Impacto da Maturidade nos Resultados de Negócio
+
+A maturidade em Platform Engineering tem um impacto direto e significativo nos resultados de negócio de uma organização:
+
+- **Aceleração da Entrega de Valor:** Plataformas maduras permitem que as empresas lancem produtos e funcionalidades mais rapidamente no mercado. O foco na abstração da infraestrutura permite que os desenvolvedores se concentrem na inovação.
+- **Aumento da Produtividade e Eficiência:** Reduz a carga cognitiva dos desenvolvedores, elimina o ticket ops e automatiza tarefas repetitivas, liberando as equipes para trabalhos de maior valor agregado. A Siemens, por exemplo, alcançou uma proporção de 20 desenvolvedores para 1 engenheiro de plataforma, demonstrando ganhos notáveis em eficiência e velocidade.
+- **Redução de custos:** A padronização, automação e gestão eficiente de recursos levam à otimização de custos operacionais e de infraestrutura. A automação de provisionamento de bancos de dados pode, por exemplo, gerar economias substanciais.
+- **Melhora na Qualidade e Segurança:** A incorporação de security by design e a padronização de ambientes e ferramentas desde o início reduzem riscos, vulnerabilidades e garantem conformidade com regulamentações.
+- **Atração e Retenção de Talentos:** Um ambiente de desenvolvimento moderno e eficiente é mais atraente para profissionais de alto nível, reduzindo a rotatividade (attrition). Engenheiros de plataforma, em média, recebem salários mais altos do que seus colegas DevOps, refletindo a demanda por suas habilidades especializadas.
+- **Resiliência e Adaptação:** A Platform Engineering cria uma base robusta que permite às empresas se adaptarem rapidamente às mudanças do mercado e às demandas dos clientes. Incidentes e erros se transformam em oportunidades de melhoria contínua da plataforma.
+
+Em suma, a Engenharia de Plataforma não é apenas uma tendência tecnológica, mas um catalisador de inovação que transforma a forma como o software é desenvolvido e entregue, resultando em benefícios tangíveis para o negócio e posicionando a organização de forma mais competitiva no mercado digital.

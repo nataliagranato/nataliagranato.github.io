@@ -19,6 +19,29 @@ straightforward as possible.
 
 ### Breaking Changes
 -->
+## [2.2.3] - 2026-03-21
+
+### Added
+- Novo post no blog: "História e Evolução da Engenharia de Plataforma" (`data/blog/historia-evolucao-engenharia-de-plataforma.mdx`)
+  - Conteúdo completo sobre origem, evolução e conceitos da Engenharia de Plataforma
+  - Marcos históricos, tendências de mercado e casos de sucesso
+- Novo post no blog: "Modelo de Maturidade de Platform Engineering" (`data/blog/mode-maturidade-platform-eng.mdx`)
+  - Detalhes sobre o modelo de maturidade da CNCF
+  - Níveis de maturidade, estratégias de evolução e impacto nos negócios
+- Imagens ilustrativas para os novos posts (`public/static/images/history-platform-eng.png` e diagrama no segundo post)
+
+### Changed
+- Formatação completa dos novos arquivos MDX em Markdown estruturado
+  - Adicionados cabeçalhos (#, ##, ###), listas (-), negrito (**), e hierarquia adequada
+  - Frontmatter adicionado: título, data, tags, resumo e caminhos de imagens
+  - Imagens formatadas em Markdown (`![alt](url)`)
+- Correção do caminho da imagem no frontmatter do primeiro post para incluir extensão `.png`
+
+### Security
+- Verificação de vulnerabilidades nas dependências: Identificadas 10 vulnerabilidades (1 baixa, 3 moderadas, 6 altas)
+  - Principais: ReDoS em ajv, flatted; prototype pollution em js-yaml; RCE em serialize-javascript; DoS em svgo
+  - Correções automáticas disponíveis via `npm audit fix` para a maioria; js-yaml sem correção automática
+
 ## [2.2.2] - 2025-12-30
 
 ### Security

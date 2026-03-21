@@ -1,0 +1,144 @@
+---
+title: 'História e Evolução da Engenharia de Plataforma'
+date: '2026-03-21'
+tags: ['platform', 'sre', 'devops']
+draft: false
+images: ['/static/images/history-platform-eng.png']
+
+summary: A Engenharia de Plataforma não surgiu do nada; ela é uma resposta aos desafios crescentes no desenvolvimento de software, o aumento da complexidade, a necessidade cada vez maior de agilidade para entregar novas funcionalidades ao usuário final de algum serviço interno ou externo, a complexidade da infraestrutura, etc.
+---
+
+A Engenharia de Plataforma não surgiu do nada; ela é uma resposta aos desafios crescentes no desenvolvimento de software: o aumento da complexidade, a necessidade cada vez maior de agilidade para entregar novas funcionalidades ao usuário final de algum serviço interno ou externo, a complexidade da infraestrutura etc. Um longo caminho foi percorrido até chegarmos até aqui. Por volta do final dos anos 90 e início dos 2000, o cenário era dominado pelo "SysAdmin" ou administradores de sistemas, profissional que era central e atuava como único "guardião" dos sistemas, resultando em experiências ruins para desenvolvedores e operações.
+
+No modelo tradicional, os SysAdmin eram o único ponto de falha e controle para a maioria das configurações dos sistemas. Esse formato organizacional causava atritos constantes entre equipes de operações e de desenvolvimento, pois o trabalho era realizado de forma isolada, com objetivos diferentes, levando a experiências ruins para ambos os setores e ineficiência. Os desenvolvedores tinham que entregar algo novo ou corrigir um problema em seu código e, para isso, precisavam passar por "SysAdmins"; estes queriam manter a "estabilidade" do sistema. A simples criação de um usuário poderia demorar semanas.
+
+Ao longo do tempo, tornou-se insustentável esse modelo de organização e desenvolvimento, pois ambos atuavam com diferentes propósitos e objetivos, sem pensar no negócio. Administradores de sistemas estavam esgotados com tickets e a responsabilidade de manter tudo funcionando, e desenvolvedores cansados com a "burocracia" para realizar suas atividades. Essa realidade exigia uma nova abordagem para otimizar o desenvolvimento de software.
+
+## Das Origens à Consolidação
+
+A jornada até a Engenharia de Plataforma pode ser visualizada através de marcos importantes:
+
+- **2001: Manifesto Ágil**  
+  Foco em maiores interações, maior colaboração e software funcional. Adoção de automações e scripts.
+
+- **2009-2010: Cultura DevOps**  
+  Resulta do trabalho em conjunto entre Desenvolvimento (Dev) e Operações (Ops), buscando eficiência e agilidade na entrega de softwares.  
+  Promovendo a integração entre equipes de desenvolvimento e TI, com automação de processos e responsabilidade compartilhada.  
+  Estabelece os pilares de Integração Contínua (CI) e Entrega Contínua (CD), com ênfase em "feedback rápido" e "falhe rápido", proporcionando agilidade para realizar o deploy ou corrigir problemas.
+
+  Apesar dos benefícios, a realidade do DevOps evoluiu para algo complexo, onde os desenvolvedores continuavam sobrecarregados pela infraestrutura e ferramentas, visto que a cada dia surgia novas funcionalidades, ferramentas, vulnerabilidades; isso levou a uma carga cognitiva muito alta, levando novamente equipes inteiras a exaustão.
+
+- **2012-2020: A Era "Tudo Como Código" (Everything as Code)**  
+  Infraestrutura como Código (IaC), Configuração como Código.  
+  Mais automação.
+
+  No entanto, gráficos mostram que a complexidade e o tempo de entrega aumentaram significativamente após a era DevOps e na era do "Tudo como Código". A proliferação de ferramentas (Terraform, Ansible, Docker, Kubernetes, Jenkins, Flux, Argo, Puppet, Chef) e artefatos de manutenção levou à "confusão de propriedade e fragmentação de ferramentas".
+
+- **2018-2019: O Nascimento da Engenharia de Plataforma**  
+  Em 2018, Evan Bottcher (Thoughtworks) deu nome ao que muitas organizações estavam construindo: uma Plataforma Digital (hoje conhecida como Plataforma Interna do Desenvolvedor - IDP), definindo-a como "uma fundação de APIs de autoatendimento, ferramentas, serviços, conhecimento e suporte, que são organizados como um produto interno atraente". A ideia de que plataformas devem ser tratadas como um produto tornou-se um aspecto fundamental.
+
+  Em 2019, Matthew Skelton e Manuel Pais lançaram o livro "Team Topologies", que se tornou uma "bíblia da engenharia de plataforma". O livro aborda a equipe de plataforma e sua relação com o resto da organização de engenharia, propondo uma clara separação de preocupações e identificando antipadrões de DevOps.
+
+  Os primeiros meetups de engenharia de plataforma começaram em Berlim em 2019.
+
+  A Engenharia de Plataforma foi definida como a "disciplina de projetar e construir cadeias de ferramentas e fluxos de trabalho que possibilitam recursos de autoatendimento na era nativa da nuvem".
+
+## 2020 - Hoje: Crescimento e Reconhecimento da Engenharia de Plataforma
+
+- **Março de 2020:** Spotify lança o Backstage como código aberto.
+- **2021:** O canal Slack da Comunidade de Engenharia de Plataforma é iniciado.
+- **2022:** Plataforma Engineering.org é lançada.
+- **2022:** O Gartner coloca a Engenharia de Plataforma em seu Hype Cycle.
+- **Outubro de 2022:** Gartner nomeia a Engenharia de Plataforma como uma das "Top Strategic Technology Trends para 2023".
+- **Novembro de 2022:** Humanitec publica o primeiro "State of Platform Engineering Report".
+- **2023:** A popularidade do Platform Engineering "disparou". A comunidade cresceu para mais de 20.000 membros ativos no Slack e mais de 20.000 membros em Meetups globais.
+- **2024:** A Engenharia de Plataforma "explodiu" na frente do Gartner, aparecendo em mais de 10 Hype Cycles diferentes e ganhando seu próprio Hype Cycle dedicado.
+- **Previsão para 2026:** O Gartner prevê que 80% das grandes organizações de engenharia de software terão equipes dedicadas de Engenharia de Plataforma.
+- **Previsão para 2028:** O mercado de ferramentas e serviços de Engenharia de Plataforma deve ultrapassar US$50 bilhões.
+
+![Platform Engineering Overview](https://gleecus.com/wp-content/uploads/2024/01/Platform-Engineering-101-Enabling-Self-Service-Capabilities-for-Software-Development-Image.png)
+
+## O Conceito Central de Platform Engineering
+
+A Engenharia de Plataforma é definida como a "prática de criar e manter plataformas de autoatendimento que abstraem a complexidade da infraestrutura, permitindo que os desenvolvedores provisionem e gerenciem recursos de maneira simples". Em termos mais simples, é a "arte de juntar tudo isso, com um 'tempero' a mais: CI/CD, Infraestrutura como Código, Automação".
+
+Seu objetivo principal é permitir que os desenvolvedores se concentrem na entrega de valor ao cliente, enquanto os desafios de infraestrutura e operações são resolvidos de forma centralizada. Isso é alcançado através de um produto integrado, frequentemente referido como Plataforma Interna do Desenvolvedor (IDP).
+
+As IDPs são projetadas para:
+
+- Orientar os desenvolvedores através de "caminhos dourados" (golden paths) e "estradas pavimentadas" que correspondem ao nível de abstração preferido do desenvolvedor individual.
+- Fornecer uma interface de autoatendimento onde o desenvolvedor solicita um novo projeto, e uma série de automações criam um "esqueleto" com tudo pré-existente (infraestrutura, pipelines, manifestos).
+- Consolidar e simplificar os elementos do processo de desenvolvimento, tornando o trabalho diário mais gerenciável, eficiente e colaborativo.
+- Centralizar o conhecimento especializado em todo o ciclo de vida de desenvolvimento e operações.
+
+## Tendências de Mercado Atuais
+
+O campo da Engenharia de Plataforma está em constante evolução, com várias tendências moldando seu futuro:
+
+- **Plataforma como Produto (Platform as a Product):** Essa é uma tendência fundamental e um dos conceitos mais importantes. Significa que a equipe de plataforma trata os desenvolvedores como seus clientes internos, realizando pesquisa de usuário, definindo roteiros de produto, medindo métricas de uso e realizando marketing interno para garantir a adoção e o alinhamento com a liderança.
+
+- **Engenharia de Plataforma de Infraestrutura (Infrastructure Platform Engineering - IPE):** Uma subdisciplina crucial que se concentra em transformar a infraestrutura em um produto de autoatendimento, melhorando a eficiência, automação e segurança. O Gartner prevê que mais de 75% das empresas Fortune 1000 terão organizações formais de IPE até 2027. Isso é visto como a construção de uma "máquina de venda automática" de "produtos" de infraestrutura.
+
+- **Orquestradores de Plataforma (Platform Orchestrators):** Termo novo no mercado que tem o potencial de substituir ferramentas como Terraform e Ansible. Eles são vistos como o "elo que faltava" que complementa os portais de desenvolvedores e faz a ponte para a engenharia de plataforma de infraestrutura.
+
+- **Modelos de Maturidade da Engenharia de Plataforma:** Estruturas como o modelo de maturidade da CNCF TAG App Delivery fornecem um roteiro para as organizações avaliarem suas capacidades e planejarem melhorias em áreas como investimento, adoção, interfaces, operações e medição.
+
+- **Ambientes de Desenvolvimento na Nuvem (Cloud Development Environments - CDEs):** Uma nova categoria que visa aprimorar a produtividade do desenvolvedor, melhorar a segurança e apoiar a conformidade.
+
+- **Automação e Padronização:** Continuam sendo os principais impulsionadores da engenharia de plataforma.
+
+- **Uso de IA/ML:** A IA está sendo gradualmente integrada à engenharia de plataforma, com 52,40% dos engenheiros de plataforma usando IA "um pouco" e 13,20% usando "extensivamente". A expectativa é que a IA e o ML otimizem e automatizem tarefas complexas, prevejam falhas e personalizem experiências de desenvolvimento.
+
+- **Backends baseados em Gráficos (Graph-based backends):** Vistos como mais flexíveis e escaláveis para orquestração de plataformas, em contraste com os baseados em pipeline.
+
+- **SaaS e Nuvem como "Commodity":** Grandes empresas tendem a transformar suas plataformas internas em produtos (PaaS). O futuro prevê a infraestrutura completamente abstraída, com a nuvem sendo um "mero detalhe" em um cenário multi-cloud.
+
+## O Crescimento e Importância da Engenharia de Plataforma em Empresas de Tecnologia
+
+A Engenharia de Plataforma está se consolidando como a espinha dorsal da produtividade do desenvolvedor e da melhoria da experiência do desenvolvedor (DevEx).
+
+### Impacto no Negócio
+
+- Acelera o tempo de colocação de produtos no mercado e o ritmo da inovação.
+- Reduz custos operacionais através de processos mais eficientes e automatizados, otimizando recursos. Empresas relatam reduções de até 50% no tempo de lançamento de produtos e 30% no tempo de configuração/manutenção.
+- Melhora a segurança e conformidade.
+- Aumenta a agilidade dos negócios e permite adaptação rápida às mudanças do mercado.
+- Impulsiona o crescimento da receita ao acelerar a entrega de produtos e serviços inovadores.
+- É vista como crucial para o sucesso da transformação digital.
+- Gartner prevê que é essencial para desbloquear todo o potencial de negócios da IA.
+
+### Impacto nos Desenvolvedores e Equipes
+
+- Aumenta a produtividade do desenvolvedor ao simplificar a gestão de infraestrutura e automatizar tarefas repetitivas.
+- Reduz a sobrecarga cognitiva e o trabalho manual, permitindo que os desenvolvedores se concentrem na escrita de código e na inovação.
+- Promove o autoatendimento para desenvolvedores, eliminando "TicketOps" (dependência de solicitações manuais).
+- Melhora a satisfação e retenção de talentos de engenharia, criando um ambiente de trabalho moderno e eficiente. A menor rotatividade é uma métrica importante de sucesso.
+- As equipes de plataforma atuam como educadores, testando e mostrando as soluções mais úteis aos desenvolvedores.
+
+### Adoção e Projeções
+
+- Não é exclusiva de grandes empresas; mesmo empresas menores podem se beneficiar. Recomenda-se considerar uma IDP para organizações com mais de 20-30 desenvolvedores.
+- O papel dos engenheiros de plataforma é uma função em ascensão (bleeding-edge role), com salários que, em média, são mais altos do que os de especialistas em DevOps (26,6% a mais na América do Norte, 22,78% na Europa).
+- Em 2024, o GitHub é o sistema de controle de versão mais usado (56% dos entrevistados), seguido por GitLab (31%) e Bitbucket (17%).
+- A Engenharia de Plataforma é um investimento no futuro.
+
+## Casos de Sucesso em Empresas que Utilizam Platform Engineering
+
+A Engenharia de Plataforma tem sido adotada e demonstrado valor significativo em diversas empresas:
+
+- **Netflix:** Construiu uma plataforma interna robusta sobre Kubernetes e arquitetura de microserviços. Isso permitiu que seus desenvolvedores se concentrassem na inovação, enquanto a plataforma cuidava da escalabilidade, monitoramento e automação. O sucesso da Netflix em fornecer uma experiência de streaming perfeita para milhões é um testemunho do poder da Engenharia de Plataforma.
+
+- **Spotify:** Criou o Backstage, um framework de código aberto para a construção de Portais Internos de Desenvolvedores (IDPs), que foi doado à CNCF. Mais de 3.000 empresas já adotaram o Backstage para construir seus próprios IDPs. As 700 equipes de P&D do Spotify dependem do Backstage diariamente. O Spotify agora está expandindo para um negócio de software empresarial com o "Spotify Portal for Backstage". O Backstage domina o mercado de portais de desenvolvedores, e sua força reside no sucesso de uma solução de código aberto.
+
+- **American Airlines, T-Mobile, DoorDash, Brex, Expedia Group, Unity, Zalando:** Essas são algumas das 100+ empresas publicamente listadas que adotaram o Backstage. A experiência da Brex é um exemplo notável, mostrando a importância de pesquisas com desenvolvedores para identificar problemas reais e garantir que o investimento na IDP seja eficaz, evitando construir uma "solução em busca de um problema". A adição de um sistema de scorecard/checagem em IDPs existentes, que pontua as equipes com base em boas práticas, surpreendentemente impactou mais o engajamento dos desenvolvedores, incentivando a melhoria contínua.
+
+- **Google:** A Google, com sua filosofia de "foco no usuário", acredita que as plataformas são, antes de tudo, um produto e que o foco em seus usuários é fundamental. Equipes que se concentram no usuário têm 40% maior desempenho organizacional. O Google Cloud ajuda a aumentar a produtividade do desenvolvedor, melhorar a confiabilidade e a segurança, e acelerar o tempo de lançamento no mercado através da engenharia de plataforma.
+
+- **Nike e Politiet:** Em outubro de 2022, o Gartner destacou que as plataformas nessas organizações permitiram respostas mais rápidas a mudanças, aceleração do tempo de lançamento no mercado e inovação mais rápida.
+
+- **Outras Empresas (Generalizado):** Empresas que adotam engenharia de plataforma podem ter equipes com menos de 20 pessoas, suportando milhares de desenvolvedores e centenas de projetos. Elas relatam reduções significativas no tempo de lançamento de novos produtos digitais (até 50%) e no tempo gasto em tarefas de configuração e manutenção (até 30%).
+
+
+
+
+
