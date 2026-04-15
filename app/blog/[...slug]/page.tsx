@@ -3,7 +3,7 @@ import 'katex/dist/katex.css'
 
 import { components } from '@/components/MDXComponents'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
-import { coreContent } from 'pliny/utils/contentlayer'
+import { coreContent } from 'pliny/utils/contentlayer.js'
 import { allAuthors } from '.contentlayer/generated'
 import type { Authors, Blog } from '.contentlayer/generated'
 import PostSimple from '@/layouts/PostSimple'

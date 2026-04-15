@@ -1,5 +1,5 @@
 import { allBlogs, type Blog } from 'contentlayer/generated'
-import { allCoreContent, sortPosts, type CoreContent } from 'pliny/utils/contentlayer'
+import { allCoreContent, sortPosts, type CoreContent } from 'pliny/utils/contentlayer.js'
 
 export type PostSummary = CoreContent<Blog>
 export type FullPost = Blog
