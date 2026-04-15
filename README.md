@@ -26,7 +26,7 @@ Principais temas abordados:
 
 **Pré-requisitos:**
 - Node.js 22.x ou superior
-- npm ou yarn
+- npm
 
 **Clone o repositório:**
 ```bash
@@ -37,8 +37,6 @@ cd nataliagranato.github.io
 **Instale as dependências:**
 ```bash
 npm install
-# ou
-yarn install
 ```
 
 **Configuração de ambiente:**
@@ -49,8 +47,6 @@ yarn install
 **Inicie o servidor de desenvolvimento:**
 ```bash
 npm run dev
-# ou
-yarn dev
 ```
 
 Abra [http://localhost:3000](http://localhost:3000) no navegador.

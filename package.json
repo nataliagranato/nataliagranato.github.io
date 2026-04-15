@@ -65,7 +65,7 @@
     "lint-staged": "^15.2.11",
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.6.9",
-    "typescript": "^5.8.3"
+    "typescript": "^6.0.0"
   },
   "resolutions": {
     "brace-expansion": "2.0.2",
@@ -82,5 +82,5 @@
       "prettier --write"
     ]
   },
-  "packageManager": "yarn@3.6.1"
+  "packageManager": "npm@11.6.2"
 }

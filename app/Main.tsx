@@ -2,7 +2,7 @@ import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
 import { formatDate } from 'pliny/utils/formatDate.js'
-import NewsletterForm from 'pliny/ui/NewsletterForm'
+import NewsletterForm from 'pliny/ui/NewsletterForm.js'
 
 const MAX_DISPLAY = 5
 
