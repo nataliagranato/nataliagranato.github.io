@@ -1,0 +1,45 @@
+name: Newsletter
+
+# Dispara depois que a Vercel marca o deploy de produção como sucesso.
+# O workflow precisa estar na branch padrão para receber deployment_status.
+# O cron diário em vercel.json é a rede de segurança se este evento não chegar.
+on:
+  deployment_status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Avisar assinantes sobre posts novos
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          STATUS_ENVIRONMENT: ${{ github.event.deployment_status.environment }}
+          DEPLOY_ENVIRONMENT: ${{ github.event.deployment.environment }}
+          NEWSLETTER_PUBLISH_SECRET: ${{ secrets.NEWSLETTER_PUBLISH_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" != "workflow_dispatch" ]; then
+            combined=$(printf '%s %s' "$STATUS_ENVIRONMENT" "$DEPLOY_ENVIRONMENT" | tr '[:upper:]' '[:lower:]')
+            case "$combined" in
+              *production*) ;;
+              *)
+                echo "Ambiente ignorado: ${combined}"
+                exit 0
+                ;;
+            esac
+          fi
+          if [ -z "${NEWSLETTER_PUBLISH_SECRET}" ]; then
+            echo "Crie o secret NEWSLETTER_PUBLISH_SECRET no repositório."
+            exit 1
+          fi
+          curl --fail-with-body -sS -X POST "https://nataliagranato.xyz/api/newsletter/publish" \
+            -H "Authorization: Bearer ${NEWSLETTER_PUBLISH_SECRET}" \
+            -H "Content-Type: application/json" \
+            --retry 5 \
+            --retry-delay 20 \
+            --retry-all-errors

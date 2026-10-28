@@ -15,13 +15,9 @@ import { notFound } from 'next/navigation'
 import { getCachedPost, getCachedPosts } from '@/lib/blogCache'
 
 // Interface para estrutura de dados JSON-LD
-interface JsonLdPerson {
-  '@type': 'Person'
-  name: string
-}
-
 interface JsonLdStructuredData {
-  author?: JsonLdPerson | JsonLdPerson[]
+  author?: unknown
+  image?: unknown
   [key: string]: unknown
 }
 
@@ -66,19 +62,23 @@ export async function generateMetadata({
       url: img.includes('http') ? img : siteMetadata.siteUrl + img,
     }
   })
+  const canonical = post.canonicalUrl || `${siteMetadata.siteUrl}/blog/${post.slug}`
 
   return {
     title: post.title,
     description: post.summary,
+    alternates: {
+      canonical,
+    },
     openGraph: {
       title: post.title,
       description: post.summary,
       siteName: siteMetadata.title,
-      locale: 'en_US',
+      locale: 'pt_BR',
       type: 'article',
       publishedTime: publishedAt,
       modifiedTime: modifiedAt,
-      url: './',
+      url: canonical,
       images: ogImages,
       authors: authors.length > 0 ? authors : [siteMetadata.author],
     },
@@ -86,7 +86,9 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title: post.title,
       description: post.summary,
-      images: imageList,
+      images: ogImages.map((img) => img.url),
+      creator: '@granatowp',
+      site: '@granatowp',
     },
   }
 }
@@ -134,11 +136,33 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
   const mainContent = coreContent(blogPost)
   const jsonLd: JsonLdStructuredData = blogPost.structuredData || {}
 
+  const canonical = `${siteMetadata.siteUrl}/blog/${slug}`
   if (typeof jsonLd === 'object' && jsonLd !== null) {
+    jsonLd['@context'] = 'https://schema.org'
+    jsonLd['@type'] = 'BlogPosting'
+    jsonLd.headline = blogPost.title
+    jsonLd.description = blogPost.summary
+    jsonLd.datePublished = blogPost.date
+    jsonLd.dateModified = blogPost.lastmod || blogPost.date
+    jsonLd.inLanguage = 'pt-BR'
+    jsonLd.url = canonical
+    jsonLd.mainEntityOfPage = {
+      '@type': 'WebPage',
+      '@id': canonical,
+    }
     jsonLd.author = authorDetails.map((author) => ({
       '@type': 'Person',
       name: author.name,
+      url: `${siteMetadata.siteUrl}/about`,
     }))
+    jsonLd.publisher = {
+      '@type': 'Person',
+      name: siteMetadata.author,
+      url: `${siteMetadata.siteUrl}/about`,
+    }
+    if (typeof jsonLd.image === 'string' && !jsonLd.image.startsWith('http')) {
+      jsonLd.image = `${siteMetadata.siteUrl}${jsonLd.image}`
+    }
   }
 
   const Layout = layouts[blogPost.layout || defaultLayout]
@@ -153,7 +177,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
         {blogPost.body?.code ? (
           <MDXLayoutRenderer code={blogPost.body.code} components={components} toc={blogPost.toc} />
         ) : (
-          <div>No content available</div>
+          <div>Conteúdo indisponível</div>
         )}
       </Layout>
     </>

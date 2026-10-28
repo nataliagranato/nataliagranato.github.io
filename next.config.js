@@ -99,6 +99,16 @@ const nextConfig = {
       },
     ]
   },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.nataliagranato.xyz' }],
+        destination: 'https://nataliagranato.xyz/:path*',
+        permanent: true,
+      },
+    ]
+  },
   webpack: (config, options) => {
     config.module.rules.push({
       test: /\.svg$/,

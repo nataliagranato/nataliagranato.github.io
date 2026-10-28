@@ -10,13 +10,13 @@ const tagData = JSON.parse(readFileSync('./app/tag-data.json', 'utf8'))
 
 const generateRssItem = (config, post) => `
   <item>
-    <guid>${config.siteUrl}/blog/${post.slug}</guid>
+    <guid isPermaLink="true">${config.siteUrl}/blog/${post.slug}</guid>
     <title>${escape(post.title)}</title>
     <link>${config.siteUrl}/blog/${post.slug}</link>
-    ${post.summary && `<description>${escape(post.summary)}</description>`}
+    <description>${escape(post.summary || post.title)}</description>
     <pubDate>${new Date(post.date).toUTCString()}</pubDate>
     <author>${config.email} (${config.author})</author>
-    ${post.tags && post.tags.map((t) => `<category>${t}</category>`).join('')}
+    ${post.tags && post.tags.map((t) => `<category>${escape(t)}</category>`).join('')}
   </item>
 `
 
@@ -26,10 +26,10 @@ const generateRss = (config, posts, page = 'feed.xml') => `
       <title>${escape(config.title)}</title>
       <link>${config.siteUrl}/blog</link>
       <description>${escape(config.description)}</description>
-      <language>${config.language}</language>
+      <language>${config.language === 'pt-br' ? 'pt-BR' : config.language}</language>
       <managingEditor>${config.email} (${config.author})</managingEditor>
       <webMaster>${config.email} (${config.author})</webMaster>
-      <lastBuildDate>${new Date(posts[0].date).toUTCString()}</lastBuildDate>
+      <lastBuildDate>${new Date(posts[0]?.date || Date.now()).toUTCString()}</lastBuildDate>
       <atom:link href="${config.siteUrl}/${page}" rel="self" type="application/rss+xml"/>
       ${posts.map((post) => generateRssItem(config, post)).join('')}
     </channel>
@@ -46,10 +46,11 @@ async function generateRSS(config, allBlogs, page = 'feed.xml') {
 
   if (publishPosts.length > 0) {
     for (const tag of Object.keys(tagData)) {
-      const filteredPosts = allBlogs.filter((post) =>
-        post.tags.map((t) => githubSlug(t)).includes(tag)
+      const filteredPosts = publishPosts.filter((post) =>
+        (post.tags || []).map((t) => githubSlug(t)).includes(tag)
       )
-      const rss = generateRss(config, filteredPosts, `tags/${tag}/${page}`)
+      if (filteredPosts.length === 0) continue
+      const rss = generateRss(config, sortPosts(filteredPosts), `tags/${tag}/${page}`)
       const rssPath = path.join('public', 'tags', tag)
       mkdirSync(rssPath, { recursive: true })
       writeFileSync(path.join(rssPath, page), rss)

@@ -4,7 +4,7 @@ const siteMetadata = {
   author: 'Natália Granato',
   headerTitle: 'GranatoBlog',
   description: 'Sempre aprendendo sobre Cloud Native, Kubernetes e Observability.',
-  language: 'pt-br',
+  language: 'pt-BR',
   theme: 'system', // system, dark or light
   siteUrl: 'https://nataliagranato.xyz',
   siteRepo: 'https://github.com/nataliagranato/nataliagranato.github.io',
@@ -13,13 +13,12 @@ const siteMetadata = {
   mastodon: 'https://bolha.us/@nataliagranato',
   email: 'contato@nataliagranato.xyz',
   github: 'https://github.com/nataliagranato',
-  twitter: 'https://twitter.com/Twitter',
+  twitter: 'https://x.com/granatowp',
   facebook: 'https://facebook.com/nataliagranato',
-  youtube: 'https://youtube.com',
   linkedin: 'https://www.linkedin.com/in/nataliagranato/',
   threads: 'https://www.threads.net/granatowp',
   instagram: 'https://www.instagram.com/granatowp',
-  locale: 'en-US',
+  locale: 'pt-BR',
   analytics: {
     // If you want to use an analytics provider you have to add it to the
     // content security policy in the `next.config.js` file.
@@ -40,9 +39,9 @@ const siteMetadata = {
     // },
   },
   newsletter: {
-    // supports mailchimp, buttondown, convertkit, klaviyo, revue, emailoctopus
-    // Please add your .env file and modify it according to your selection
-    provider: 'buttondown',
+    // Assinatura própria: formulário, double opt-in e envio por SMTP.
+    // Armazenamento em Vercel Blob. Veja a seção Newsletter do README.
+    provider: 'self',
   },
   comments: {
     // If you want to use an analytics provider you have to add it to the
@@ -71,7 +70,7 @@ const siteMetadata = {
       // example: https://giscus.app/themes/custom_example.css
       themeURL: '',
       // This corresponds to the `data-lang="en"` in giscus's configurations
-      lang: 'en',
+      lang: 'pt',
     },
   },
   search: {

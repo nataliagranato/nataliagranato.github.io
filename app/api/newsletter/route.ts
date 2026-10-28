@@ -1,9 +1,32 @@
-import { NewsletterAPI } from 'pliny/newsletter/index.js'
-import siteMetadata from '@/data/siteMetadata'
+import { clientIp, subscribe } from '@/lib/newsletter/service.mjs'
 
-const handler = NewsletterAPI({
-  // @ts-ignore
-  provider: siteMetadata.newsletter.provider,
-})
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
-export { handler as GET, handler as POST }
+export async function POST(request: Request) {
+  let payload: { email?: string; company?: string } = {}
+  const contentType = request.headers.get('content-type') || ''
+  try {
+    if (contentType.includes('application/json')) {
+      payload = await request.json()
+    } else {
+      const form = await request.formData()
+      payload = {
+        email: String(form.get('email') || ''),
+        company: String(form.get('company') || ''),
+      }
+    }
+  } catch {
+    return Response.json({ ok: false, message: 'Pedido inválido.' }, { status: 400 })
+  }
+
+  const result = await subscribe({
+    email: payload.email,
+    honeypot: payload.company,
+    ip: clientIp(request),
+  })
+  return Response.json(result.body, {
+    status: result.status,
+    headers: { 'Cache-Control': 'no-store' },
+  })
+}

@@ -62,6 +62,14 @@ function createTagCount(allBlogs) {
   writeFileSync('./app/tag-data.json', JSON.stringify(tagCount))
 }
 
+function absoluteUrl(value) {
+  if (!value) return `${siteMetadata.siteUrl}${siteMetadata.socialBanner}`
+  const image = Array.isArray(value) ? value[0] : value
+  if (!image) return `${siteMetadata.siteUrl}${siteMetadata.socialBanner}`
+  if (String(image).startsWith('http')) return image
+  return `${siteMetadata.siteUrl}${String(image).startsWith('/') ? '' : '/'}${image}`
+}
+
 function createSearchIndex(allBlogs) {
   if (
     siteMetadata?.search?.provider === 'kbar' &&
@@ -103,8 +111,23 @@ export const Blog = defineDocumentType(() => ({
         datePublished: doc.date,
         dateModified: doc.lastmod || doc.date,
         description: doc.summary,
-        image: doc.images ? doc.images[0] : siteMetadata.socialBanner,
+        image: absoluteUrl(doc.images),
+        inLanguage: 'pt-BR',
         url: `${siteMetadata.siteUrl}/${doc._raw.flattenedPath}`,
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': `${siteMetadata.siteUrl}/${doc._raw.flattenedPath}`,
+        },
+        author: {
+          '@type': 'Person',
+          name: siteMetadata.author,
+          url: `${siteMetadata.siteUrl}/about`,
+        },
+        publisher: {
+          '@type': 'Person',
+          name: siteMetadata.author,
+          url: `${siteMetadata.siteUrl}/about`,
+        },
       }),
     },
   },

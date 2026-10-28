@@ -37,6 +37,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# newsletter local (assinantes de desenvolvimento)
+.data/
+
 # local env files
 .env.local
 .env.development.local
