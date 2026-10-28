@@ -1,7 +1,4 @@
-import { mkdtemp, rm } from 'node:fs/promises'
 import net from 'node:net'
-import os from 'node:os'
-import path from 'node:path'
 
 function assert(condition, message) {
   if (!condition) {
@@ -92,10 +89,8 @@ function tokenFrom(raw, kind) {
 }
 
 async function main() {
-  const dir = await mkdtemp(path.join(os.tmpdir(), 'tech-preta-newsletter-'))
   const smtp = await startSmtp()
-  process.env.NEWSLETTER_STORE = 'file'
-  process.env.NEWSLETTER_DATA_DIR = dir
+  process.env.REDIS_URL = 'redis://127.0.0.1:6379'
   process.env.NEWSLETTER_SECRET = 'teste-local-newsletter-secret'
   process.env.NEWSLETTER_PUBLISH_SECRET = 'teste-local-publish-secret'
   process.env.SMTP_HOST = '127.0.0.1'
@@ -110,6 +105,8 @@ async function main() {
 
   const { subscribe, confirmSubscription, unsubscribe, publishNewPosts, authorizePublish } =
     await import('../lib/newsletter/service.mjs')
+  const { clearNewsletterKeys } = await import('../lib/newsletter/store.mjs')
+  await clearNewsletterKeys()
 
   try {
     const honeypot = await subscribe({
@@ -277,7 +274,9 @@ async function main() {
     console.log('Newsletter local OK')
   } finally {
     await new Promise((resolve) => smtp.server.close(resolve))
-    await rm(dir, { recursive: true, force: true })
+    const { clearNewsletterKeys, closeRedis } = await import('../lib/newsletter/store.mjs')
+    await clearNewsletterKeys()
+    await closeRedis()
   }
 }
 

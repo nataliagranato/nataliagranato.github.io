@@ -145,35 +145,33 @@ sequenceDiagram
 
 A newsletter é própria do site: não usa Mailchimp, Buttondown, Resend nem Substack. O formulário em português fica na página inicial e no final de cada post. A inscrição só vale depois do clique no e-mail de confirmação (double opt-in). Todo e-mail leva um link de cancelamento em um clique e os cabeçalhos `List-Unsubscribe` e `List-Unsubscribe-Post`.
 
-Os assinantes ficam num **Vercel Blob privado**. É o armazenamento nativo da Vercel e só adiciona a dependência `@vercel/blob`. Um banco Postgres ou Redis do Marketplace serviria, mas a lista é um conjunto pequeno de documentos JSON; Blob evita provisionar outro serviço, outra conta e mais variáveis. Cada assinante e cada post já enviado são um objeto separado, então duas inscrições ao mesmo tempo não se apagam. Em desenvolvimento, sem token de Blob, os mesmos arquivos vão para `.data/newsletter` (ou `NEWSLETTER_DATA_DIR`).
+Os assinantes, o limite de tentativas e o registro do que já foi enviado ficam no **Redis** que o projeto já tem, via `REDIS_URL` (`redis://...` do Marketplace). O cliente é o pacote `redis`, reaproveitado entre invocações da mesma instância. Todas as chaves começam com `newsletter:` para não esbarrar no resto dos dados. Cada assinante e cada post já enviado são uma chave própria; `SET NX` impede que duas execuções mandem o mesmo post.
 
 O envio usa SMTP com Nodemailer (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`), inclusive com senha de app do Gmail.
 
 ### Variáveis de ambiente
 
-Defina na Vercel em **Project → Settings → Environment Variables**, no ambiente Production. Para testar na máquina, copie `.env.example` para `.env.local`.
+Defina na Vercel em **Project → Settings → Environment Variables** nos ambientes **Production e Preview**. Para testar na máquina, copie `.env.example` para `.env.local` e suba um Redis local.
 
-| Variável                                   | Obrigatória em produção | Função                                                                                                                 |
-| ------------------------------------------ | ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `SMTP_HOST`                                | sim                     | Servidor SMTP. No Gmail: `smtp.gmail.com`.                                                                             |
-| `SMTP_PORT`                                | sim                     | `587` (STARTTLS) ou `465` (TLS).                                                                                       |
-| `SMTP_SECURE`                              | não                     | `true` na porta 465. `false` na 587. Se vazia, `true` só quando a porta é 465.                                         |
-| `SMTP_USER`                                | sim                     | Usuário da caixa de e-mail.                                                                                            |
-| `SMTP_PASS`                                | sim                     | Senha ou senha de app.                                                                                                 |
-| `SMTP_REQUIRE_TLS`                         | não                     | `true` para exigir STARTTLS na porta 587.                                                                              |
-| `MAIL_FROM`                                | sim                     | Remetente, por exemplo `Tech Preta <contato@nataliagranato.xyz>`. No Gmail, use o mesmo endereço da conta ou um alias. |
-| `NEWSLETTER_SECRET`                        | sim                     | Segredo para assinar os links de confirmação e cancelamento. Mínimo de 16 caracteres. `openssl rand -base64 32`.       |
-| `NEWSLETTER_PUBLISH_SECRET`                | sim                     | Protege `POST /api/newsletter/publish`. O GitHub Actions envia este valor.                                             |
-| `CRON_SECRET`                              | sim                     | A Vercel envia `Authorization: Bearer <CRON_SECRET>` no cron. Pode ser outro valor, também aceito pela rota.           |
-| `BLOB_READ_WRITE_TOKEN` ou `BLOB_STORE_ID` | sim                     | Criados ao conectar o Blob store. Não inventar o valor à mão.                                                          |
-| `NEWSLETTER_STORE`                         | não                     | `file` força disco local. Não use em produção.                                                                         |
-| `NEWSLETTER_DATA_DIR`                      | não                     | Pasta do modo arquivo. Padrão: `.data/newsletter`.                                                                     |
-| `SITE_URL`                                 | não                     | Só para testes. O endereço canônico do site é `https://nataliagranato.xyz`.                                            |
+| Variável                    | Obrigatória em Production e Preview | Função                                                                                                                 |
+| --------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `REDIS_URL`                 | sim                                 | URL `redis://` do Redis do Marketplace. Já deve existir no projeto. Local: `redis://127.0.0.1:6379`.                   |
+| `SMTP_HOST`                 | sim                                 | Servidor SMTP. No Gmail: `smtp.gmail.com`.                                                                             |
+| `SMTP_PORT`                 | sim                                 | `587` (STARTTLS) ou `465` (TLS).                                                                                       |
+| `SMTP_SECURE`               | não                                 | `true` na porta 465. `false` na 587. Se vazia, `true` só quando a porta é 465.                                         |
+| `SMTP_USER`                 | sim                                 | Usuário da caixa de e-mail.                                                                                            |
+| `SMTP_PASS`                 | sim                                 | Senha ou senha de app.                                                                                                 |
+| `SMTP_REQUIRE_TLS`          | não                                 | `true` para exigir STARTTLS na porta 587.                                                                              |
+| `MAIL_FROM`                 | sim                                 | Remetente, por exemplo `Tech Preta <contato@nataliagranato.xyz>`. No Gmail, use o mesmo endereço da conta ou um alias. |
+| `NEWSLETTER_SECRET`         | sim                                 | Segredo para assinar os links de confirmação e cancelamento. Mínimo de 16 caracteres. `openssl rand -base64 32`.       |
+| `NEWSLETTER_PUBLISH_SECRET` | sim                                 | Protege `POST /api/newsletter/publish`. O GitHub Actions envia este valor.                                             |
+| `CRON_SECRET`               | sim                                 | A Vercel envia `Authorization: Bearer <CRON_SECRET>` no cron. Pode ser outro valor, também aceito pela rota.           |
+| `SITE_URL`                  | não                                 | Só para testes. O endereço canônico do site é `https://nataliagranato.xyz`.                                            |
 
 ### Passos na Vercel
 
-1. No projeto, abra **Storage → Create → Blob**. Crie um store **privado** e conecte a este projeto. O token (`BLOB_READ_WRITE_TOKEN`) ou o `BLOB_STORE_ID` com OIDC entra nas variáveis sozinho.
-2. Preencha as variáveis SMTP e os dois segredos da tabela acima no ambiente **Production** e faça um novo deploy.
+1. Confira que `REDIS_URL` está preenchida em **Production e Preview** (Redis do Marketplace já conectado). Não é preciso criar Blob.
+2. Preencha as variáveis SMTP e os segredos da tabela acima nos dois ambientes, **Production e Preview**, e faça um novo deploy.
 3. No Gmail: conta Google → Segurança → verificação em duas etapas → Senhas de app. Use essa senha em `SMTP_PASS` e o e-mail da conta em `SMTP_USER`.
 4. Confirme o domínio apex `nataliagranato.xyz` como domínio de produção. Se `www.nataliagranato.xyz` também estiver no projeto, o `vercel.json` e o `next.config.js` redirecionam www para o apex. O canônico das páginas é sempre `https://nataliagranato.xyz`.
 5. No GitHub, em **Settings → Secrets and variables → Actions**, crie `NEWSLETTER_PUBLISH_SECRET` com o mesmo valor da Vercel. O workflow `.github/workflows/newsletter.yml` só recebe `deployment_status` depois que este arquivo está na branch `main`.
@@ -187,9 +185,10 @@ curl -X POST https://nataliagranato.xyz/api/newsletter/publish \
 
 O cron da Vercel usa `GET` com `CRON_SECRET`. A rota aceita os dois.
 
-Teste local, com um servidor SMTP de captura e armazenamento em disco:
+Teste local, com Redis em `127.0.0.1:6379` e um servidor SMTP de captura. Os scripts só falam com esse Redis local e apagam as chaves `newsletter:*` ao terminar.
 
 ```bash
+redis-server --daemonize yes --port 6379 --bind 127.0.0.1 --protected-mode yes
 npm run newsletter:test
 npm run build && node scripts/newsletter-http-e2e.mjs
 ```

@@ -1,8 +1,5 @@
-import { mkdtemp, rm } from 'node:fs/promises'
 import http from 'node:http'
 import net from 'node:net'
-import os from 'node:os'
-import path from 'node:path'
 import { spawn } from 'node:child_process'
 
 function assert(condition, message) {
@@ -108,7 +105,9 @@ async function waitForServer(url) {
 }
 
 async function main() {
-  const dir = await mkdtemp(path.join(os.tmpdir(), 'tech-preta-http-'))
+  process.env.REDIS_URL = 'redis://127.0.0.1:6379'
+  const { clearNewsletterKeys } = await import('../lib/newsletter/store.mjs')
+  await clearNewsletterKeys()
   const smtp = await startSmtp()
   const port = 3456
   const base = `http://127.0.0.1:${port}`
@@ -117,8 +116,7 @@ async function main() {
     detached: true,
     env: {
       ...process.env,
-      NEWSLETTER_STORE: 'file',
-      NEWSLETTER_DATA_DIR: dir,
+      REDIS_URL: 'redis://127.0.0.1:6379',
       NEWSLETTER_SECRET: 'teste-local-newsletter-secret',
       NEWSLETTER_PUBLISH_SECRET: 'teste-local-publish-secret',
       CRON_SECRET: 'teste-local-cron-secret',
@@ -150,7 +148,10 @@ async function main() {
     assert(homeHtml.includes('Últimos posts'), 'título da home')
     assert(homeHtml.includes('Quero assinar'), 'formulário na home')
     assert(homeHtml.includes('"@type":"WebSite"'), 'JSON-LD WebSite')
-    assert(homeHtml.includes('og:locale" content="pt_BR"') || homeHtml.includes('og:locale'), 'og:locale')
+    assert(
+      homeHtml.includes('og:locale" content="pt_BR"') || homeHtml.includes('og:locale'),
+      'og:locale'
+    )
 
     const robots = await (await fetch(`${base}/robots.txt`)).text()
     assert(robots.includes('User-Agent: GPTBot'), 'robots GPTBot')
@@ -260,7 +261,9 @@ async function main() {
       child.kill('SIGTERM')
     }
     await new Promise((resolve) => smtp.server.close(resolve))
-    await rm(dir, { recursive: true, force: true })
+    const { clearNewsletterKeys, closeRedis } = await import('../lib/newsletter/store.mjs')
+    await clearNewsletterKeys()
+    await closeRedis()
   }
 }
 
