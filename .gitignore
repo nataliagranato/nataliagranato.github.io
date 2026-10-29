@@ -46,8 +46,5 @@ yarn-error.log*
 # Contentlayer
 .contentlayer
 
-# Sentry Config File
-.env.sentry-build-plugin
-
 # VS Code MCP Configuration
 .vscode/mcp.json

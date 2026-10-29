@@ -5,20 +5,12 @@ Todas as mudanças notáveis ​​neste projeto serão documentadas neste arqui
 O formato é baseado em [Mantenha um Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
 e este projeto adere a [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
-<!--
-## [Unreleased] - yyyy-mm-dd
+## [Unreleased]
 
-Here we write upgrading notes for brands. It's a team effort to make them as
-straightforward as possible.
+### Removed
+- SDK legado de monitoramento de erros de terceiros, páginas de exemplo e de teste, instrumentação de runtime e documentação associada
+- Variáveis de ambiente e o wrapper de build desse monitoramento
 
-### Added
-
-### Changed
-
-### Fixed
-
-### Breaking Changes
--->
 ## [2.2.3] - 2026-03-21
 
 ### Added
@@ -54,18 +46,8 @@ straightforward as possible.
   - **Note**: The major upgrade to Next.js 16.1.1 was performed to ensure extended security coverage and access to latest stable improvements; the CVE could have been addressed with 15.5.7+, but v16 provides better long-term security and performance stability
 
 ### Changed
-- **Sentry SDK**: Enhanced monitoring configuration
-  - Added `browserTracingIntegration()` for improved performance monitoring
-  - Enabled `sendDefaultPii: true` for better error context
-  - Added `tracePropagationTargets` for distributed tracing control
-  - Enabled `enableLogs: true` for automatic log capture
-  - Updated test component with new `Sentry.logger` and `Sentry.metrics` APIs
-  - Added metrics testing (count, gauge, distribution) in test UI
-
 - **Next.js Configuration**: Removed deprecated settings
   - Removed `eslint.dirs` configuration (deprecated in Next.js 16)
-  - Updated Sentry config to use `webpack.treeshake.removeDebugLogging` instead of `disableLogger`
-  - Updated Sentry config to use `webpack.automaticVercelMonitors` in new structure
   - Removed obsolete OpenTelemetry resolutions to fix runtime conflicts
 
 ### Removed
@@ -95,7 +77,7 @@ straightforward as possible.
   - Minimum Node.js version requirement: 22.x (ensure your environment is updated)
   - React 19.2.3+ is now required (App Router functionality)
   - Build system improvements: updated webpack configuration in `next.config.js` to support new build optimizations
-  - Edge Runtime updates: Sentry edge configuration adjusted to align with Next.js 16 middleware API changes (`sentry.edge.config.ts`)
+  - Edge Runtime updates aligned with Next.js 16 middleware API changes
   - Static page generation: Some routes may require re-validation; ensure `npm run build` passes locally to validate Contentlayer integration
 - **Action Items**:
   - Run `npm install` to update all dependencies
@@ -117,28 +99,22 @@ straightforward as possible.
 ## [2.2.0] - 2025-09-24
 
 ### Added
-- Integração completa com Sentry para monitoramento de erros e performance (frontend, backend e edge)
-- Logging avançado via Sentry, incluindo captura automática de logs do console
-- Widget de feedback do usuário integrado
-- Upload automático de source maps para debugging em produção
+- Integração de monitoramento de erros e performance (frontend, backend e edge), removida depois
+- Logging de console, widget de feedback e upload de source maps, removidos depois
 - Configuração multi-runtime para Next.js (Server, Client e Edge)
-- Página de teste para erros e feedback (`/test-sentry`)
-- Documentação detalhada sobre variáveis de ambiente, recomendações de produção e exemplos de uso ([docs/SENTRY_CONFIG.md](docs/SENTRY_CONFIG.md))
-- Utilitários para controle de sampling, logs e debug por ambiente
+- Página de teste para erros e feedback, removida depois
+- Documentação de variáveis de ambiente e exemplos de uso, removida depois
+- Utilitários para controle de sampling, logs e debug por ambiente, removidos depois
 
 ### Changed
-- Atualização do README com instruções de configuração do Sentry
+- Atualização do README com instruções de configuração de monitoramento, removidas depois
 - Adição de headers personalizados para monitoramento externo
 
 ### Fixed
 - Melhor tratamento de erros globais e integração com a página padrão do Next.js
 
 ### Notes
-- Para produção, recomenda-se configurar sampling rate em 0.05, desabilitar logs e debug via variáveis de ambiente.
-- Página de teste do Sentry protegida para ambientes de produção.
-
-Para detalhes completos dos commits e arquivos alterados, acesse:
-[Busca por Sentry no código](https://github.com/nataliagranato/nataliagranato.github.io/search?q=Sentry)
+- A página de teste ficava protegida em produção. A integração foi removida por completo.
 
 ## v2.1.0 - 2025-09-02
 

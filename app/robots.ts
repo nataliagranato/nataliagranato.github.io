@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import siteMetadata from '@/data/siteMetadata'
 
-const privatePaths = ['/api/', '/test-sentry', '/sentry-example-page', '/monitoring']
+const privatePaths = ['/api/']
 
 const agents = [
   '*',

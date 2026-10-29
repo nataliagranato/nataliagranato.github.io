@@ -74,9 +74,6 @@ const monitoringHeaders = [
   },
 ]
 
-// Injected content via Sentry wizard below
-const { withSentryConfig } = require('@sentry/nextjs')
-
 /**
  * @type {import('next/dist/next-server/server/config').NextConfig}
  **/
@@ -121,38 +118,4 @@ const nextConfig = {
 
 // Apply plugins in sequence
 const plugins = [withContentlayer, withBundleAnalyzer]
-const configWithPlugins = plugins.reduce((acc, next) => next(acc), nextConfig)
-
-// Apply Sentry configuration
-module.exports = withSentryConfig(configWithPlugins, {
-  // For all available options, see:
-  // https://www.npmjs.com/package/@sentry/webpack-plugin#options
-
-  org: process.env.SENTRY_ORG || 'nataliagranato',
-  project: process.env.SENTRY_PROJECT || 'nataliagranato-xyz',
-
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
-
-  // For all available options, see:
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  widenClientFileUpload: true,
-
-  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  // This can increase your server load as well as your hosting bill.
-  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
-  // side errors will fail.
-  tunnelRoute: '/monitoring',
-
-  // Webpack configuration for Sentry
-  webpack: {
-    // Automatically tree-shake Sentry logger statements to reduce bundle size
-    treeshake: {
-      removeDebugLogging: true,
-    },
-    // Enables automatic instrumentation of Vercel Cron Monitors
-    automaticVercelMonitors: true,
-  },
-})
+module.exports = plugins.reduce((acc, next) => next(acc), nextConfig)
