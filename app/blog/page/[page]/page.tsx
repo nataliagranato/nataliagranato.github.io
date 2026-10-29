@@ -1,5 +1,7 @@
 import ListLayout from '@/layouts/ListLayoutWithTags'
 import { getCachedPagedPosts, getCachedPosts } from '@/lib/blogCache'
+import { genPageMetadata } from 'app/seo'
+import { Metadata } from 'next'
 
 const POSTS_PER_PAGE = 5
 
@@ -9,6 +11,20 @@ export const generateStaticParams = async () => {
   const paths = Array.from({ length: totalPages }, (_, i) => ({ page: (i + 1).toString() }))
 
   return paths
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ page: string }>
+}): Promise<Metadata> {
+  const { page } = await params
+  return genPageMetadata({
+    title: `Blog — página ${page}`,
+    description:
+      'Posts sobre Cloud Native, Kubernetes, observabilidade e engenharia de plataforma.',
+    path: `/blog/page/${page}`,
+  })
 }
 
 export default async function Page({ params }: { params: Promise<{ page: string }> }) {
@@ -24,7 +40,7 @@ export default async function Page({ params }: { params: Promise<{ page: string 
       posts={allPosts}
       initialDisplayPosts={initialDisplayPosts}
       pagination={pagination}
-      title="All Posts"
+      title="Todos os posts"
     />
   )
 }

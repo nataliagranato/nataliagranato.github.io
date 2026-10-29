@@ -8,5 +8,19 @@
     }
   },
   "installCommand": "npm install",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "crons": [
+    {
+      "path": "/api/newsletter/publish",
+      "schedule": "15 13 * * *"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.nataliagranato.xyz" }],
+      "destination": "https://nataliagranato.xyz/:path*",
+      "permanent": true
+    }
+  ]
 }
