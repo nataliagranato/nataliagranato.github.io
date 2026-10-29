@@ -167,4 +167,4 @@ print(f"Header-Value: {response.headers.get('Header-Value')}")
 ### Performance Issues
 - Use `type=basic` para checks mais rápidos
 - Implemente cache se necessário
-- Monitore os logs do Sentry para erros
+- Monitore os logs do servidor para erros
