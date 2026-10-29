@@ -8,7 +8,8 @@
   "scripts": {
     "start": "next dev",
     "dev": "cross-env INIT_CWD=$PWD next dev",
-    "build": "cross-env INIT_CWD=$PWD next build --webpack && cross-env NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
+    "build": "node ./scripts/patch-contentlayer-otel.mjs && cross-env INIT_CWD=$PWD next build --webpack && cross-env NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
+    "postinstall": "node ./scripts/patch-contentlayer-otel.mjs",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
     "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts",
@@ -52,7 +53,6 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@svgr/webpack": "^8.0.1",
     "@types/mdx": "^2.0.5",
     "@types/node": "^25.0.3",
     "@types/react": "^19.0.1",
@@ -122,6 +122,38 @@
     },
     "sucrase": {
       "brace-expansion": "2.1.7"
+    },
+    "contentlayer2": {
+      "zod": "4.6.7",
+      "@opentelemetry/core": "2.9.0",
+      "@opentelemetry/propagator-jaeger": "2.9.0",
+      "@opentelemetry/propagator-b3": "2.9.0",
+      "@opentelemetry/resources": "2.9.0",
+      "@opentelemetry/sdk-trace": "2.9.0",
+      "@opentelemetry/sdk-trace-base": "2.9.0",
+      "@opentelemetry/sdk-trace-node": "2.9.0",
+      "@opentelemetry/context-async-hooks": "2.9.0",
+      "@opentelemetry/sdk-metrics": "2.9.0",
+      "@opentelemetry/exporter-trace-otlp-grpc": "0.220.0",
+      "@opentelemetry/otlp-exporter-base": "0.220.0",
+      "@opentelemetry/otlp-grpc-exporter-base": "0.220.0",
+      "@opentelemetry/otlp-transformer": "0.220.0"
+    },
+    "next-contentlayer2": {
+      "zod": "4.6.7",
+      "@opentelemetry/core": "2.9.0",
+      "@opentelemetry/propagator-jaeger": "2.9.0",
+      "@opentelemetry/propagator-b3": "2.9.0",
+      "@opentelemetry/resources": "2.9.0",
+      "@opentelemetry/sdk-trace": "2.9.0",
+      "@opentelemetry/sdk-trace-base": "2.9.0",
+      "@opentelemetry/sdk-trace-node": "2.9.0",
+      "@opentelemetry/context-async-hooks": "2.9.0",
+      "@opentelemetry/sdk-metrics": "2.9.0",
+      "@opentelemetry/exporter-trace-otlp-grpc": "0.220.0",
+      "@opentelemetry/otlp-exporter-base": "0.220.0",
+      "@opentelemetry/otlp-grpc-exporter-base": "0.220.0",
+      "@opentelemetry/otlp-transformer": "0.220.0"
     }
   },
   "lint-staged": {
