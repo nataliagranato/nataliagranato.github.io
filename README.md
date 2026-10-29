@@ -10,12 +10,12 @@ Site pessoal e blog de Natália Granato, focado em tecnologias Cloud Native, con
 
 ## Sobre o Projeto
 
-Este projeto utiliza [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/) e [Contentlayer](https://www.contentlayer.dev/), com analytics da Vercel e Umami.
+Este projeto utiliza [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/) e [Contentlayer](https://www.contentlayer.dev/), com Vercel Analytics.
 
 **Principais tecnologias:**
 
 - **Performance**: Contentlayer para processamento eficiente de conteúdo MDX
-- **Analytics**: Vercel Analytics e Umami
+- **Analytics**: Vercel Analytics
 - **Infraestrutura**: Deploy otimizado para Vercel
 
 Principais temas abordados:

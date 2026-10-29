@@ -2,7 +2,6 @@ import 'css/tailwind.css'
 import 'pliny/search/algolia.css'
 
 import { Space_Grotesk } from 'next/font/google'
-import { Analytics, AnalyticsConfig } from 'pliny/analytics/index.js'
 import { Analytics as VercelAnalytics } from '@vercel/analytics/next'
 import { SearchProvider, SearchConfig } from 'pliny/search/index.js'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -81,8 +80,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
       <body className="bg-white text-black antialiased dark:bg-gray-950 dark:text-white">
         <ThemeProviders>
-          <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
-          {/* Vercel Analytics for performance monitoring */}
           <VercelAnalytics />
           {/* Vercel Speed Insights for real user monitoring */}
           <SpeedInsights />
