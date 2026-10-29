@@ -47,10 +47,7 @@ export default function NewsletterForm() {
       >
         Newsletter
       </h2>
-      <p className="mt-2 text-gray-600 dark:text-gray-400">
-        Receba os posts novos do Tech Preta por e-mail. Sem spam: só quando sair um artigo, com
-        título, resumo e link.
-      </p>
+      <p className="mt-2 text-gray-600 dark:text-gray-400">Receba minhas postagens por e-mail.</p>
       <form onSubmit={onSubmit} className="relative mt-4 max-w-xl" noValidate>
         <div className="absolute -left-[10000px] h-px w-px overflow-hidden" aria-hidden="true">
           <label htmlFor={honeypotId}>Empresa</label>

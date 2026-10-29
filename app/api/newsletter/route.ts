@@ -20,13 +20,21 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, message: 'Pedido inválido.' }, { status: 400 })
   }
 
-  const result = await subscribe({
-    email: payload.email,
-    honeypot: payload.company,
-    ip: clientIp(request),
-  })
-  return Response.json(result.body, {
-    status: result.status,
-    headers: { 'Cache-Control': 'no-store' },
-  })
+  try {
+    const result = await subscribe({
+      email: payload.email,
+      honeypot: payload.company,
+      ip: clientIp(request),
+    })
+    return Response.json(result.body, {
+      status: result.status,
+      headers: { 'Cache-Control': 'no-store' },
+    })
+  } catch (error) {
+    console.error(error)
+    return Response.json(
+      { ok: false, message: 'Serviço indisponível no momento. Tente novamente em instantes.' },
+      { status: 503 }
+    )
+  }
 }

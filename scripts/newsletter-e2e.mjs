@@ -105,7 +105,7 @@ async function main() {
 
   const { subscribe, confirmSubscription, unsubscribe, publishNewPosts, authorizePublish } =
     await import('../lib/newsletter/service.mjs')
-  const { clearNewsletterKeys } = await import('../lib/newsletter/store.mjs')
+  const { clearNewsletterKeys, closeRedis, getRedis } = await import('../lib/newsletter/store.mjs')
   await clearNewsletterKeys()
 
   try {
@@ -144,7 +144,7 @@ async function main() {
     )
 
     const again = await subscribe({ email: 'leitora@example.com', ip: '203.0.113.13' })
-    assert(again.body.message.includes('já está confirmado'), 'assinante confirmado')
+    assert(again.body.message === 'Você está inscrito na Newsletter.', 'assinante confirmado')
     assert(smtp.messages.length === 1, 'não deve reenviar confirmação')
 
     const oldPosts = [
@@ -270,6 +270,21 @@ async function main() {
       })
     )
     assert(unauthorized === false && authorized === true, 'autorização do publish')
+
+    await closeRedis()
+    const badStarted = Date.now()
+    process.env.REDIS_URL = 'redis://redis-host-apagado.invalid:6379'
+    let redisFailed = false
+    try {
+      await getRedis()
+    } catch {
+      redisFailed = true
+    }
+    const redisElapsed = Date.now() - badStarted
+    assert(redisFailed, 'Redis inexistente deveria falhar')
+    assert(redisElapsed < 20000, `Redis inexistente demorou ${redisElapsed}ms`)
+    await closeRedis()
+    process.env.REDIS_URL = 'redis://127.0.0.1:6379'
 
     console.log('Newsletter local OK')
   } finally {
