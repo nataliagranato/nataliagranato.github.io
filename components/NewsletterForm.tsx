@@ -12,7 +12,8 @@ export default function NewsletterForm() {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const form = new FormData(event.currentTarget)
+    const formEl = event.currentTarget as HTMLFormElement
+    const form = new FormData(formEl)
     setStatus('loading')
     setMessage('')
     try {
@@ -32,7 +33,7 @@ export default function NewsletterForm() {
           : 'Não foi possível concluir a inscrição. Tente novamente.')
       setMessage(text)
       setStatus(response.ok ? 'success' : 'error')
-      if (response.ok) event.currentTarget.reset()
+      if (response.ok) formEl.reset()
     } catch {
       setStatus('error')
       setMessage('Não foi possível concluir a inscrição. Tente novamente.')
