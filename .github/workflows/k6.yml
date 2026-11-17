@@ -1,0 +1,95 @@
+name: k6
+
+# Roda depois que a Vercel marca um deploy como sucesso:
+# - smoke (só GET) em preview e produção;
+# - contrato + carga leve da Newsletter apenas em preview (nunca produção).
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'URL alvo (ex.: https://<deployment>.vercel.app)'
+        required: true
+        type: string
+      newsletter:
+        description: 'Rodar também o teste da Newsletter (nunca contra produção)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: k6-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guards:
+    name: Guardas (sem rede)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Autoteste dos guardas
+        run: k6 run tests/k6/selftest.js
+
+  smoke:
+    name: Smoke (leitura)
+    needs: guards
+    if: github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: k6 smoke
+        env:
+          K6_BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+          K6_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          K6_VUS: '2'
+          K6_DURATION: '15s'
+        run: |
+          set -euo pipefail
+          if [ -z "${K6_BASE_URL}" ]; then
+            echo "Sem URL de deploy; nada para testar."
+            exit 0
+          fi
+          k6 run tests/k6/smoke.js
+
+  newsletter:
+    name: Newsletter (contrato + carga leve)
+    needs: smoke
+    if: |
+      (github.event_name == 'workflow_dispatch' && inputs.newsletter)
+      || (github.event_name == 'deployment_status'
+          && github.event.deployment_status.state == 'success'
+          && contains(github.event.deployment_status.environment, 'preview'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: k6 newsletter
+        env:
+          K6_BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+          K6_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          K6_RATE: '4'
+          K6_DURATION: '15s'
+        run: |
+          set -euo pipefail
+          if [ -z "${K6_BASE_URL}" ]; then
+            echo "Sem URL de deploy; nada para testar."
+            exit 0
+          fi
+          k6 run tests/k6/newsletter.js
