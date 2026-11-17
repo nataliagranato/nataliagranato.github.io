@@ -168,3 +168,16 @@ print(f"Header-Value: {response.headers.get('Header-Value')}")
 - Use `type=basic` para checks mais rápidos
 - Implemente cache se necessário
 - Monitore os logs do servidor para erros
+
+## Testes de Carga (Grafana k6)
+
+Os testes automatizados de leitura e de contrato ficam em `tests/k6/`:
+
+- `tests/k6/smoke.js` — GET nas páginas públicas e em `/api/health`, com
+  thresholds de p95/p99 e taxa de falha. Só leitura, pode rodar em produção.
+- `tests/k6/newsletter.js` — contrato e carga leve de `POST /api/newsletter`,
+  apenas em preview (o guarda bloqueia produção).
+- `tests/k6/selftest.js` — autoteste dos guardas, sem rede.
+
+Detalhes de execução, variáveis e thresholds em `tests/k6/README.md`. O
+workflow `.github/workflows/k6.yml` roda os três a cada deploy concluído.

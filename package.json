@@ -13,7 +13,9 @@
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
     "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts",
-    "newsletter:test": "node scripts/newsletter-e2e.mjs"
+    "newsletter:test": "node scripts/newsletter-e2e.mjs",
+    "k6:smoke": "k6 run tests/k6/smoke.js",
+    "k6:newsletter": "k6 run tests/k6/newsletter.js"
   },
   "dependencies": {
     "@next/bundle-analyzer": "^15.5.2",
