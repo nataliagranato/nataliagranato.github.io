@@ -78,7 +78,7 @@ export default function NewsletterForm() {
           <button
             type="submit"
             disabled={status === 'loading'}
-            className="rounded-md bg-primary-500 px-4 py-2 font-medium text-white hover:bg-primary-600 disabled:opacity-60"
+            className="rounded-md bg-primary-700 px-4 py-2 font-medium text-white hover:bg-primary-800 disabled:opacity-60"
           >
             {status === 'loading' ? 'Enviando…' : 'Quero assinar'}
           </button>
@@ -88,7 +88,7 @@ export default function NewsletterForm() {
         <p
           role="status"
           aria-live="polite"
-          className={`mt-3 text-sm ${status === 'error' ? 'text-red-500' : 'text-primary-500'}`}
+          className={`mt-3 text-sm ${status === 'error' ? 'text-red-500' : 'text-primary-700 dark:text-primary-400'}`}
         >
           {message}
         </p>
