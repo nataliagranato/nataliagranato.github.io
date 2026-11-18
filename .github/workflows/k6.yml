@@ -62,6 +62,12 @@ jobs:
             echo "Sem URL de deploy; nada para testar."
             exit 0
           fi
+          # Aquece /api/health para evitar falha por cold start na primeira requisição do preview
+          if [ -n "${K6_BYPASS_SECRET:-}" ]; then
+            curl -sf -H "x-vercel-protection-bypass: ${K6_BYPASS_SECRET}" "${K6_BASE_URL}/api/health" > /dev/null || true
+          else
+            curl -sf "${K6_BASE_URL}/api/health" > /dev/null || true
+          fi
           k6 run tests/k6/smoke.js
 
   newsletter:
